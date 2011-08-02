@@ -154,11 +154,12 @@ void NewAlarm::on_pushButton_pressed()
     int val2 = temp.left(2).toInt();
 
     bool ampm = false;
-    if ( ui->pushButton->valueText().contains("m.") )
+    if ( longdate(ui->pushButton->valueText()) )
         ampm = true;
 
     bool am = true;
-    if ( ui->pushButton->valueText().contains("p.m.") )
+    if ( (ui->pushButton->valueText().contains("p.m")) ||
+         (ui->pushButton->valueText().contains("pm")))
         am = false;
 
     Dialog2* hw = new Dialog2(this, val1, val2, ampm, am);
@@ -169,7 +170,7 @@ void NewAlarm::on_pushButton_pressed()
         QTime tiempo;
         int hora = hw->res1;
         int mins = hw->res2;
-        if ( (ui->pushButton->valueText().contains("m.")) && (!hw->isam) )
+        if ( longdate(ui->pushButton->valueText()) && (!hw->isam) )
         {
             hora = hw->res1+12;
         }
@@ -179,6 +180,18 @@ void NewAlarm::on_pushButton_pressed()
 
     }
     delete hw;
+
+}
+
+bool NewAlarm::longdate(QString data)
+{
+    if ( (data.contains("am")) ||
+         (data.contains("a.m")) ||
+         (data.contains("pm")) ||
+         (data.contains("p.m")) )
+        return true;
+    else
+        return false;
 
 }
 
@@ -343,9 +356,11 @@ void NewAlarm::addAlarm()
     j = temp.indexOf(":");
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
-    if ( ui->pushButton->valueText().contains("p.m.") && val1!=12 )
+    QString tmpx = ui->pushButton->valueText();
+    tmpx.remove(".");
+    if ( tmpx.contains("pm") && val1!=12 )
         val1 = val1+12;
-    if ( ui->pushButton->valueText().contains("a.m.") && val1==12 )
+    if ( tmpx.contains("am") && val1==12 )
         val1 = 0;
 
     qDebug() << val1 << val2;

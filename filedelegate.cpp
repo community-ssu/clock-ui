@@ -59,6 +59,16 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
           name2 = "p.m.";
           name.remove("p.m.");
       }
+      if ( name.contains( "am") )
+      {
+          name2 = "am";
+          name.remove("am");
+      }
+      if ( name.contains( "pm") )
+      {
+          name2 = "pm";
+          name.remove("pm");
+      }
 
       f.setPointSize( f.pointSize() + 8 );
       painter->setFont(f);

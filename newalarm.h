@@ -24,6 +24,7 @@ public:
     QString name, time, days;
     int deleted;
     bool showed;
+    bool longdate(QString data);
 
 private:
     Ui::NewAlarm *ui;
