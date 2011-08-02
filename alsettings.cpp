@@ -80,7 +80,7 @@ void AlSettings::on_pushButton_2_pressed()
     hw->exec();
     if ( hw->selected > -1 )
     {
-        int val;
+        int val=0;
 
         if ( hw->selected == 300 )
             val = 5;
@@ -115,7 +115,6 @@ void AlSettings::on_pushButton_pressed()
             ui->pushButton->setValueText(tmp);
 
     }
-
     delete hw;
 }
 

@@ -1,3 +1,4 @@
+#include "qabstracteventdispatcher.h"
 #include "qmaemo5rotator.h"
 #include "world.h"
 #include "ui_world.h"

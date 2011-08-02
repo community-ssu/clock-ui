@@ -11,7 +11,7 @@
 #include <QDateTime>
 #include <libosso.h>
 
-//#include <hildon-extras/he-tz-chooser.h>
+#include <hildon-extras/he-tz-chooser.h>
 
 #include <X11/Xlib.h>
 #include <gtk-2.0/gdk/gdkx.h>
@@ -146,14 +146,19 @@ void MainWindow::on_pushButton_2_pressed()
     /*osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
 
+    g_object_set(G_OBJECT(osso),"maincontext-pointer", osso, this);
+
     osso_return_t * res;
     int r = osso_cp_plugin_execute(osso, "libcpdatetime.so",
-                            this, TRUE);
-    */
+                            this, TRUE);*/
 
-    /*Citytime *home = clock_get_home_location ();
+
+    //QAbstractEventDispatcher *ed = new QAbstractEventDispatcher(this);
+
+    Citytime *home = clock_get_home_location ();
     HildonTimeZoneChooser* tc = hildon_time_zone_chooser_new();
     hildon_time_zone_chooser_set_city (tc, home->city);
+    g_object_set(G_OBJECT(tc),"maincontext-pointer", tc, this);
     if ( hildon_time_zone_chooser_run(tc) == 1 )
     {
         Cityinfo* ci = hildon_time_zone_chooser_get_city(tc);
@@ -163,7 +168,7 @@ void MainWindow::on_pushButton_2_pressed()
     clock_citytime_free (home);
     hildon_time_zone_chooser_free(tc);
 
-    showNormal();
+    /*showNormal();
     raise();
     activateWindow();*/
 
@@ -187,6 +192,8 @@ void MainWindow::on_pushButton_3_released()
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();
     delete al;
+    sw->loadAlarms();
+    QApplication::processEvents();
     sw->loadAlarms();
     loadAlarm();
 }
@@ -226,7 +233,6 @@ void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcplanguageregional.so", this, TRUE);
-
 }
 
 void MainWindow::on_action_cloc_alarm_settings_title_triggered()

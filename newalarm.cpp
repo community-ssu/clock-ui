@@ -343,9 +343,12 @@ void NewAlarm::addAlarm()
     j = temp.indexOf(":");
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
-    if ( ui->pushButton->valueText().contains("p.m.") )
+    if ( ui->pushButton->valueText().contains("p.m.") && val1!=12 )
         val1 = val1+12;
+    if ( ui->pushButton->valueText().contains("a.m.") && val1==12 )
+        val1 = 0;
 
+    qDebug() << val1 << val2;
     QDateTime currDate;
     currDate.setTime(QTime( val1, val2 ));
     event->alarm_time = currDate.toTime_t();
@@ -380,6 +383,7 @@ void NewAlarm::addAlarm()
       }
     //}
 
+    alarm_event_set_sound(event, "/home/user/MyDocs/Music/Alexisonfire/Alexisonfire/Adelleda.mp3");
 
     realcookie = alarmd_event_add(event);
 

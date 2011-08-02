@@ -4,6 +4,7 @@
 #include <QListWidgetItem>
 #include <QAbstractButton>
 #include <QDialog>
+#include <gstreamer-0.10/gst/gst.h>
 
 namespace Ui {
     class TDialog;
@@ -18,14 +19,20 @@ public:
     ~TDialog();
     QString selected;
 
+public slots:
+    void stopSound();
+
 private:
     Ui::TDialog *ui;
+    GstElement *player;
+    GMainLoop* loop;
 
 private slots:
     void on_buttonBox_2_clicked(QAbstractButton* button);
     void on_buttonBox_clicked(QAbstractButton* button);
     void on_listWidget_itemActivated(QListWidgetItem* item);
     void orientationChanged();
+    virtual void reject();
 
 };
 
