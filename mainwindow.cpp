@@ -11,7 +11,7 @@
 #include <QDateTime>
 #include <libosso.h>
 
-#include <hildon-extras/he-tz-chooser.h>
+//#include <hildon-extras/he-tz-chooser.h>
 
 #include <X11/Xlib.h>
 #include <gtk-2.0/gdk/gdkx.h>
@@ -155,7 +155,7 @@ void MainWindow::on_pushButton_2_pressed()
 
     //QAbstractEventDispatcher *ed = new QAbstractEventDispatcher(this);
 
-    Citytime *home = clock_get_home_location ();
+    /*Citytime *home = clock_get_home_location ();
     HildonTimeZoneChooser* tc = hildon_time_zone_chooser_new();
     hildon_time_zone_chooser_set_city (tc, home->city);
     g_object_set(G_OBJECT(tc),"maincontext-pointer", tc, this);
@@ -166,7 +166,7 @@ void MainWindow::on_pushButton_2_pressed()
         cityinfo_free(ci);
     }
     clock_citytime_free (home);
-    hildon_time_zone_chooser_free(tc);
+    hildon_time_zone_chooser_free(tc);*/
 
     /*showNormal();
     raise();

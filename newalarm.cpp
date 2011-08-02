@@ -383,7 +383,7 @@ void NewAlarm::addAlarm()
       }
     //}
 
-    alarm_event_set_sound(event, "/home/user/MyDocs/Music/Alexisonfire/Alexisonfire/Adelleda.mp3");
+    alarm_event_set_sound(event, NULL);
 
     realcookie = alarmd_event_add(event);
 
