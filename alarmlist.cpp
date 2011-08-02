@@ -12,6 +12,7 @@ AlarmList::AlarmList(QWidget *parent) :
     ui(new Ui::AlarmList)
 {
     ui->setupUi(this);
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 
     this->setWindowTitle(_("cloc_ti_alarms"));
 

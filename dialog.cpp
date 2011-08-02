@@ -10,6 +10,7 @@ Dialog::Dialog(QWidget *parent, QString name, QString list) :
 {
     ui->setupUi(this);
     this->setWindowTitle(name);
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 
     result.clear();
 

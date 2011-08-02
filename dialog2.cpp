@@ -9,6 +9,7 @@ Dialog2::Dialog2(QWidget *parent, int hh, int mm, bool ampm, bool am) :
 {
     ui->setupUi(this);
     this->setWindowTitle(_("cloc_fi_time"));
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 
     if ( ampm )
     {

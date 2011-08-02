@@ -11,6 +11,7 @@ TDialog::TDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TDialog)
 {
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
     selected = "nothing";

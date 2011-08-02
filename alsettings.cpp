@@ -12,6 +12,7 @@ AlSettings::AlSettings(QWidget *parent) :
     ui(new Ui::AlSettings)
 {
     ui->setupUi(this);
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 
     this->setWindowTitle(_("cloc_alarm_settings_title"));
 
@@ -135,13 +136,17 @@ void AlSettings::on_buttonBox_clicked(QAbstractButton*)
     else
     {
         text = ui->pushButton->valueText();
-        GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
-        item->set(text);
+        // GConfItem changes the gconf value, but doesn't update!
+        //GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
+        //item->set(text);
+        setConf("/apps/clock/alarm-custom",text,"string");
+
     }
 
-    GConfItem *item2 = new GConfItem("/apps/clock/alarm-tone");
-    item2->set(text);
-
+    // GConfItem changes the gconf value, but doesn't update!
+    //GConfItem *item2 = new GConfItem("/apps/clock/alarm-tone");
+    //item2->set(text);
+    setConf("/apps/clock/alarm-tone",text,"string");
 
     this->accept();
 }
@@ -149,4 +154,14 @@ void AlSettings::on_buttonBox_clicked(QAbstractButton*)
 void AlSettings::on_buttonBox_2_clicked(QAbstractButton* item)
 {
     on_buttonBox_clicked(item);
+}
+
+void AlSettings::setConf(QString key, QString val, QString type)
+{
+
+    QString sended = "gconftool-2 -s "+key+" -t "+type+" \""+val+"\"";
+    QByteArray ba = sended.toUtf8();
+    const char *str1 = ba.data();
+    system(str1);
+
 }

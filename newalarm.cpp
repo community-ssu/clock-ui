@@ -53,6 +53,7 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     QDialog(parent),
     ui(new Ui::NewAlarm)
 {
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
     isEditing = edit;
@@ -95,7 +96,7 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     if ( time != "" )
         ui->pushButton->setValueText(time);
     else
-        ui->pushButton->setValueText( QTime::currentTime().toString().left(5) );
+        ui->pushButton->setValueText( QTime::currentTime().toString(Qt::DefaultLocaleShortDate) );
 
     if ( days != "" )
         ui->pushButton_2->setValueText(days);
@@ -106,6 +107,8 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
         ui->checkBox->hide();
 
     ui->checkBox->setChecked(enabled);
+
+    on_lineEdit_textChanged(name);
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
@@ -390,3 +393,17 @@ void NewAlarm::addAlarm()
 
 }
 
+
+void NewAlarm::on_lineEdit_textChanged(QString text)
+{
+    if ( text == "" )
+    {
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
+    }
+    else
+    {
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
+    }
+}

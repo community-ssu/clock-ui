@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setAttribute(Qt::WA_Maemo5StackedWindow);
     this->setWindowFlags(Qt::Window);
     ui->setupUi(this);
@@ -186,6 +187,8 @@ void MainWindow::on_pushButton_3_released()
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();
     delete al;
+    sw->loadAlarms();
+    loadAlarm();
 }
 
 void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
@@ -209,7 +212,6 @@ void MainWindow::loadAlarm()
     ui->label_5->setText(sw->line2);
     ui->listWidget->item(1)->setData(Qt::UserRole+2, sw->line1);
     ui->listWidget->item(1)->setData(Qt::UserRole+3, sw->line2);
-
 }
 
 void MainWindow::loadWorld()

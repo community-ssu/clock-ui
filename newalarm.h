@@ -33,6 +33,7 @@ public slots:
     void addAlarm();
 
 private slots:
+    void on_lineEdit_textChanged(QString );
     void on_buttonBox_2_clicked(QAbstractButton* button);
     void orientationChanged();
     void on_buttonBox_clicked(QAbstractButton* button);

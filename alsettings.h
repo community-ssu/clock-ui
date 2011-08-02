@@ -20,6 +20,7 @@ private:
     Ui::AlSettings *ui;
 
 private slots:
+    void setConf(QString key = "", QString val = "", QString type = "");
     void on_buttonBox_2_clicked(QAbstractButton* button);
     void on_buttonBox_clicked(QAbstractButton* button);
     void orientationChanged();

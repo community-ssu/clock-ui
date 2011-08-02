@@ -15,6 +15,7 @@ World::World(QWidget *parent) :
     ui(new Ui::World)
 {
     ui->setupUi(this);
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setAttribute(Qt::WA_Maemo5StackedWindow);
     this->setWindowFlags(Qt::Window);
 

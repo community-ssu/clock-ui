@@ -7,6 +7,7 @@ MDialog::MDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::MDialog)
 {
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
     selected = -1;

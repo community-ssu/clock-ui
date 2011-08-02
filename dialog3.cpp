@@ -10,6 +10,7 @@ Dialog3::Dialog3(QWidget *parent) :
     ui(new Ui::Dialog3)
 {
     ui->setupUi(this);
+    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setWindowTitle(_("cloc_ia_choose_time_zone"));
 
     QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
