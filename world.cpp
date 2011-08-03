@@ -22,8 +22,8 @@ World::World(QWidget *parent) :
 
     this->setWindowTitle(_("cloc_ti_world_clocks"));
 
-    QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-    QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
+    QSettings sts( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
+    QString currtheme = sts.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
     ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_add.png"));
     ui->pushButton->setText(_("cloc_me_new_world_clock"));
 
@@ -31,6 +31,17 @@ World::World(QWidget *parent) :
     ui->treeWidget->setItemDelegate(pluginDelegate);
 
     loadCurrent();
+
+    QSettings settings("cepiperez", "worldclock");
+    QStringList listado = settings.value("Cities",QStringList()).toStringList();
+    if ( listado.count() > 0 )
+    {
+        for (int i=0; i<listado.count(); ++i)
+        {
+            QString t = listado.at(i);
+            addCity( t.toInt() );
+        }
+    }
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
@@ -42,16 +53,35 @@ World::~World()
     delete ui;
 }
 
+bool World::longdate(QString data)
+{
+    if ( (data.contains("am")) ||
+         (data.contains("a.m")) ||
+         (data.contains("pm")) ||
+         (data.contains("p.m")) )
+        return true;
+    else
+        return false;
+
+}
+
 void World::orientationChanged()
 {
+    int len = 0;
+    if ( ui->treeWidget->topLevelItemCount() > 0 )
+    {
+        if ( longdate(ui->treeWidget->topLevelItem(0)->text(0)) )
+            len = 26;
+    }
+
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
     {
-        ui->treeWidget->header()->resizeSection(0,130);
-        ui->treeWidget->header()->resizeSection(1,210);
-        ui->treeWidget->header()->resizeSection(2,106);
+        ui->treeWidget->header()->resizeSection(0,116+len);
+        ui->treeWidget->header()->resizeSection(1,210-len);
+        ui->treeWidget->header()->resizeSection(2,100);
     } else {
-        ui->treeWidget->header()->resizeSection(0,130);
-        ui->treeWidget->header()->resizeSection(1,430);
+        ui->treeWidget->header()->resizeSection(0,116+len);
+        ui->treeWidget->header()->resizeSection(1,424-len);
         ui->treeWidget->header()->resizeSection(2,206);
     }
     ui->treeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -62,7 +92,59 @@ void World::on_pushButton_pressed()
 {
     Dialog3* hw = new Dialog3(this);
     hw->exec();
+    if ( hw->selected != "" )
+    {
+        addCity(hw->selected.toInt());
 
+        QSettings settings("cepiperez", "worldclock");
+        QStringList listado = settings.value("Cities",QStringList()).toStringList();
+        listado.append(hw->selected);
+        settings.setValue("Cities", listado);
+        settings.sync();
+    }
+    delete hw;
+}
+
+void World::addCity(int cityId)
+{
+    QTreeWidgetItem *pepe = new QTreeWidgetItem();
+
+    Cityinfo* city = cityinfo_from_id(cityId);
+
+    QString n = QString::fromUtf8(city->name) + "  startdesc" + QString::fromUtf8(city->country);
+    pepe->setText(1, n);
+    pepe->setWhatsThis(1, "world-name");
+
+    QString timeoffset;
+    int offset = time_get_utc_offset(cityinfo_get_zone(city));
+    QString sign;
+    if (offset > 0)
+        sign = "";
+    else
+        sign = "+";
+    if((offset % 3600)==0)
+        timeoffset = QString("GTM %3").arg(sign+QString::number(-offset/3600));
+    else
+        timeoffset = QString("GTM %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
+
+    QDateTime tiempo = QDateTime::currentDateTime();
+
+    tiempo = tiempo.addSecs( -curTime *60 *60 );
+    tiempo = tiempo.addSecs( (-offset/3600) *60 *60 );
+
+    pepe->setText(0, tiempo.time().toString(Qt::DefaultLocaleShortDate) );
+    pepe->setWhatsThis(0, "time");
+
+    pepe->setText(2, tiempo.date().shortDayName(tiempo.date().day()) + " "
+                  + tiempo.date().toString(Qt::DefaultLocaleShortDate)
+                  + "  startdesc" + timeoffset );
+    pepe->setWhatsThis(2, "world-date");
+
+    pepe->setStatusTip(0, QString::number(cityId));
+
+    ui->treeWidget->addTopLevelItem(pepe);
+
+    cityinfo_free(city);
 }
 
 void World::loadCurrent()
@@ -88,11 +170,11 @@ void World::loadCurrent()
 
           QTime tiempo = QTime::currentTime();
           pepe->setText(0, tiempo.toString(Qt::DefaultLocaleShortDate) );
-          pepe->setWhatsThis(0, "world-time");
+          pepe->setWhatsThis(0, "time");
 
-          pepe->setText(1, _("cloc_fi_local_time") + " startdesc" +
+          pepe->setText(1, _("cloc_fi_local_time") + " startdesc (" +
                         cityinfo_clone(*cities_iter)->name + ", " +
-                        cityinfo_clone(*cities_iter)->country  );
+                        cityinfo_clone(*cities_iter)->country + ")" );
           pepe->setWhatsThis(1, "world-name");
 
           int offset = time_get_utc_offset(cityinfo_get_zone(*cities_iter));
@@ -112,6 +194,9 @@ void World::loadCurrent()
                         + "  startdesc" + timeoffset );
 
           pepe->setWhatsThis(2, "world-date");
+          QString tr = timeoffset;
+          tr.remove("GTM ");
+          curTime = tr.toInt();
 
           ui->treeWidget->addTopLevelItem(pepe);
 
@@ -127,7 +212,7 @@ void World::loadCurrent()
 
 void World::on_treeWidget_itemActivated(QTreeWidgetItem* item, int )
 {
-    if ( item->text(1).contains(_("cloc_fi_local_time")) )
+    /*if ( item->text(1).contains(_("cloc_fi_local_time")) )
     {
         osso_context_t *osso;
         osso = osso_initialize("worldclock", "", TRUE, NULL);
@@ -135,8 +220,37 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem* item, int )
         osso_return_t * res;
         if ( osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE) )
         loadCurrent();
+    }*/
+
+
+
+}
+
+void World::on_treeWidget_customContextMenuRequested(QPoint pos)
+{
+    if ( ( ui->treeWidget->topLevelItemCount() == 1 ) ||
+         ( ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) ) )
+        return;
+
+    intl("rtcom-call-ui");
+    QMenu *contextMenu = new QMenu(this);
+    contextMenu->addAction(QIcon(), _("call_me_context_menu_delete"), this, SLOT(removeSel()));
+    intl("osso-clock");
+    contextMenu->exec(mapToGlobal(pos));
+
+}
+
+void World::removeSel()
+{
+    ui->treeWidget->takeTopLevelItem( ui->treeWidget->indexOfTopLevelItem(ui->treeWidget->currentItem()) );
+    QStringList listado;
+    if ( ui->treeWidget->topLevelItemCount() > 1 )
+    {
+        for (int i=0; i<ui->treeWidget->topLevelItemCount()-1; ++i)
+            listado.append( ui->treeWidget->topLevelItem(i+1)->statusTip(0) );
     }
-
-
+    QSettings settings("cepiperez", "worldclock");
+    settings.setValue("Cities", listado);
+    settings.sync();
 
 }

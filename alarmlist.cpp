@@ -41,12 +41,24 @@ AlarmList::~AlarmList()
     delete ui;
 }
 
+bool AlarmList::longdate(QString data)
+{
+    if ( (data.contains("am")) ||
+         (data.contains("a.m")) ||
+         (data.contains("pm")) ||
+         (data.contains("p.m")) )
+        return true;
+    else
+        return false;
+
+}
+
 void AlarmList::orientationChanged()
 {
     int len = 0;
     if ( ui->treeWidget->topLevelItemCount() > 0 )
     {
-        if ( ui->treeWidget->topLevelItem(0)->text(1).contains("m.") )
+        if ( longdate(ui->treeWidget->topLevelItem(0)->text(1)) )
             len = 26;
     }
 

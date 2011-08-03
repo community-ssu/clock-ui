@@ -73,11 +73,11 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       f.setPointSize( f.pointSize() + 8 );
       painter->setFont(f);
       r = option.rect;
-      painter->drawText(r.left(), r.top(), 92, r.height(), Qt::AlignVCenter|Qt::AlignRight, name, &r);
+      painter->drawText(r.left()+6, r.top(), 92, r.height(), Qt::AlignVCenter|Qt::AlignRight, name, &r);
       f.setPointSize( f.pointSize() - 12 );
       painter->setFont(f);
       r = option.rect;
-      painter->drawText(r.left()+90, r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignLeft, name2, &r);
+      painter->drawText(r.left()+96, r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignLeft, name2, &r);
   }
 
   if ( help == "name" )
@@ -163,7 +163,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         f.setPointSize(14);
         painter->setFont(f);
       }
-      painter->drawText(r.left()+len, r.top()+h1, r.width()-len, r.height()-h1, Qt::AlignVCenter|Qt::AlignLeft, "("+tmp+")", &r);
+      painter->drawText(r.left()+len, r.top()+h1, r.width()-len, r.height()-h1, Qt::AlignVCenter|Qt::AlignLeft, tmp, &r);
 
   }
 
@@ -191,15 +191,6 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
           painter->drawText(r.left(), r.top()+30, r.width()-6, r.height()-30, Qt::AlignVCenter|Qt::AlignRight, "("+tmp+")", &r);
   }
 
-  if ( help == "world-time" )
-  {
-      base = QColor(Qt::white);
-      painter->setPen(base);
-      f.setPointSize(24);
-      painter->setFont(f);
-      r = option.rect;
-      painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignRight, name + "  ", &r);
-  }
 
 
   painter->restore();

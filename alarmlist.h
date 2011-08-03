@@ -20,10 +20,8 @@ class AlarmList : public QDialog
 public:
     explicit AlarmList(QWidget *parent = 0);
     ~AlarmList();
-
     QString line1, line2;
-
-
+    bool longdate(QString data);
 
 public slots:
     void loadAlarms();

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QKeyEvent>
+#include <QListWidgetItem>
 
 namespace Ui {
     class Dialog3;
@@ -15,6 +16,7 @@ class Dialog3 : public QDialog
 public:
     explicit Dialog3(QWidget *parent = 0);
     ~Dialog3();
+    QString selected;
 
 private:
     Ui::Dialog3 *ui;
@@ -24,6 +26,7 @@ protected:
 
 
 private slots:
+    void on_listWidget_itemActivated(QListWidgetItem* item);
     void on_search_textChanged(QString );
     void on_pushButton_pressed();
 };

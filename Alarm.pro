@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = osso-clock
+TARGET = Alarm
 TEMPLATE = app
 
 

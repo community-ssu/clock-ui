@@ -18,6 +18,7 @@ Dialog3::Dialog3(QWidget *parent) :
     ui->pushButton->setIcon( QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_close.png") );
     ui->swidget->setVisible(false);
 
+    this->selected = "";
 
     int ret = 0;
     char current_tz[32];
@@ -47,6 +48,7 @@ Dialog3::Dialog3(QWidget *parent) :
 
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
         item1->setText(timeoffset);
+        item1->setStatusTip(QString::number(cities[i]->id));
         //item1->setTextAlignment(Qt::AlignCenter);
 
         //aBox->addItem(timeoffset,-offset);
@@ -56,6 +58,7 @@ Dialog3::Dialog3(QWidget *parent) :
     }
     // free unneded city list
     cityinfo_free_all(cities);
+    ui->listWidget->sortItems();
     // sort the list alphabetically (by the City Name)
     //aBox->model()->sort(0);
     // loking for stored time offest in sorted list
@@ -111,4 +114,10 @@ void Dialog3::on_search_textChanged(QString filter)
             ui->listWidget->item(i)->setHidden(false);
         }
     }
+}
+
+void Dialog3::on_listWidget_itemActivated(QListWidgetItem* item)
+{
+    this->selected = item->statusTip();
+    this->accept();
 }
