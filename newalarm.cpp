@@ -96,7 +96,7 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     if ( time != "" )
         ui->pushButton->setValueText(time);
     else
-        ui->pushButton->setValueText( QTime::currentTime().toString(Qt::DefaultLocaleShortDate) );
+        ui->pushButton->setValueText( QLocale::system().toString( QTime::currentTime(), QLocale::ShortFormat) );
 
     if ( days != "" )
         ui->pushButton_2->setValueText(days);
@@ -154,15 +154,31 @@ void NewAlarm::on_pushButton_pressed()
     int val2 = temp.left(2).toInt();
 
     bool ampm = false;
-    if ( longdate(ui->pushButton->valueText()) )
+    if ( longdate(ui->pushButton->valueText()) != "no"  )
         ampm = true;
 
     bool am = true;
     if ( (ui->pushButton->valueText().contains("p.m")) ||
+         (ui->pushButton->valueText().contains("PM")) ||
          (ui->pushButton->valueText().contains("pm")))
         am = false;
 
-    Dialog2* hw = new Dialog2(this, val1, val2, ampm, am);
+    QString dam, dpm;
+    if ( longdate(ui->pushButton->valueText()) == "AM" )
+    {
+        dam = "AM"; dpm = "PM";
+    }
+    if ( longdate(ui->pushButton->valueText()) == "am")
+    {
+        dam = "am"; dpm = "pm";
+    }
+
+    if ( longdate(ui->pushButton->valueText()) == "a.m.")
+    {
+        dam = "a.m."; dpm = "p.m.";
+    }
+
+    Dialog2* hw = new Dialog2(this, val1, val2, ampm, am, dam, dpm);
     int result = hw->exec();
 
     if (result == QDialog::Accepted)
@@ -170,7 +186,7 @@ void NewAlarm::on_pushButton_pressed()
         QTime tiempo;
         int hora = hw->res1;
         int mins = hw->res2;
-        if ( longdate(ui->pushButton->valueText()) && (!hw->isam) )
+        if ( (longdate(ui->pushButton->valueText())!="no") && (!hw->isam) )
         {
             hora = hw->res1+12;
         }
@@ -183,17 +199,20 @@ void NewAlarm::on_pushButton_pressed()
 
 }
 
-bool NewAlarm::longdate(QString data)
+QString NewAlarm::longdate(QString data)
 {
-    if ( (data.contains("am")) ||
-         (data.contains("a.m")) ||
-         (data.contains("pm")) ||
-         (data.contains("p.m")) )
-        return true;
+
+    if ( (data.contains("am")) || (data.contains("pm")) )
+        return "am";
+    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
+        return "a.m.";
+    else if ( (data.contains("AM")) || (data.contains("PM")) )
+        return "AM";
     else
-        return false;
+        return "no";
 
 }
+
 
 void NewAlarm::on_pushButton_2_pressed()
 {
@@ -421,7 +440,7 @@ void NewAlarm::addAlarm()
 
 void NewAlarm::on_lineEdit_textChanged(QString text)
 {
-    if ( text == "" )
+    /*if ( text == "" )
     {
         ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
@@ -430,5 +449,5 @@ void NewAlarm::on_lineEdit_textChanged(QString text)
     {
         ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
         ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
-    }
+    }*/
 }

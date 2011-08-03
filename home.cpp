@@ -26,6 +26,8 @@ Home::Home(QWidget *parent, QString path) :
 
     QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
     QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
+    if ( currtheme == "default" )
+        currtheme = "hicolor";
     ui->pushButton->setIcon( QIcon("/usr/share/icons/"+currtheme+"/48x48/hildon/filemanager_folder_up.png") );
 
     QFileInfo dr(path);

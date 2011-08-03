@@ -28,6 +28,8 @@ AlarmList::AlarmList(QWidget *parent) :
 
     QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
     QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
+    if ( currtheme == "default" )
+        currtheme = "hicolor";
     ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_add.png"));
     ui->pushButton->setText(_("clock_ti_new_alarm"));
 
@@ -41,15 +43,17 @@ AlarmList::~AlarmList()
     delete ui;
 }
 
-bool AlarmList::longdate(QString data)
+QString AlarmList::longdate(QString data)
 {
-    if ( (data.contains("am")) ||
-         (data.contains("a.m")) ||
-         (data.contains("pm")) ||
-         (data.contains("p.m")) )
-        return true;
+
+    if ( (data.contains("am")) || (data.contains("pm")) )
+        return "am";
+    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
+        return "a.m.";
+    else if ( (data.contains("AM")) || (data.contains("PM")) )
+        return "AM";
     else
-        return false;
+        return "no";
 
 }
 
@@ -58,7 +62,7 @@ void AlarmList::orientationChanged()
     int len = 0;
     if ( ui->treeWidget->topLevelItemCount() > 0 )
     {
-        if ( longdate(ui->treeWidget->topLevelItem(0)->text(1)) )
+        if ( longdate(ui->treeWidget->topLevelItem(0)->text(1)) != "no" )
             len = 26;
     }
 
@@ -159,12 +163,12 @@ void AlarmList::loadAlarms()
                 // next, check the title if message is empty
                 cTitle = alarm_event_get_title(aevent);
                 aTitle = QString::fromUtf8(cTitle);
-                if (aTitle.isEmpty())
+                /*if (aTitle.isEmpty())
                 {
                     // if message and Title both are empty - use AppID as alarm's title
                     cTitle = alarm_event_get_alarm_appid(aevent);
                     aTitle = QString::fromUtf8(cTitle);
-                }
+                }*/
             }
             //sTime += ": " + aTitle;
             //ui->aBox->addItem(sTime);
@@ -182,7 +186,7 @@ void AlarmList::loadAlarms()
 
             QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
-            pepe->setText(1, sTime );
+            pepe->setText(1, QLocale::system().toString( qtm, QLocale::ShortFormat) );
             pepe->setWhatsThis(1, "time");
 
             pepe->setText(2, aTitle );

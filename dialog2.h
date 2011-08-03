@@ -13,7 +13,9 @@ class Dialog2 : public QDialog
     Q_OBJECT
 
 public:
-    explicit Dialog2(QWidget *parent = 0, int hh = 0, int mm = 0, bool ampm = false, bool am = true);
+    explicit Dialog2(QWidget *parent = 0, int hh = 0, int mm = 0,
+                     bool ampm = false, bool am = true,
+                     QString dam = "", QString dpm = "");
     ~Dialog2();
     int res1;
     int res2;

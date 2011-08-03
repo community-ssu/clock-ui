@@ -17,7 +17,10 @@ public:
     ~World();
     QString line1;
     int curTime;
-    bool longdate(QString data);
+    QString longdate(QString data);
+
+public slots:
+    void updateClocks();
 
 private:
     Ui::World *ui;

@@ -24,6 +24,8 @@ World::World(QWidget *parent) :
 
     QSettings sts( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
     QString currtheme = sts.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
+    if ( currtheme == "default" )
+        currtheme = "hicolor";
     ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_add.png"));
     ui->pushButton->setText(_("cloc_me_new_world_clock"));
 
@@ -53,16 +55,16 @@ World::~World()
     delete ui;
 }
 
-bool World::longdate(QString data)
+QString World::longdate(QString data)
 {
-    if ( (data.contains("am")) ||
-         (data.contains("a.m")) ||
-         (data.contains("pm")) ||
-         (data.contains("p.m")) )
-        return true;
+    if ( (data.contains("am")) || (data.contains("pm")) )
+        return "am";
+    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
+        return "a.m.";
+    else if ( (data.contains("AM")) || (data.contains("PM")) )
+        return "AM";
     else
-        return false;
-
+        return "no";
 }
 
 void World::orientationChanged()
@@ -70,7 +72,7 @@ void World::orientationChanged()
     int len = 0;
     if ( ui->treeWidget->topLevelItemCount() > 0 )
     {
-        if ( longdate(ui->treeWidget->topLevelItem(0)->text(0)) )
+        if ( longdate(ui->treeWidget->topLevelItem(0)->text(0)) != "no" )
             len = 26;
     }
 
@@ -132,7 +134,7 @@ void World::addCity(int cityId)
     tiempo = tiempo.addSecs( -curTime *60 *60 );
     tiempo = tiempo.addSecs( (-offset/3600) *60 *60 );
 
-    pepe->setText(0, tiempo.time().toString(Qt::DefaultLocaleShortDate) );
+    pepe->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
     pepe->setWhatsThis(0, "time");
 
     pepe->setText(2, tiempo.date().shortDayName(tiempo.date().day()) + " "
@@ -141,6 +143,7 @@ void World::addCity(int cityId)
     pepe->setWhatsThis(2, "world-date");
 
     pepe->setStatusTip(0, QString::number(cityId));
+    pepe->setStatusTip(1, QString::number(offset));
 
     ui->treeWidget->addTopLevelItem(pepe);
 
@@ -169,7 +172,7 @@ void World::loadCurrent()
           QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
           QTime tiempo = QTime::currentTime();
-          pepe->setText(0, tiempo.toString(Qt::DefaultLocaleShortDate) );
+          pepe->setText(0, QLocale::system().toString( tiempo, QLocale::ShortFormat) );
           pepe->setWhatsThis(0, "time");
 
           pepe->setText(1, _("cloc_fi_local_time") + " startdesc (" +
@@ -252,5 +255,26 @@ void World::removeSel()
     QSettings settings("cepiperez", "worldclock");
     settings.setValue("Cities", listado);
     settings.sync();
+
+}
+
+void World::updateClocks()
+{
+    QDateTime tiempo = QDateTime::currentDateTime();
+    ui->treeWidget->topLevelItem(0)->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
+
+    if ( ui->treeWidget->topLevelItemCount() > 1 )
+    {
+        for (int i=0; i<ui->treeWidget->topLevelItemCount()-1; ++i)
+        {
+            int off = ui->treeWidget->topLevelItem(i+1)->statusTip(1).toInt();
+            tiempo = QDateTime::currentDateTime();
+            tiempo = tiempo.addSecs( -curTime *60 *60 );
+            tiempo = tiempo.addSecs( (-off/3600) *60 *60 );
+            ui->treeWidget->topLevelItem(i+1)->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
+        }
+
+    }
+
 
 }

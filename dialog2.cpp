@@ -3,7 +3,8 @@
 #include "ui_dialog2.h"
 #include "osso-intl.h"
 
-Dialog2::Dialog2(QWidget *parent, int hh, int mm, bool ampm, bool am) :
+Dialog2::Dialog2(QWidget *parent, int hh, int mm, bool ampm,
+                 bool am, QString dam, QString dpm) :
     QDialog(parent),
     ui(new Ui::Dialog2)
 {
@@ -14,7 +15,16 @@ Dialog2::Dialog2(QWidget *parent, int hh, int mm, bool ampm, bool am) :
     if ( ampm )
     {
         ui->listWidget_3->show();
-        QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
+        QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget_3);
+        item1->setText(dam);
+        item1->setTextAlignment(Qt::AlignCenter);
+        ui->listWidget_3->addItem(item1);
+        item1 = new QListWidgetItem(ui->listWidget_3);
+        item1->setText(dpm);
+        item1->setTextAlignment(Qt::AlignCenter);
+        ui->listWidget_3->addItem(item1);
+
+        item1 = new QListWidgetItem(ui->listWidget);
         item1->setText(QString::number(12));
         item1->setTextAlignment(Qt::AlignCenter);
         ui->listWidget->addItem(item1);

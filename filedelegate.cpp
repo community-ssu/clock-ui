@@ -33,6 +33,8 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
   QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
   QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
+  if ( currtheme == "default" )
+      currtheme = "hicolor";
 
   if ( index.data(Qt::DisplayRole) == "active" )
       painter->drawPixmap(r.left(), r.top()+12, QPixmap("/usr/share/icons/"+currtheme+"/48x48/hildon/clock_alarm_on.png"));
@@ -110,23 +112,26 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
           name.remove(0,i+2);
 
           name = l1 + "\n" + name;
-          name.replace("1", QDate::shortDayName(1) );
-          name.replace("2", QDate::shortDayName(2) );
-          name.replace("3", QDate::shortDayName(3) );
-          name.replace("4", QDate::shortDayName(4) );
-          name.replace("5", QDate::shortDayName(5) );
-          name.replace("6", QDate::shortDayName(6) );
-          name.replace("7", QDate::shortDayName(7) );
+
+          QLocale loc;
+          name.replace("1", loc.dayName(1, QLocale::ShortFormat) );
+          name.replace("2", loc.dayName(2, QLocale::ShortFormat) );
+          name.replace("3", loc.dayName(3, QLocale::ShortFormat) );
+          name.replace("4", loc.dayName(4, QLocale::ShortFormat) );
+          name.replace("5", loc.dayName(5, QLocale::ShortFormat) );
+          name.replace("6", loc.dayName(6, QLocale::ShortFormat) );
+          name.replace("7", loc.dayName(7, QLocale::ShortFormat) );
       }
       else
       {
-          name.replace("1", QDate::longDayName(1) );
-          name.replace("2", QDate::longDayName(2) );
-          name.replace("3", QDate::longDayName(3) );
-          name.replace("4", QDate::longDayName(4) );
-          name.replace("5", QDate::longDayName(5) );
-          name.replace("6", QDate::longDayName(6) );
-          name.replace("7", QDate::longDayName(7) );
+          QLocale loc;
+          name.replace("1", loc.dayName(1) );
+          name.replace("2", loc.dayName(2) );
+          name.replace("3", loc.dayName(3) );
+          name.replace("4", loc.dayName(4) );
+          name.replace("5", loc.dayName(5) );
+          name.replace("6", loc.dayName(6) );
+          name.replace("7", loc.dayName(7) );
           name.replace("0", _("cloc_va_never") );
           name.replace("8", _("cloc_va_everyday") );
       }

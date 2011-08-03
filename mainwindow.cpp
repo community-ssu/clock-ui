@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     this->setWindowTitle(_("cloc_ap_name"));
+    if ( currtheme == "default" )
+        currtheme = "hicolor";
     ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_alarm.png"));
     ui->pushButton_2->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_worldclock.png"));
     ui->pushButton_3->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_add_alarm.png"));
@@ -79,15 +81,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
 
-    updateTime();
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
-    timer->start(10000);
-
     sw = new AlarmList(this);
     loadAlarm();
     ww = new World(this);
     loadWorld();
+
+    updateTime();
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
+    timer->start(10000);
 
 }
 
@@ -116,14 +118,16 @@ void MainWindow::orientationChanged()
 
 void MainWindow::updateTime()
 {
-    QTime tiempo = QTime::currentTime();
-    ui->hour->setText( tiempo.toString(Qt::DefaultLocaleShortDate) );
+
+    //QTime tiempo = QTime::currentTime();
+    ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
     ui->hour_2->setText( ui->hour->text() );
 
     QDate fecha = QDate::currentDate();
-    ui->date->setText( fecha.toString(Qt::SystemLocaleLongDate) );
+    ui->date->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
     ui->date_2->setText( ui->date->text() );
 
+    ww->updateClocks();
 }
 
 void MainWindow::on_pushButton_pressed()
