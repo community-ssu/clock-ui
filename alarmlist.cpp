@@ -193,7 +193,7 @@ void AlarmList::loadAlarms()
             //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
 
             unsigned f = aevent->flags;
-            if ( f==136240 ||  f==131072 )
+            if ( f==136240 || f==131072 || f==132648 )
             {
                 pepe->setText(0,"active");
                 ++activeAlarms;

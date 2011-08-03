@@ -317,6 +317,10 @@ void NewAlarm::addAlarm()
     if ( !enabled )
         event->flags |= ALARM_EVENT_DISABLED;
 
+    event->flags |= ALARM_EVENT_BOOT;
+    event->flags |= ALARM_EVENT_SHOW_ICON;
+    event->flags |= ALARM_EVENT_POSTPONE_DELAYED;
+
     QList<int> ldays;
     QString tmp = days;
 
@@ -328,10 +332,12 @@ void NewAlarm::addAlarm()
     }
     else if ( tmp == "8" )
     {
+        event->flags |= ALARM_EVENT_BACK_RESCHEDULE;
         ldays << 8;
     }
     else
     {
+        event->flags |= ALARM_EVENT_BACK_RESCHEDULE;
         if ( tmp.contains("1") )
             ldays << 1;
         if ( tmp.contains("2") )
