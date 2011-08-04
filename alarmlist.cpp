@@ -96,7 +96,7 @@ void AlarmList::loadAlarms()
 
     now = time(NULL);
     // get list of alarms
-    list = alarmd_event_query(now, now + timeFrame*3600, 0, 0, "worldclock_alarmd_id");
+    list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
 
     if (list[0] != (cookie_t) 0) {
         // iterate through alarm list
@@ -197,13 +197,19 @@ void AlarmList::loadAlarms()
             //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
 
             unsigned f = aevent->flags;
-            if ( f==136240 || f==131072 || f==132648 )
+            if ( f==136240 || f==131072 || f==132648 || f==131624 )
             {
                 pepe->setText(0,"active");
+                pepe->setStatusTip(1, "active");
+                pepe->setStatusTip(2, "active");
                 ++activeAlarms;
             }
             else
+            {
                 pepe->setText(0,"inactive");
+                pepe->setStatusTip(1, "inactive");
+                pepe->setStatusTip(2, "inactive");
+            }
 
             if ( aevent->recurrence_tab )
             {
@@ -334,9 +340,17 @@ void AlarmList::on_pushButton_pressed()
         pepe->setWhatsThis(2, "name");
 
         if ( al->enabled )
+        {
             pepe->setText(0,"active");
+            pepe->setStatusTip(1, "active");
+            pepe->setStatusTip(2, "active");
+        }
         else
+        {
             pepe->setText(0,"inactive");
+            pepe->setStatusTip(1, "inactive");
+            pepe->setStatusTip(2, "inactive");
+        }
 
         pepe->setText(3, al->days );
         pepe->setWhatsThis(3, "days");
@@ -366,9 +380,17 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
         else
         {
             if ( al->enabled )
-                item->setText(0, "active");
+            {
+                item->setText(0,"active");
+                item->setStatusTip(1, "active");
+                item->setStatusTip(2, "active");
+            }
             else
-                item->setText(0, "inactive");
+            {
+                item->setText(0,"inactive");
+                item->setStatusTip(1, "inactive");
+                item->setStatusTip(2, "inactive");
+            }
             item->setText(1, al->time );
             item->setText(2, al->name );
             item->setText(3, al->days );
@@ -389,9 +411,17 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
         item->setStatusTip(0, QString::number(al->realcookie));
 
         if ( al->enabled )
-            item->setText(0, "active");
+        {
+            item->setText(0,"active");
+            item->setStatusTip(1, "active");
+            item->setStatusTip(2, "active");
+        }
         else
-            item->setText(0, "inactive");
+        {
+            item->setText(0,"inactive");
+            item->setStatusTip(1, "inactive");
+            item->setStatusTip(2, "inactive");
+        }
         delete al;
     }
 

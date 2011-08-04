@@ -31,18 +31,22 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   }
 
 
-  QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-  QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
+  QSettings settings1( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
+  QString currtheme = settings1.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
   if ( currtheme == "default" )
       currtheme = "hicolor";
+
+  QSettings settings2( "/etc/hildon/theme/colors.config", QSettings::IniFormat );
+  QString color = settings2.value("Colors/DefaultTextColor", "").toString();
+  QString color2 = settings2.value("Colors/SecondaryTextColor", "").toString();
+
 
   if ( index.data(Qt::DisplayRole) == "active" )
       painter->drawPixmap(r.left(), r.top()+12, QPixmap("/usr/share/icons/"+currtheme+"/48x48/hildon/clock_alarm_on.png"));
   else if ( index.data(Qt::DisplayRole) == "inactive" )
       painter->drawPixmap(r.left(), r.top()+12, QPixmap("/usr/share/icons/"+currtheme+"/48x48/hildon/clock_alarm_off.png"));
 
-  QColor base = QColor(Qt::white);
-  painter->setPen(base);
+  painter->setPen(QPen(QColor(color)));
 
   QFont f = painter->font();
   QString name = index.data(Qt::DisplayRole).toString();
@@ -72,6 +76,8 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
           name.remove("pm");
       }
 
+      if ( index.data(Qt::StatusTipRole).toString() == "inactive" )
+          painter->setPen(QPen(QColor(color2)));
       f.setPointSize( f.pointSize() + 8 );
       painter->setFont(f);
       r = option.rect;
@@ -86,13 +92,14 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   {
       painter->setFont(f);
       r = option.rect;
+      if ( index.data(Qt::StatusTipRole).toString() == "inactive" )
+          painter->setPen(QPen(QColor(color2)));
       painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignLeft, name, &r);
   }
 
   if ( help == "days" )
   {
-      base = QColor(Qt::gray);
-      painter->setPen(base);
+      painter->setPen(QPen(QColor(color2)));
       f.setPointSize( f.pointSize()-4 );
       painter->setFont(f);
       r = option.rect;
@@ -136,7 +143,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
           name.replace("8", _("cloc_va_everyday") );
       }
 
-
+      painter->setPen(QPen(QColor(color2)));
       painter->drawText(r.left(), r.top(), r.width()-12, r.height(), Qt::AlignVCenter|Qt::AlignRight|Qt::TextWordWrap, name, &r);
 
   }
@@ -155,8 +162,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignLeft, name, &r);
       QFontMetrics fm(f);
       int len = fm.width(name);
-      base = QColor(Qt::gray);
-      painter->setPen(base);
+      painter->setPen(QPen(QColor(color)));
       painter->setFont(f);
       //tmp = fm.elidedText(tmp, Qt::ElideRight, r.width()-len);
       r = option.rect;
@@ -168,14 +174,14 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         f.setPointSize(14);
         painter->setFont(f);
       }
+      painter->setPen(QPen(QColor(color2)));
       painter->drawText(r.left()+len, r.top()+h1, r.width()-len, r.height()-h1, Qt::AlignVCenter|Qt::AlignLeft, tmp, &r);
 
   }
 
   if ( help == "world-date" )
   {
-      base = QColor(Qt::gray);
-      painter->setPen(base);
+      painter->setPen(QPen(QColor(color)));
       f.setPointSize(14);
       painter->setFont(f);
       QString tmp = name;
@@ -184,6 +190,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       name.remove(tmp);
       name.remove("  startdesc");
       painter->setFont(f);
+      painter->setPen(QPen(QColor(color2)));
       r = option.rect;
       if ( r.width() < 200 )
           name = name + "\n";
