@@ -75,8 +75,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QSettings cs( "/etc/hildon/theme/colors.config", QSettings::IniFormat );
     QString bcolor = cs.value("Colors/DefaultBackgroundColor", "").toString();
+    QString color = cs.value("Colors/DefaultTextColor", "").toString();
+    QString color2 = cs.value("Colors/SecondaryTextColor", "").toString();
     ui->widget_3->setStyleSheet("background-color: "+bcolor+";");
-
+    ui->label->setStyleSheet("color: "+color+";");
+    ui->label_2->setStyleSheet("color: "+color+";");
+    ui->label_3->setStyleSheet("color: "+color+";");
+    ui->label_4->setStyleSheet("color: "+color2+";");
+    ui->label_5->setStyleSheet("color: "+color2+";");
+    ui->label_6->setStyleSheet("color: "+color2+";");
+    ui->hour->setStyleSheet("color: "+color+";");
+    ui->date->setStyleSheet("color: "+color2+";");
+    ui->hour_2->setStyleSheet("color: "+color+";");
+    ui->date_2->setStyleSheet("color: "+color2+";");
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();

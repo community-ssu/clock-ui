@@ -17,6 +17,7 @@
 **************************************************************************/
 
 #include "maintdelegate.h"
+#include <QSettings>
 
 void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -27,18 +28,13 @@ void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     QString icon = index.data(Qt::UserRole+1).toString();
 
     painter->save();
+
+    QSettings settings2( "/etc/hildon/theme/colors.config", QSettings::IniFormat );
+    QString color = settings2.value("Colors/DefaultTextColor", "").toString();
+    QString color2 = settings2.value("Colors/SecondaryTextColor", "").toString();
+
     QRect r = option.rect;
-/*    if(option.state & QStyle::State_Selected)
-    {
-        r = option.rect;
-#ifdef Q_WS_MAEMO_5
-        painter->drawImage(r, QImage("/etc/hildon/theme/images/TouchListBackgroundPressed.png"));
-#else
-        painter->fillRect(r, option.palette.highlight().color());
-#endif
-    }*/
     QFont f = painter->font();
-    QPen defaultPen = painter->pen();
     QColor gray;
     gray = QColor(156, 154, 156);
 
@@ -48,7 +44,7 @@ void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     r = option.rect;
     f.setPointSize(18);
     painter->setFont(f);
-    painter->setPen(defaultPen);
+    painter->setPen(QPen(QColor(color)));
 
     int space = 4;
     if ( subtitle != "" )
@@ -61,7 +57,7 @@ void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     r = option.rect;
     f.setPointSize(13);
     painter->setFont(f);
-    painter->setPen(QPen(gray));
+    painter->setPen(QPen(QColor(color2)));
 
 
     space = 92;

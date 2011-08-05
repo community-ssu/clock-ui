@@ -103,7 +103,7 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     else
         ui->pushButton_2->setValueText(_("cloc_va_never"));
 
-    if ( name == "" )
+    if ( !isEditing )
         ui->checkBox->hide();
 
     ui->checkBox->setChecked(enabled);
@@ -388,7 +388,6 @@ void NewAlarm::addAlarm()
     if ( tmpx.contains("am") && val1==12 )
         val1 = 0;
 
-    qDebug() << val1 << val2;
     QDateTime currDate;
     currDate.setTime(QTime( val1, val2 ));
     event->alarm_time = currDate.toTime_t();

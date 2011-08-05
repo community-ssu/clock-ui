@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>722</width>
-    <height>423</height>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: transparent;</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>TextLabel</string>
@@ -113,8 +113,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: transparent;
-color: rgb(136, 136, 136);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>TextLabel</string>
@@ -147,6 +146,9 @@ color: rgb(136, 136, 136);</string>
            <pointsize>14</pointsize>
           </font>
          </property>
+         <property name="styleSheet">
+          <string/>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -162,6 +164,9 @@ color: rgb(136, 136, 136);</string>
            <pointsize>14</pointsize>
           </font>
          </property>
+         <property name="styleSheet">
+          <string/>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -176,6 +181,9 @@ color: rgb(136, 136, 136);</string>
           <font>
            <pointsize>14</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string/>
          </property>
          <property name="text">
           <string/>
@@ -199,8 +207,7 @@ color: rgb(136, 136, 136);</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: transparent;
-color: rgb(136, 136, 136);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string/>
@@ -224,8 +231,7 @@ color: rgb(136, 136, 136);</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: transparent;
-color: rgb(136, 136, 136);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string/>
@@ -243,8 +249,7 @@ color: rgb(136, 136, 136);</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: transparent;
-color: rgb(136, 136, 136);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string/>
@@ -325,7 +330,7 @@ color: rgb(136, 136, 136);</string>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
+         <layout class="QGridLayout" name="gridLayout_4">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -338,7 +343,7 @@ color: rgb(136, 136, 136);</string>
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item>
+          <item row="0" column="1">
            <widget class="QLabel" name="hour_2">
             <property name="font">
              <font>
@@ -346,9 +351,7 @@ color: rgb(136, 136, 136);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: transparent;
-color: rgb(255, 255, 255);
-margin-left: 28px;</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>TextLabel</string>
@@ -358,7 +361,7 @@ margin-left: 28px;</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="1" column="1">
            <spacer name="verticalSpacer_3">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -374,7 +377,7 @@ margin-left: 28px;</string>
             </property>
            </spacer>
           </item>
-          <item>
+          <item row="2" column="1">
            <widget class="QLabel" name="date_2">
             <property name="font">
              <font>
@@ -382,9 +385,7 @@ margin-left: 28px;</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: transparent;
-color: rgb(136, 136, 136);
-margin-left: 32px;</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>TextLabel</string>
@@ -394,7 +395,7 @@ margin-left: 32px;</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="3" column="1">
            <spacer name="verticalSpacer_4">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -410,10 +411,32 @@ margin-left: 32px;</string>
             </property>
            </spacer>
           </item>
-          <item>
+          <item row="4" column="0" colspan="2">
            <widget class="Line" name="line">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" rowspan="4">
+           <widget class="QWidget" name="widget_4" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>32</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>16777215</height>
+             </size>
             </property>
            </widget>
           </item>

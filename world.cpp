@@ -125,9 +125,9 @@ void World::addCity(int cityId)
     else
         sign = "+";
     if((offset % 3600)==0)
-        timeoffset = QString("GTM %3").arg(sign+QString::number(-offset/3600));
+        timeoffset = QString("GMT %3").arg(sign+QString::number(-offset/3600));
     else
-        timeoffset = QString("GTM %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
+        timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
 
     QDateTime tiempo = QDateTime::currentDateTime();
 
@@ -187,9 +187,9 @@ void World::loadCurrent()
           else
               sign = "+";
           if((offset % 3600)==0)
-              timeoffset = QString("GTM %3").arg(sign+QString::number(-offset/3600));
+              timeoffset = QString("GMT %3").arg(sign+QString::number(-offset/3600));
           else
-              timeoffset = QString("GTM %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
+              timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
 
           QDate fecha = QDate::currentDate();
           pepe->setText(2, fecha.shortDayName(fecha.day()) + " "
@@ -198,7 +198,7 @@ void World::loadCurrent()
 
           pepe->setWhatsThis(2, "world-date");
           QString tr = timeoffset;
-          tr.remove("GTM ");
+          tr.remove("GMT ");
           curTime = tr.toInt();
 
           ui->treeWidget->addTopLevelItem(pepe);

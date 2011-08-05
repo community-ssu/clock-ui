@@ -43,9 +43,9 @@ Dialog3::Dialog3(QWidget *parent) :
         // some offset not rounded to hours, so check this and form QString in form
         //  City Name + Country + Time Offset
         if((offset % 3600)==0)
-            timeoffset = QString("GTM %3 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600));
+            timeoffset = QString("GMT %3 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600));
         else
-            timeoffset = QString("GTM %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg("30");
+            timeoffset = QString("GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg("30");
         // add new record to list (formed QString - to text field, and real offset in seconds - to User field)
 
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);

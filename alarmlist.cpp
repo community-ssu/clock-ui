@@ -192,12 +192,13 @@ void AlarmList::loadAlarms()
             pepe->setText(2, aTitle );
             pepe->setWhatsThis(2, "name");
 
+            //qDebug() << aTitle << ttime << aevent->flags;
             pepe->setText(4, QString::number(ttime));
 
             //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
 
             unsigned f = aevent->flags;
-            if ( f==136240 || f==131072 || f==132648 || f==131624 )
+            if ( f==136240 || f==131072 || f==132648 || f==131624 || f==552 || f==1576 )
             {
                 pepe->setText(0,"active");
                 pepe->setStatusTip(1, "active");
@@ -330,7 +331,7 @@ void AlarmList::on_pushButton_pressed()
 {
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();
-    if ( al->deleted == 0 )
+    /*if ( al->deleted == 0 )
     {
         QTreeWidgetItem *pepe = new QTreeWidgetItem();
         pepe->setText(1, al->time );
@@ -357,8 +358,14 @@ void AlarmList::on_pushButton_pressed()
         pepe->setStatusTip(0, QString::number(al->realcookie) );
 
         ui->treeWidget->addTopLevelItem(pepe);
-    }
+    }*/
+    loadAlarms();
     delete al;
+    ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
+    ui->treeWidget->sortByColumn(4, Qt::AscendingOrder);
+    ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);
+    ui->treeWidget->clearSelection();
+
 }
 
 
@@ -375,9 +382,9 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
                                         checked, item->statusTip(0).toLong() );
         al->exec();
 
-        if ( al->deleted == 1 )
+        //if ( al->deleted == 1 )
             loadAlarms();
-        else
+        /*else
         {
             if ( al->enabled )
             {
@@ -394,7 +401,7 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
             item->setText(1, al->time );
             item->setText(2, al->name );
             item->setText(3, al->days );
-        }
+        }*/
 
         delete al;
 
@@ -408,7 +415,7 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
         al->removeAlarm(item->statusTip(0).toLong());
         al->addAlarm();
 
-        item->setStatusTip(0, QString::number(al->realcookie));
+        /*item->setStatusTip(0, QString::number(al->realcookie));
 
         if ( al->enabled )
         {
@@ -421,8 +428,9 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
             item->setText(0,"inactive");
             item->setStatusTip(1, "inactive");
             item->setStatusTip(2, "inactive");
-        }
+        }*/
         delete al;
+        loadAlarms();
     }
 
     ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
