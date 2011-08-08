@@ -302,6 +302,12 @@
        </property>
        <item row="1" column="0">
         <widget class="QListWidget" name="listWidget">
+         <property name="iconSize">
+          <size>
+           <width>164</width>
+           <height>164</height>
+          </size>
+         </property>
          <item>
           <property name="text">
            <string/>

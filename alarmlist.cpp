@@ -26,11 +26,7 @@ AlarmList::AlarmList(QWidget *parent) :
     FileDelegate *pluginDelegate = new FileDelegate(ui->treeWidget);
     ui->treeWidget->setItemDelegate(pluginDelegate);
 
-    QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-    QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
-    if ( currtheme == "default" )
-        currtheme = "hicolor";
-    ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_add.png"));
+    ui->pushButton->setIcon(QIcon::fromTheme("general_add"));
     ui->pushButton->setText(_("clock_ti_new_alarm"));
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
@@ -130,59 +126,17 @@ void AlarmList::loadAlarms()
             QString sTime;
             // using locale settings to convert time into string
             sTime = qtm.toString(Qt::DefaultLocaleShortDate);
-            /*if (days > 0) // calc for more than 1 day alarms
-            {
-                sTime += " (";
-                sTime += QString::number(days) + tr("d");
-                sTime += " ";
-                // calc remaining time
-                // get current time
-                QTime currTime = QTime::currentTime();
-                // calculate seconds remaining to alarm trigger
-                int remain = currTime.secsTo(qtm);
-                // we need some fix if get negative result
-                if (remain < 0) remain += 86400;
-                // calc remaining hours
-                int h = remain/3600;
-                // calc minutes
-                int m = (remain - h*3600)/60;
-                // form hour + minutes into QTime to leter get formatted string
-                QTime remTime(h,m);
-                sTime += remTime.toString("hh:mm");
-                sTime += ")";
-                qDebug() << sTime;
-            }*/
-            // get the title of alarm
+
             QString aTitle;
-            // each alarm can have Message, Title and AppId
-            // for the first check the Message
             const char * cTitle = alarm_event_get_message(aevent);
             aTitle = QString::fromUtf8(cTitle);
             if (aTitle.isEmpty())
             {
-                // next, check the title if message is empty
                 cTitle = alarm_event_get_title(aevent);
                 aTitle = QString::fromUtf8(cTitle);
-                /*if (aTitle.isEmpty())
-                {
-                    // if message and Title both are empty - use AppID as alarm's title
-                    cTitle = alarm_event_get_alarm_appid(aevent);
-                    aTitle = QString::fromUtf8(cTitle);
-                }*/
             }
-            //sTime += ": " + aTitle;
-            //ui->aBox->addItem(sTime);
-
 
             long cook1 = aevent->cookie;
-
-            /*QString hex;
-            hex.setNum(cook1,16);
-            while (hex.length()<8)
-                hex = "0" + hex;
-            hex = "#" + hex;*/
-            //qDebug() << hex;
-
 
             QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
@@ -192,7 +146,6 @@ void AlarmList::loadAlarms()
             pepe->setText(2, aTitle );
             pepe->setWhatsThis(2, "name");
 
-            //qDebug() << aTitle << ttime << aevent->flags;
             pepe->setText(4, QString::number(ttime));
 
             //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
@@ -331,36 +284,8 @@ void AlarmList::on_pushButton_pressed()
 {
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();
-    /*if ( al->deleted == 0 )
-    {
-        QTreeWidgetItem *pepe = new QTreeWidgetItem();
-        pepe->setText(1, al->time );
-        pepe->setWhatsThis(1, "time");
-
-        pepe->setText(2, al->name );
-        pepe->setWhatsThis(2, "name");
-
-        if ( al->enabled )
-        {
-            pepe->setText(0,"active");
-            pepe->setStatusTip(1, "active");
-            pepe->setStatusTip(2, "active");
-        }
-        else
-        {
-            pepe->setText(0,"inactive");
-            pepe->setStatusTip(1, "inactive");
-            pepe->setStatusTip(2, "inactive");
-        }
-
-        pepe->setText(3, al->days );
-        pepe->setWhatsThis(3, "days");
-        pepe->setStatusTip(0, QString::number(al->realcookie) );
-
-        ui->treeWidget->addTopLevelItem(pepe);
-    }*/
-    loadAlarms();
     delete al;
+    loadAlarms();
     ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
     ui->treeWidget->sortByColumn(4, Qt::AscendingOrder);
     ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);
@@ -381,29 +306,8 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
                                         item->text(1), item->text(3),
                                         checked, item->statusTip(0).toLong() );
         al->exec();
-
-        //if ( al->deleted == 1 )
-            loadAlarms();
-        /*else
-        {
-            if ( al->enabled )
-            {
-                item->setText(0,"active");
-                item->setStatusTip(1, "active");
-                item->setStatusTip(2, "active");
-            }
-            else
-            {
-                item->setText(0,"inactive");
-                item->setStatusTip(1, "inactive");
-                item->setStatusTip(2, "inactive");
-            }
-            item->setText(1, al->time );
-            item->setText(2, al->name );
-            item->setText(3, al->days );
-        }*/
-
         delete al;
+        loadAlarms();
 
     }
     else
@@ -414,21 +318,6 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
 
         al->removeAlarm(item->statusTip(0).toLong());
         al->addAlarm();
-
-        /*item->setStatusTip(0, QString::number(al->realcookie));
-
-        if ( al->enabled )
-        {
-            item->setText(0,"active");
-            item->setStatusTip(1, "active");
-            item->setStatusTip(2, "active");
-        }
-        else
-        {
-            item->setText(0,"inactive");
-            item->setStatusTip(1, "inactive");
-            item->setStatusTip(2, "inactive");
-        }*/
         delete al;
         loadAlarms();
     }

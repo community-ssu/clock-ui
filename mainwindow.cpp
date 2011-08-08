@@ -10,6 +10,7 @@
 #include "alsettings.h"
 #include <QDateTime>
 #include <libosso.h>
+#include <QMaemo5Style>
 
 //#include <hildon-extras/he-tz-chooser.h>
 
@@ -17,9 +18,6 @@
 #include <gtk-2.0/gdk/gdkx.h>
 #include <gtk-2.0/gtk/gtk.h>
 #include <gtk-2.0/gtk/gtkwidget.h>
-
-QSettings iconset( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-QString currtheme = iconset.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,15 +29,29 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     this->setWindowTitle(_("cloc_ap_name"));
-    if ( currtheme == "default" )
-        currtheme = "hicolor";
-    ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_alarm.png"));
-    ui->pushButton_2->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_worldclock.png"));
-    ui->pushButton_3->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_add_alarm.png"));
 
-    ui->listWidget->item(0)->setData(Qt::UserRole+1, "/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_add_alarm.png");
-    ui->listWidget->item(1)->setData(Qt::UserRole+1, "/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_alarm.png");
-    ui->listWidget->item(2)->setData(Qt::UserRole+1, "/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_worldclock.png");
+    QPalette pal(palette());
+    pal.setColor(QPalette::Background, QMaemo5Style::standardColor("DefaultBackgroundColor"));
+    ui->widget_3->setAutoFillBackground(true);
+    ui->widget_3->setPalette(pal);
+
+    pal.setBrush(QPalette::Active, QPalette::WindowText, QMaemo5Style::standardColor("DefaultTextColor"));
+    ui->label->setPalette(pal);
+    ui->label_2->setPalette(pal);
+    ui->label_3->setPalette(pal);
+    pal.setBrush(QPalette::Active, QPalette::WindowText, QMaemo5Style::standardColor("SecondaryTextColor"));
+    ui->label_4->setPalette(pal);
+    ui->label_5->setPalette(pal);
+    ui->label_6->setPalette(pal);
+
+
+    ui->pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
+    ui->pushButton_2->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
+    ui->pushButton_3->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
+
+    ui->listWidget->item(0)->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
+    ui->listWidget->item(1)->setIcon(QIcon::fromTheme("clock_starter_alarm"));
+    ui->listWidget->item(2)->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
 
     ui->action_cloc_me_menu_settings_regional->setText(_("cloc_me_menu_settings_regional"));
     ui->action_cloc_alarm_settings_title->setText(_("cloc_alarm_settings_title"));
@@ -72,22 +84,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label->setText(_("clock_ti_new_alarm"));
     ui->label_2->setText(_("cloc_ti_alarms"));
     ui->label_3->setText(_("cloc_ti_world_clocks"));
-
-    QSettings cs( "/etc/hildon/theme/colors.config", QSettings::IniFormat );
-    QString bcolor = cs.value("Colors/DefaultBackgroundColor", "").toString();
-    QString color = cs.value("Colors/DefaultTextColor", "").toString();
-    QString color2 = cs.value("Colors/SecondaryTextColor", "").toString();
-    ui->widget_3->setStyleSheet("background-color: "+bcolor+";");
-    ui->label->setStyleSheet("color: "+color+";");
-    ui->label_2->setStyleSheet("color: "+color+";");
-    ui->label_3->setStyleSheet("color: "+color+";");
-    ui->label_4->setStyleSheet("color: "+color2+";");
-    ui->label_5->setStyleSheet("color: "+color2+";");
-    ui->label_6->setStyleSheet("color: "+color2+";");
-    ui->hour->setStyleSheet("color: "+color+";");
-    ui->date->setStyleSheet("color: "+color2+";");
-    ui->hour_2->setStyleSheet("color: "+color+";");
-    ui->date_2->setStyleSheet("color: "+color2+";");
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
@@ -129,8 +125,6 @@ void MainWindow::orientationChanged()
 
 void MainWindow::updateTime()
 {
-
-    //QTime tiempo = QTime::currentTime();
     ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
     ui->hour_2->setText( ui->hour->text() );
 
@@ -143,12 +137,12 @@ void MainWindow::updateTime()
 
 void MainWindow::on_pushButton_pressed()
 {
-    ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_alarm_pressed.png"));
+    ui->pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm_pressed"));
 }
 
 void MainWindow::on_pushButton_released()
 {
-    ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_alarm.png"));
+    ui->pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
     sw->exec();
     sw->loadAlarms();
     loadAlarm();
@@ -156,7 +150,7 @@ void MainWindow::on_pushButton_released()
 
 void MainWindow::on_pushButton_2_pressed()
 {
-    ui->pushButton_2->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_worldclock_pressed.png"));
+    ui->pushButton_2->setIcon(QIcon::fromTheme("clock_starter_worldclock_pressed"));
 
     /*osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
@@ -191,19 +185,19 @@ void MainWindow::on_pushButton_2_pressed()
 
 void MainWindow::on_pushButton_2_released()
 {
-    ui->pushButton_2->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_worldclock.png"));
+    ui->pushButton_2->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
     ww->exec();
     loadWorld();
 }
 
 void MainWindow::on_pushButton_3_pressed()
 {
-    ui->pushButton_3->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_add_alarm_pressed.png"));
+    ui->pushButton_3->setIcon(QIcon::fromTheme("clock_starter_add_alarm_pressed"));
 }
 
 void MainWindow::on_pushButton_3_released()
 {
-    ui->pushButton_3->setIcon(QIcon("/usr/share/icons/" + currtheme + "/164x164/hildon/clock_starter_add_alarm.png"));
+    ui->pushButton_3->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();
     delete al;
@@ -224,7 +218,6 @@ void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
         on_pushButton_released();
     else if ( sel == 2 )
         on_pushButton_2_released();
-
 
 }
 

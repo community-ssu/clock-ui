@@ -21,7 +21,6 @@ CheckDelegate::CheckDelegate(QObject *parent)
 void CheckDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
-  //QStyledItemDelegate::paint(painter,option,index);
   QString name = index.data(Qt::DisplayRole).toString();
   QString sel = index.data(Qt::UserRole+1).toString();
 
@@ -38,9 +37,9 @@ void CheckDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
   if( sel == "selected")
   {
+      QPixmap pict = QIcon::fromTheme("widgets_tickmark_list").pixmap(48, 48);
       r = option.rect;
-      QPixmap is1 = QPixmap("/usr/share/icons/hicolor/48x48/hildon/widgets_tickmark_list.png");
-      painter->drawPixmap(r.width()-60,r.top()+11,48,48,is1);
+      painter->drawPixmap(r.width()-60,r.top()+11,48,48,pict);
   }
 
 
@@ -54,7 +53,6 @@ void CheckDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   name.replace("7", loc.dayName(7) );
   name.replace("0", _("cloc_va_never") );
   name.replace("8", _("cloc_va_everyday") );
-  //name[0] = name[0].toUpper();
 
   painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignCenter, name, &r);
   painter->restore();

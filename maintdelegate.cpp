@@ -17,7 +17,7 @@
 **************************************************************************/
 
 #include "maintdelegate.h"
-#include <QSettings>
+#include <QMaemo5Style>
 
 void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -25,13 +25,8 @@ void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     QString title = index.data(Qt::UserRole).toString();
     QString subtitle = index.data(Qt::UserRole+2).toString();
     QString subtitle2 = index.data(Qt::UserRole+3).toString();
-    QString icon = index.data(Qt::UserRole+1).toString();
 
     painter->save();
-
-    QSettings settings2( "/etc/hildon/theme/colors.config", QSettings::IniFormat );
-    QString color = settings2.value("Colors/DefaultTextColor", "").toString();
-    QString color2 = settings2.value("Colors/SecondaryTextColor", "").toString();
 
     QRect r = option.rect;
     QFont f = painter->font();
@@ -39,12 +34,9 @@ void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     gray = QColor(156, 154, 156);
 
     r = option.rect;
-    painter->drawPixmap(r.left(), r.top(), 164, 164, icon);
-
-    r = option.rect;
     f.setPointSize(18);
     painter->setFont(f);
-    painter->setPen(QPen(QColor(color)));
+    painter->setPen(QPen(QMaemo5Style::standardColor("DefaultTextColor")));
 
     int space = 4;
     if ( subtitle != "" )
@@ -57,8 +49,7 @@ void MainDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     r = option.rect;
     f.setPointSize(13);
     painter->setFont(f);
-    painter->setPen(QPen(QColor(color2)));
-
+    painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
 
     space = 92;
     if ( subtitle2 != "" )

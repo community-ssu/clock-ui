@@ -7,9 +7,10 @@
 #include "osso-intl.h"
 #include "filedelegate.h"
 #include <QDateTime>
+#include <QMaemo5Style>
 
 FileDelegate::FileDelegate(QObject *parent)
-    : QAbstractItemDelegate(parent)
+    : QStyledItemDelegate(parent)
 {
 
 
@@ -18,7 +19,6 @@ FileDelegate::FileDelegate(QObject *parent)
 void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
-
   painter->save();
   QRect r = option.rect;
 
@@ -30,23 +30,15 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       painter->drawTiledPixmap(r,is1);
   }
 
-
-  QSettings settings1( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-  QString currtheme = settings1.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
-  if ( currtheme == "default" )
-      currtheme = "hicolor";
-
-  QSettings settings2( "/etc/hildon/theme/colors.config", QSettings::IniFormat );
-  QString color = settings2.value("Colors/DefaultTextColor", "").toString();
-  QString color2 = settings2.value("Colors/SecondaryTextColor", "").toString();
-
-
+  QPixmap pict;
   if ( index.data(Qt::DisplayRole) == "active" )
-      painter->drawPixmap(r.left(), r.top()+12, QPixmap("/usr/share/icons/"+currtheme+"/48x48/hildon/clock_alarm_on.png"));
+      pict = QIcon::fromTheme("clock_alarm_on").pixmap(48, 48);
   else if ( index.data(Qt::DisplayRole) == "inactive" )
-      painter->drawPixmap(r.left(), r.top()+12, QPixmap("/usr/share/icons/"+currtheme+"/48x48/hildon/clock_alarm_off.png"));
+      pict = QIcon::fromTheme("clock_alarm_off").pixmap(48, 48);
 
-  painter->setPen(QPen(QColor(color)));
+  painter->drawPixmap(r.left(), r.top()+12, pict);
+
+  painter->setPen(QPen(QMaemo5Style::standardColor("DefaultTextColor")));
 
   QFont f = painter->font();
   QString name = index.data(Qt::DisplayRole).toString();
@@ -77,7 +69,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       }
 
       if ( index.data(Qt::StatusTipRole).toString() == "inactive" )
-          painter->setPen(QPen(QColor(color2)));
+          painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
       f.setPointSize( f.pointSize() + 8 );
       painter->setFont(f);
       r = option.rect;
@@ -93,13 +85,13 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       painter->setFont(f);
       r = option.rect;
       if ( index.data(Qt::StatusTipRole).toString() == "inactive" )
-          painter->setPen(QPen(QColor(color2)));
+          painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
       painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignLeft, name, &r);
   }
 
   if ( help == "days" )
   {
-      painter->setPen(QPen(QColor(color2)));
+      painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
       f.setPointSize( f.pointSize()-4 );
       painter->setFont(f);
       r = option.rect;
@@ -143,7 +135,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
           name.replace("8", _("cloc_va_everyday") );
       }
 
-      painter->setPen(QPen(QColor(color2)));
+      painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
       painter->drawText(r.left(), r.top(), r.width()-12, r.height(), Qt::AlignVCenter|Qt::AlignRight|Qt::TextWordWrap, name, &r);
 
   }
@@ -162,9 +154,8 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignVCenter|Qt::AlignLeft, name, &r);
       QFontMetrics fm(f);
       int len = fm.width(name);
-      painter->setPen(QPen(QColor(color)));
+      painter->setPen(QPen(QMaemo5Style::standardColor("DefaultTextColor")));
       painter->setFont(f);
-      //tmp = fm.elidedText(tmp, Qt::ElideRight, r.width()-len);
       r = option.rect;
       int h1 = 0;
       if ( r.width() < 400 )
@@ -174,14 +165,14 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         f.setPointSize(14);
         painter->setFont(f);
       }
-      painter->setPen(QPen(QColor(color2)));
+      painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
       painter->drawText(r.left()+len, r.top()+h1, r.width()-len, r.height()-h1, Qt::AlignVCenter|Qt::AlignLeft, tmp, &r);
 
   }
 
   if ( help == "world-date" )
   {
-      painter->setPen(QPen(QColor(color)));
+      painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));
       f.setPointSize(14);
       painter->setFont(f);
       QString tmp = name;
@@ -189,8 +180,6 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       tmp.remove(0, j+11);
       name.remove(tmp);
       name.remove("  startdesc");
-      painter->setFont(f);
-      painter->setPen(QPen(QColor(color2)));
       r = option.rect;
       if ( r.width() < 200 )
           name = name + "\n";
@@ -202,8 +191,6 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       if ( r.width() < 200 )
           painter->drawText(r.left(), r.top()+30, r.width()-6, r.height()-30, Qt::AlignVCenter|Qt::AlignRight, "("+tmp+")", &r);
   }
-
-
 
   painter->restore();
 

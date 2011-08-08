@@ -19,12 +19,24 @@
      <property name="text">
       <string>PushButton</string>
      </property>
+     <property name="iconSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
     </widget>
    </item>
    <item row="1" column="0">
     <widget class="QTreeWidget" name="treeWidget">
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
      </property>
      <property name="rootIsDecorated">
       <bool>false</bool>

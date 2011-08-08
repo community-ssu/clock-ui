@@ -22,11 +22,7 @@ World::World(QWidget *parent) :
 
     this->setWindowTitle(_("cloc_ti_world_clocks"));
 
-    QSettings sts( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-    QString currtheme = sts.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
-    if ( currtheme == "default" )
-        currtheme = "hicolor";
-    ui->pushButton->setIcon(QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_add.png"));
+    ui->pushButton->setIcon(QIcon::fromTheme("general_add"));
     ui->pushButton->setText(_("cloc_me_new_world_clock"));
 
     FileDelegate *pluginDelegate = new FileDelegate(ui->treeWidget);
@@ -210,22 +206,6 @@ void World::loadCurrent()
     }
 
     line1 = timeoffset;
-
-}
-
-void World::on_treeWidget_itemActivated(QTreeWidgetItem* item, int )
-{
-    /*if ( item->text(1).contains(_("cloc_fi_local_time")) )
-    {
-        osso_context_t *osso;
-        osso = osso_initialize("worldclock", "", TRUE, NULL);
-
-        osso_return_t * res;
-        if ( osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE) )
-        loadCurrent();
-    }*/
-
-
 
 }
 

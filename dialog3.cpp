@@ -13,11 +13,7 @@ Dialog3::Dialog3(QWidget *parent) :
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setWindowTitle(_("cloc_ia_choose_time_zone"));
 
-    QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-    QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
-    if ( currtheme == "default" )
-        currtheme = "hicolor";
-    ui->pushButton->setIcon( QIcon("/usr/share/icons/" + currtheme + "/48x48/hildon/general_close.png") );
+    ui->pushButton->setIcon(QIcon::fromTheme("general_close"));
     ui->swidget->setVisible(false);
 
     this->selected = "";
@@ -40,33 +36,20 @@ Dialog3::Dialog3(QWidget *parent) :
             sign = "";
         else
             sign = "+";
-        // some offset not rounded to hours, so check this and form QString in form
-        //  City Name + Country + Time Offset
         if((offset % 3600)==0)
             timeoffset = QString("GMT %3 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600));
         else
             timeoffset = QString("GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg("30");
-        // add new record to list (formed QString - to text field, and real offset in seconds - to User field)
 
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
         item1->setText(timeoffset);
         item1->setStatusTip(QString::number(cities[i]->id));
-        //item1->setTextAlignment(Qt::AlignCenter);
-
-        //aBox->addItem(timeoffset,-offset);
-        // if current city time offset is equal to those got from system - store it's offset
         if (zone == defTZ)
             defTZ = timeoffset;
     }
-    // free unneded city list
     cityinfo_free_all(cities);
     ui->listWidget->sortItems();
-    // sort the list alphabetically (by the City Name)
-    //aBox->model()->sort(0);
-    // loking for stored time offest in sorted list
-    //int k = aBox->findText(defTZ);
-    // setting list position to the city with time offset, which we get in the beginning
-    //aBox->setCurrentIndex(k);
+
 }
 
 Dialog3::~Dialog3()
@@ -104,7 +87,6 @@ void Dialog3::keyReleaseEvent(QKeyEvent *k)
 
 void Dialog3::on_search_textChanged(QString filter)
 {
-    //ui->search->setText( ui->search->text().toLower() );
     for ( int i=0; i < ui->listWidget->count(); ++i)
     {
         if ( ui->listWidget->item(i)->text().toLower().indexOf( filter.toLower() )  == -1 )

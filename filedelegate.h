@@ -1,9 +1,9 @@
 #ifndef FILEDELEGATE_H
 #define FILEDELEGATE_H
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 
-class FileDelegate : public QAbstractItemDelegate
+class FileDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 

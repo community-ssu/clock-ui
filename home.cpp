@@ -23,16 +23,11 @@ Home::Home(QWidget *parent, QString path) :
     selected = "";
 
     this->setWindowTitle(_("cloc_ti_open_sound_clip"));
-
-    QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-    QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
-    if ( currtheme == "default" )
-        currtheme = "hicolor";
-    ui->pushButton->setIcon( QIcon("/usr/share/icons/"+currtheme+"/48x48/hildon/filemanager_folder_up.png") );
+    ui->pushButton->setIcon( QIcon::fromTheme("filemanager_folder_up") );
 
     QFileInfo dr(path);
 
-    ui->button->setIcon( QIcon("/usr/share/icons/"+currtheme+"/48x48/hildon/general_folder.png") );
+    ui->button->setIcon( QIcon::fromTheme("general_folder") );
     ui->button->setText( dr.fileName() );
     if ( path == "/") ui->button->setText( "/" );
     ui->button->setValueText( path );
@@ -51,8 +46,6 @@ Home::~Home()
 
 void Home::CargarBrowser(QString directorio)
 {
-    QSettings settings( "/etc/hildon/theme/index.theme", QSettings::IniFormat );
-    QString currtheme = settings.value("X-Hildon-Metatheme/IconTheme","hicolor").toString();
 
     hPath = directorio;
     QDir dir ( directorio, "*" );
@@ -79,7 +72,7 @@ void Home::CargarBrowser(QString directorio)
         {
             QListWidgetItem *item1 = new QListWidgetItem( ui->listWidget );
             item1->setText(fileInfo.fileName());
-            item1->setIcon(QIcon("/usr/share/icons/"+currtheme+"/48x48/hildon/general_folder.png"));
+            item1->setIcon(QIcon::fromTheme("general_folder"));
             ui->listWidget->insertItem( i, item1 );
         }
         else if ( (fileInfo.completeSuffix().toLower()=="mp3") ||
@@ -88,7 +81,7 @@ void Home::CargarBrowser(QString directorio)
         {
             QListWidgetItem *item1 = new QListWidgetItem( ui->listWidget );
             item1->setText(fileInfo.fileName());
-            item1->setIcon(QIcon("/usr/share/icons/"+currtheme+"/48x48/hildon/general_audio_file.png"));
+            item1->setIcon(QIcon::fromTheme("general_audio_file"));
             ui->listWidget->insertItem( i, item1 );
         }
 
