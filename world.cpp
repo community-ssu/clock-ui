@@ -127,8 +127,8 @@ void World::addCity(int cityId)
 
     QDateTime tiempo = QDateTime::currentDateTime();
 
-    tiempo = tiempo.addSecs( -curTime *60 *60 );
-    tiempo = tiempo.addSecs( (-offset/3600) *60 *60 );
+    tiempo = tiempo.toUTC();
+    tiempo = tiempo.addSecs( -offset );
 
     pepe->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
     pepe->setWhatsThis(0, "time");
@@ -249,8 +249,8 @@ void World::updateClocks()
         {
             int off = ui->treeWidget->topLevelItem(i+1)->statusTip(1).toInt();
             tiempo = QDateTime::currentDateTime();
-            tiempo = tiempo.addSecs( -curTime *60 *60 );
-            tiempo = tiempo.addSecs( (-off/3600) *60 *60 );
+            tiempo = tiempo.toUTC();
+            tiempo = tiempo.addSecs( -off );
             ui->treeWidget->topLevelItem(i+1)->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
         }
 
