@@ -1,3 +1,4 @@
+#include <libnotify/notify.h>
 #include "qmaemo5rotator.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -51,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listWidget->item(1)->setIcon(QIcon::fromTheme("clock_starter_alarm"));
     ui->listWidget->item(2)->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
 
+    ui->action_dati_ia_adjust_date_and_time->setText(_("dati_ia_adjust_date_and_time"));
     ui->action_cloc_me_menu_settings_regional->setText(_("cloc_me_menu_settings_regional"));
     ui->action_cloc_alarm_settings_title->setText(_("cloc_alarm_settings_title"));
 
@@ -209,6 +211,13 @@ void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcplanguageregional.so", this, TRUE);
+}
+
+void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
+{
+    osso_context_t *osso;
+    osso = osso_initialize("worldclock", "", TRUE, NULL);
+    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
 }
 
 void MainWindow::on_action_cloc_alarm_settings_title_triggered()

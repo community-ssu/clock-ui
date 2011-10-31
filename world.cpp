@@ -133,7 +133,7 @@ void World::addCity(int cityId)
     pepe->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
     pepe->setWhatsThis(0, "time");
 
-    pepe->setText(2, tiempo.date().shortDayName(tiempo.date().day()) + " "
+    pepe->setText(2, tiempo.date().shortDayName(tiempo.date().dayOfWeek()) + " "
                   + tiempo.date().toString(Qt::DefaultLocaleShortDate)
                   + "  startdesc" + timeoffset );
     pepe->setWhatsThis(2, "world-date");
@@ -188,7 +188,8 @@ void World::loadCurrent()
               timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
 
           QDate fecha = QDate::currentDate();
-          pepe->setText(2, fecha.shortDayName(fecha.day()) + " "
+          /* Local time */
+          pepe->setText(2, fecha.shortDayName(fecha.dayOfWeek()) + " "
                         + fecha.toString(Qt::DefaultLocaleShortDate)
                         + "  startdesc" + timeoffset );
 

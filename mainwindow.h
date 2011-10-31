@@ -31,6 +31,7 @@ private:
 private slots:
     void on_action_cloc_alarm_settings_title_triggered();
     void on_action_cloc_me_menu_settings_regional_triggered();
+    void on_action_dati_ia_adjust_date_and_time_triggered();
     void updateTime();
     void loadAlarm();
     void loadWorld();
