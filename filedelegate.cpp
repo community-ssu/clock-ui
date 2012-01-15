@@ -43,29 +43,22 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   QFont f = painter->font();
   QString name = index.data(Qt::DisplayRole).toString();
   QString help = index.data(Qt::WhatsThisRole).toString();
+  QString localPMtxt = QLocale::system().pmText();
+  QString localAMtxt = QLocale::system().amText();
+
 
   if ( help == "time" )
   {
       QString name2 = "";
-      if ( name.contains( "a.m.") )
+      if ( name.contains(localAMtxt) )
       {
-          name2 = "a.m.";
-          name.remove("a.m.");
+          name2 = localAMtxt;
+          name.remove(localAMtxt);
       }
-      if ( name.contains( "p.m.") )
+      if ( name.contains(localPMtxt) )
       {
-          name2 = "p.m.";
-          name.remove("p.m.");
-      }
-      if ( name.contains( "am") )
-      {
-          name2 = "am";
-          name.remove("am");
-      }
-      if ( name.contains( "pm") )
-      {
-          name2 = "pm";
-          name.remove("pm");
+          name2 = localPMtxt;
+          name.remove(localPMtxt);
       }
 
       if ( index.data(Qt::StatusTipRole).toString() == "inactive" )

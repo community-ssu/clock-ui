@@ -152,31 +152,19 @@ void NewAlarm::on_pushButton_pressed()
     j = temp.indexOf(":");
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
+    QString localPMtxt = QLocale::system().pmText();
+    QString localAMtxt = QLocale::system().amText();
 
     bool ampm = false;
     if ( longdate(ui->pushButton->valueText()) != "no"  )
         ampm = true;
 
     bool am = true;
-    if ( (ui->pushButton->valueText().contains("p.m")) ||
-         (ui->pushButton->valueText().contains("PM")) ||
-         (ui->pushButton->valueText().contains("pm")))
+    if (ui->pushButton->valueText().contains(localPMtxt) )
         am = false;
 
-    QString dam, dpm;
-    if ( longdate(ui->pushButton->valueText()) == "AM" )
-    {
-        dam = "AM"; dpm = "PM";
-    }
-    if ( longdate(ui->pushButton->valueText()) == "am")
-    {
-        dam = "am"; dpm = "pm";
-    }
-
-    if ( longdate(ui->pushButton->valueText()) == "a.m.")
-    {
-        dam = "a.m."; dpm = "p.m.";
-    }
+    QString dam = localAMtxt;
+    QString dpm = localPMtxt;
 
     Dialog2* hw = new Dialog2(this, val1, val2, ampm, am, dam, dpm);
     int result = hw->exec();
@@ -192,8 +180,7 @@ void NewAlarm::on_pushButton_pressed()
         }
         tiempo.setHMS(hora, mins, 0);
 
-        ui->pushButton->setValueText( tiempo.toString(Qt::DefaultLocaleShortDate) );
-
+        ui->pushButton->setValueText( QLocale::system().toString(tiempo, QLocale::ShortFormat));
     }
     delete hw;
 
@@ -202,12 +189,14 @@ void NewAlarm::on_pushButton_pressed()
 QString NewAlarm::longdate(QString data)
 {
 
-    if ( (data.contains("am")) || (data.contains("pm")) )
-        return "am";
-    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
+    QString localPMtxt = QLocale::system().pmText();
+    QString localAMtxt = QLocale::system().amText();
+    if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
+        return localAMtxt;
+    /*else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
         return "a.m.";
     else if ( (data.contains("AM")) || (data.contains("PM")) )
-        return "AM";
+        return "AM"; */
     else
         return "no";
 
@@ -225,7 +214,7 @@ void NewAlarm::on_pushButton_2_pressed()
         for (int i=0; i < hw->result.count(); ++i)
         {
             if ( lista.count() > 0 )
-                lista.append(", ");
+                lista.append(",");
             lista.append( hw->result.at(i) );
         }
 
@@ -303,6 +292,8 @@ void NewAlarm::addAlarm()
     days = ui->pushButton_2->valueText();
     time = ui->pushButton->valueText();
     enabled = ui->checkBox->isChecked();
+    QString localPMtxt = QLocale::system().pmText();
+    QString localAMtxt = QLocale::system().amText();
 
     alarm_event_t * event = 0;
     alarm_action_t * act = 0;
@@ -336,7 +327,7 @@ void NewAlarm::addAlarm()
     if ( !enabled )
         event->flags |= ALARM_EVENT_DISABLED;
 
-    event->flags |= ALARM_EVENT_BOOT;
+    event->flags |= ALARM_EVENT_ACTDEAD;
     event->flags |= ALARM_EVENT_SHOW_ICON;
     event->flags |= ALARM_EVENT_POSTPONE_DELAYED;
 
@@ -382,10 +373,10 @@ void NewAlarm::addAlarm()
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
     QString tmpx = ui->pushButton->valueText();
-    tmpx.remove(".");
-    if ( tmpx.contains("pm") && val1!=12 )
+//    tmpx.remove(".");
+    if ( tmpx.contains(localPMtxt) && val1!=12 )
         val1 = val1+12;
-    if ( tmpx.contains("am") && val1==12 )
+    if ( tmpx.contains(localAMtxt) && val1==12 )
         val1 = 0;
 
     QDateTime currDate;
@@ -437,7 +428,8 @@ void NewAlarm::addAlarm()
 }
 
 
-void NewAlarm::on_lineEdit_textChanged(QString text)
+//void NewAlarm::on_lineEdit_textChanged(QString text)
+void NewAlarm::on_lineEdit_textChanged(QString)
 {
     /*if ( text == "" )
     {

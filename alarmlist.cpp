@@ -42,12 +42,10 @@ AlarmList::~AlarmList()
 QString AlarmList::longdate(QString data)
 {
 
-    if ( (data.contains("am")) || (data.contains("pm")) )
-        return "am";
-    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
-        return "a.m.";
-    else if ( (data.contains("AM")) || (data.contains("PM")) )
-        return "AM";
+    QString localPMtxt = QLocale::system().pmText();
+    QString localAMtxt = QLocale::system().amText();
+    if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
+        return localAMtxt;
     else
         return "no";
 
@@ -151,7 +149,10 @@ void AlarmList::loadAlarms()
             //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
 
             unsigned f = aevent->flags;
-            if ( f==136240 || f==131072 || f==132648 || f==131624 || f==552 || f==1576 )
+            // QTextStream(stdout) << f;
+
+            if ( f==136240 || f==131072 || f==132648 || f==131624 || f==552 || f==1576 || \
+                 f==131632 || f==560 || f==132656 || f==36323632 || f==132656 || f==1584 )
             {
                 pepe->setText(0,"active");
                 pepe->setStatusTip(1, "active");
@@ -303,7 +304,7 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
     if ( column != 0 )
     {
         NewAlarm *al = new NewAlarm(this, true, item->text(2),
-                                        item->text(1), item->text(3),
+                                        item->text(1), item->text(3).replace(" ",""),
                                         checked, item->statusTip(0).toLong() );
         al->exec();
         delete al;

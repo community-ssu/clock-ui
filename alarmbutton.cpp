@@ -18,7 +18,8 @@ void AlarmButton::clicked()
     emit clicked(objectName());
 }
 
-void AlarmButton::paintEvent(QPaintEvent *paint)
+//void AlarmButton::paintEvent(QPaintEvent *paint)
+void AlarmButton::paintEvent(QPaintEvent *)
 {
 
     QPainter p(this);
@@ -37,4 +38,4 @@ void AlarmButton::paintEvent(QPaintEvent *paint)
     p.save();
     p.restore();
 
-}
+} 

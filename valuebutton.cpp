@@ -2,6 +2,12 @@
 #include <QtMaemo5>
 #include "osso-intl.h"
 #include <QDebug>
+// for dgettext
+#include <libintl.h>
+// for strftime
+#include <time.h>
+// for LOCALE
+#include <locale.h>
 
 
 ValueButton::ValueButton(QWidget * parent) : QMaemo5ValueButton(parent)
@@ -13,6 +19,45 @@ ValueButton::ValueButton(QWidget * parent) : QMaemo5ValueButton(parent)
 void ValueButton::clicked()
 {
     emit clicked(objectName());
+}
+
+
+static const char *getHildonTranslation(const char *string)
+{
+     setlocale (LC_ALL, "");
+     const char *translation = ::dgettext("hildon-libs", string);
+     if (qstrcmp(string, translation) == 0)
+         return 0;
+     return translation;
+}
+
+const char *hildonDateDayNameShort = getHildonTranslation("wdgt_va_date_day_name_short");
+
+static QString formatHildonDate(const QDateTime &dt, const char *format)
+{
+     if (!format)
+         return QString();
+
+     char buf[255];
+     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+     if (!dt.date().isNull()) {
+         tm.tm_wday = dt.date().dayOfWeek() % 7;
+         tm.tm_mday = dt.date().day();
+         tm.tm_mon = dt.date().month() - 1;
+         tm.tm_year = dt.date().year() - 1900;
+     }
+     if (!dt.time().isNull()) {
+         tm.tm_sec = dt.time().second();
+         tm.tm_min = dt.time().minute();
+         tm.tm_hour = dt.time().hour();
+     }
+
+     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
+     if (!resultSize)
+         return QString();
+
+     return QString::fromUtf8(buf, resultSize);
 }
 
 void ValueButton::paintEvent(QPaintEvent *paint)
@@ -30,23 +75,46 @@ void ValueButton::paintEvent(QPaintEvent *paint)
     p.drawText(20,0,this->width()-20,this->height(),Qt::AlignVCenter|Qt::AlignLeft,this->statusTip(), &r);
 
     QString name = this->valueText();
+    
 
-    if ( this->whatsThis() == "date" )
+  if ( this->whatsThis() == "date" )
     {
-        name.replace("1", QDate::shortDayName(1) );
-        name.replace("2", QDate::shortDayName(2) );
-        name.replace("3", QDate::shortDayName(3) );
-        name.replace("4", QDate::shortDayName(4) );
-        name.replace("5", QDate::shortDayName(5) );
-        name.replace("6", QDate::shortDayName(6) );
-        name.replace("7", QDate::shortDayName(7) );
+        QString MondayNameShort = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 1 */
+	QStringList sl = MondayNameShort.split(' ', QString::SkipEmptyParts);
+	MondayNameShort = sl.at(0);
+        QString TuedayNameShort = formatHildonDate(QDateTime::fromString("03.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 2 */
+	sl = TuedayNameShort.split(' ', QString::SkipEmptyParts);
+	TuedayNameShort = sl.at(0);
+        QString WeddayNameShort = formatHildonDate(QDateTime::fromString("04.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 3 */
+	sl = WeddayNameShort.split(' ', QString::SkipEmptyParts);
+	WeddayNameShort = sl.at(0);
+        QString ThudayNameShort = formatHildonDate(QDateTime::fromString("05.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 4 */
+	sl = ThudayNameShort.split(' ', QString::SkipEmptyParts);
+	ThudayNameShort = sl.at(0);
+        QString FridayNameShort = formatHildonDate(QDateTime::fromString("06.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 5 */
+	sl = FridayNameShort.split(' ', QString::SkipEmptyParts);
+	FridayNameShort = sl.at(0);
+        QString SatdayNameShort = formatHildonDate(QDateTime::fromString("07.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 6 */
+	sl = SatdayNameShort.split(' ', QString::SkipEmptyParts);
+	SatdayNameShort = sl.at(0);
+        QString SundayNameShort = formatHildonDate(QDateTime::fromString("01.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 7 */
+	sl = SundayNameShort.split(' ', QString::SkipEmptyParts);
+	SundayNameShort = sl.at(0);
+        //QTextStream(stdout) << sl.at(0);
+        name.replace("1", MondayNameShort );
+        name.replace("2", TuedayNameShort );
+        name.replace("3", WeddayNameShort );
+        name.replace("4", ThudayNameShort );
+        name.replace("5", FridayNameShort );
+        name.replace("6", SatdayNameShort );
+        name.replace("7", SundayNameShort );
         name.replace("0", _("cloc_va_never") );
         name.replace("8", _("cloc_va_everyday") );
     }
 
     p.setPen(QPen(QMaemo5Style::standardColor("ActiveTextColor")));
     if ( this->whatsThis() != "alarm" )
-        p.drawText(140,0,this->width()-140,this->height(),Qt::AlignVCenter|Qt::AlignLeft,name, &r);
+        p.drawText(170,0,this->width()-170,this->height(),Qt::AlignVCenter|Qt::AlignLeft,name, &r);
     else
     {
         QFontMetrics fm(f);

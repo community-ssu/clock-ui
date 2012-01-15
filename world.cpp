@@ -10,6 +10,50 @@
 #include <libosso.h>
 #include <QDebug>
 #include <QSettings>
+// for dgettext
+#include <libintl.h>
+// for strftime
+#include <time.h>
+// for setlocale
+#include <locale.h>
+
+static const char *getHildonTranslation(const char *string)
+{
+     setlocale (LC_ALL, "");
+     const char *translation = ::dgettext("hildon-libs", string);
+     if (qstrcmp(string, translation) == 0)
+         return 0;
+     return translation;
+}
+
+const char *hildonDateDayNameShrt = getHildonTranslation("wdgt_va_date_day_name_short");
+
+static QString formatHildonDate(const QDateTime &dt, const char *format)
+{
+     if (!format)
+         return QString();
+
+     char buf[255];
+     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+     if (!dt.date().isNull()) {
+         tm.tm_wday = dt.date().dayOfWeek() % 7;
+         tm.tm_mday = dt.date().day();
+         tm.tm_mon = dt.date().month() - 1;
+         tm.tm_year = dt.date().year() - 1900;
+     }
+     if (!dt.time().isNull()) {
+         tm.tm_sec = dt.time().second();
+         tm.tm_min = dt.time().minute();
+         tm.tm_hour = dt.time().hour();
+     }
+
+     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
+     if (!resultSize)
+         return QString();
+
+     return QString::fromUtf8(buf, resultSize);
+}
 
 World::World(QWidget *parent) :
     QDialog(parent),
@@ -53,12 +97,15 @@ World::~World()
 
 QString World::longdate(QString data)
 {
-    if ( (data.contains("am")) || (data.contains("pm")) )
-        return "am";
-    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
+    QString localPMtxt = QLocale::system().pmText();
+    QString localAMtxt = QLocale::system().amText();
+
+    if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
+        return localAMtxt;
+/*    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
         return "a.m.";
     else if ( (data.contains("AM")) || (data.contains("PM")) )
-        return "AM";
+        return "AM"; */
     else
         return "no";
 }
@@ -132,9 +179,23 @@ void World::addCity(int cityId)
 
     pepe->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
     pepe->setWhatsThis(0, "time");
+    QString CurrentdayNameShort = formatHildonDate(tiempo, hildonDateDayNameShrt);
+    QStringList sl = CurrentdayNameShort.split(' ', QString::SkipEmptyParts);
+    CurrentdayNameShort = sl.at(0);
+    QString LocalDateShort = tiempo.date().toString(Qt::DefaultLocaleShortDate);
+    QRegExp LongYearEnd( "\\d{4}$" ); 
+    /* we have 4 digits at the end of the date, meaning yyyy
+       next we replace this by the last two digits (yy), so no century info */
+    if (LongYearEnd.indexIn(LocalDateShort) != -1 )
+  	LocalDateShort.replace(LongYearEnd, LocalDateShort.right(2));
+    QRegExp LongYearBegin( "^\\d{4}" ); 
+    /* we have 4 digits at the beginning of the date, meaning yyyy
+       next we replace this by the last two digits (yy), so no century info */
+    if (LongYearBegin.indexIn(LocalDateShort) != -1 )
+  	LocalDateShort.replace(LongYearBegin, LocalDateShort.mid(2,2));
 
-    pepe->setText(2, tiempo.date().shortDayName(tiempo.date().dayOfWeek()) + " "
-                  + tiempo.date().toString(Qt::DefaultLocaleShortDate)
+    pepe->setText(2, CurrentdayNameShort + " "
+                  + LocalDateShort
                   + "  startdesc" + timeoffset );
     pepe->setWhatsThis(2, "world-date");
 
@@ -172,8 +233,8 @@ void World::loadCurrent()
           pepe->setWhatsThis(0, "time");
 
           pepe->setText(1, _("cloc_fi_local_time") + " startdesc (" +
-                        cityinfo_clone(*cities_iter)->name + ", " +
-                        cityinfo_clone(*cities_iter)->country + ")" );
+                        QString::fromUtf8(cityinfo_clone(*cities_iter)->name) + ", " +
+                        QString::fromUtf8(cityinfo_clone(*cities_iter)->country) + ")" );
           pepe->setWhatsThis(1, "world-name");
 
           int offset = time_get_utc_offset(cityinfo_get_zone(*cities_iter));
@@ -188,9 +249,26 @@ void World::loadCurrent()
               timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
 
           QDate fecha = QDate::currentDate();
+          QDateTime date_time = QDateTime::currentDateTime();
           /* Local time */
-          pepe->setText(2, fecha.shortDayName(fecha.dayOfWeek()) + " "
-                        + fecha.toString(Qt::DefaultLocaleShortDate)
+          QString CurrentdayNameShort = formatHildonDate(date_time, hildonDateDayNameShrt);
+          QStringList sl = CurrentdayNameShort.split(' ', QString::SkipEmptyParts);
+          CurrentdayNameShort = sl.at(0);
+
+          QString LocalDateShort = fecha.toString(Qt::DefaultLocaleShortDate);
+          QRegExp LongYearEnd( "\\d{4}$" ); 
+          /* we have 4 digits at the end of the date, meaning yyyy
+             next we replace this by the last two digits (yy), so no century info */
+          if (LongYearEnd.indexIn(LocalDateShort) != -1 )
+              LocalDateShort.replace(LongYearEnd, LocalDateShort.right(2));
+          QRegExp LongYearBegin( "^\\d{4}" ); 
+          /* we have 4 digits at the beginning of the date, meaning yyyy
+             next we replace this by the last two digits (yy), so no century info */
+          if (LongYearBegin.indexIn(LocalDateShort) != -1 )
+              LocalDateShort.replace(LongYearBegin, LocalDateShort.mid(2,2));
+
+          pepe->setText(2, CurrentdayNameShort + " "
+                        + LocalDateShort
                         + "  startdesc" + timeoffset );
 
           pepe->setWhatsThis(2, "world-date");
