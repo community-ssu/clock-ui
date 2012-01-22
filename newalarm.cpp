@@ -193,10 +193,6 @@ QString NewAlarm::longdate(QString data)
     QString localAMtxt = QLocale::system().amText();
     if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
         return localAMtxt;
-    /*else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
-        return "a.m.";
-    else if ( (data.contains("AM")) || (data.contains("PM")) )
-        return "AM"; */
     else
         return "no";
 

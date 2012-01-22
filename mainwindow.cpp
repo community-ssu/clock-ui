@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateTime();
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
-    timer->start(10000);
+    timer->start(1000);
 
 }
 
@@ -125,7 +125,26 @@ void MainWindow::orientationChanged()
 
 void MainWindow::updateTime()
 {
-    ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
+    //ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
+    if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
+       QString secs = QTime::currentTime().toString( ":ss" );
+       QString CurrTime = QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat);
+       QRegExp TimeFormat12h( "\\D$" );
+       // Non-digit last character, should be 12hr clock 
+       if (TimeFormat12h.indexIn(CurrTime) != -1 ) {
+                 QRegExp TimeMinutes( "\\d{2}\\s" );
+                 TimeMinutes.indexIn(CurrTime);
+                 QString mins = TimeMinutes.cap(0).remove(QRegExp("\\s+$"));
+                 CurrTime.replace(TimeMinutes, mins + secs + " ");
+                 ui->hour->setText(CurrTime);
+       }
+       else
+                 ui->hour->setText(CurrTime + secs);
+    }
+    else
+          ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
+              
+
     ui->hour_2->setText( ui->hour->text() );
 
     QDate fecha = QDate::currentDate();

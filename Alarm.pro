@@ -77,11 +77,7 @@ maemo5 {
     LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf
 }
 
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/bin
-    } else {
-        target.path = /usr/local/bin
-    }
+maemo5 {
+    target.path = /opt/Alarm/bin
     INSTALLS += target
 }

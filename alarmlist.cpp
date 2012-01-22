@@ -6,6 +6,50 @@
 #include "osso-intl.h"
 #include <QDebug>
 #include <QSettings>
+// for dgettext
+#include <libintl.h>
+// for strftime
+#include <time.h>
+// for setlocale
+#include <locale.h>
+
+static const char *getHildonTranslation(const char *string)
+{
+     setlocale (LC_ALL, "");
+     const char *translation = ::dgettext("hildon-libs", string);
+     if (qstrcmp(string, translation) == 0)
+         return 0;
+     return translation;
+}
+
+const char *hildonDayOfWeek = getHildonTranslation("wdgt_va_week");
+
+static QString formatHildonDate(const QDateTime &dt, const char *format)
+{
+     if (!format)
+         return QString();
+
+     char buf[255];
+     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+     if (!dt.date().isNull()) {
+         tm.tm_wday = dt.date().dayOfWeek() % 7;
+         tm.tm_mday = dt.date().day();
+         tm.tm_mon = dt.date().month() - 1;
+         tm.tm_year = dt.date().year() - 1900;
+     }
+     if (!dt.time().isNull()) {
+         tm.tm_sec = dt.time().second();
+         tm.tm_min = dt.time().minute();
+         tm.tm_hour = dt.time().hour();
+     }
+
+     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
+     if (!resultSize)
+         return QString();
+
+     return QString::fromUtf8(buf, resultSize);
+}
 
 AlarmList::AlarmList(QWidget *parent) :
     QDialog(parent),
@@ -149,7 +193,6 @@ void AlarmList::loadAlarms()
             //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
 
             unsigned f = aevent->flags;
-            // QTextStream(stdout) << f;
 
             if ( f==136240 || f==131072 || f==132648 || f==131624 || f==552 || f==1576 || \
                  f==131632 || f==560 || f==132656 || f==36323632 || f==132656 || f==1584 )
@@ -268,7 +311,8 @@ void AlarmList::loadAlarms()
             int j = tmp.indexOf(",");
             if ( j>0 )
                 tmp.remove(j, tmp.length()-j);
-            line2 = QDate::longDayName(tmp.toInt());
+            // line2 = QDate::longDayName(tmp.toInt());
+            line2 = formatHildonDate(qdtm, hildonDayOfWeek);
         }
 
     }

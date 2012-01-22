@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>722</width>
-    <height>440</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -363,7 +363,7 @@
              <string>TextLabel</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -397,7 +397,7 @@
              <string>TextLabel</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -460,7 +460,7 @@
      <x>0</x>
      <y>0</y>
      <width>722</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">
@@ -468,6 +468,7 @@
      <string>Menu</string>
     </property>
     <addaction name="action_cloc_me_menu_settings_regional"/>
+    <addaction name="action_dati_ia_adjust_date_and_time"/>
     <addaction name="action_cloc_alarm_settings_title"/>
    </widget>
    <addaction name="menuMenu"/>
@@ -475,6 +476,11 @@
   <action name="action_cloc_me_menu_settings_regional">
    <property name="text">
     <string>regSettings</string>
+   </property>
+  </action>
+  <action name="action_dati_ia_adjust_date_and_time">
+   <property name="text">
+    <string>dateSettings</string>
    </property>
   </action>
   <action name="action_cloc_alarm_settings_title">
