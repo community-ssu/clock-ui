@@ -28,6 +28,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     this->setWindowTitle(_("cloc_ap_name"));
+    this->setAutoFillBackground(true);
+    QPalette pal2(palette());
+    pal2.setBrush(QPalette::Window, QPixmap("/etc/hildon/theme/backgrounds/clock.png"));
+    this->setPalette(pal2);
 
     QPalette pal(palette());
     pal.setColor(QPalette::Background, QMaemo5Style::standardColor("DefaultBackgroundColor"));
@@ -107,9 +111,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::paintEvent(QPaintEvent*)
 {
-    QPainter painter(this);
-    painter.drawImage(this->rect(), QImage("/etc/hildon/theme/backgrounds/clock.png"));
+    //QPainter painter(this);
+    // painter.drawImage(this->rect(), QImage("/etc/hildon/theme/backgrounds/clock.png"));
 }
+
 
 void MainWindow::orientationChanged()
 {
@@ -125,9 +130,7 @@ void MainWindow::orientationChanged()
 
 void MainWindow::updateTime()
 {
-    //ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
-    if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
-       QString secs = QTime::currentTime().toString( ":ss" );
+  QString secs = QTime::currentTime().toString( ":ss" );
        QString CurrTime = QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat);
        QRegExp TimeFormat12h( "\\D$" );
        // Non-digit last character, should be 12hr clock 
@@ -140,10 +143,8 @@ void MainWindow::updateTime()
        }
        else
                  ui->hour->setText(CurrTime + secs);
-    }
-    else
-          ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
-              
+
+//    ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
 
     ui->hour_2->setText( ui->hour->text() );
 

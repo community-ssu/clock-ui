@@ -10,8 +10,6 @@
 #include <libosso.h>
 #include <QDebug>
 #include <QSettings>
-// for dgettext
-#include <libintl.h>
 // for strftime
 #include <time.h>
 // for setlocale

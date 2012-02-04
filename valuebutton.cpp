@@ -79,26 +79,27 @@ void ValueButton::paintEvent(QPaintEvent *paint)
 
   if ( this->whatsThis() == "date" )
     {
+	/* Calculate the daynames and remove the trailing comma for Polish abv. */
         QString MondayNameShort = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 1 */
-	QStringList sl = MondayNameShort.split(' ', QString::SkipEmptyParts);
+	QStringList sl = MondayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	MondayNameShort = sl.at(0);
         QString TuedayNameShort = formatHildonDate(QDateTime::fromString("03.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 2 */
-	sl = TuedayNameShort.split(' ', QString::SkipEmptyParts);
+	sl = TuedayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	TuedayNameShort = sl.at(0);
         QString WeddayNameShort = formatHildonDate(QDateTime::fromString("04.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 3 */
-	sl = WeddayNameShort.split(' ', QString::SkipEmptyParts);
+	sl = WeddayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	WeddayNameShort = sl.at(0);
         QString ThudayNameShort = formatHildonDate(QDateTime::fromString("05.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 4 */
-	sl = ThudayNameShort.split(' ', QString::SkipEmptyParts);
+	sl = ThudayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	ThudayNameShort = sl.at(0);
         QString FridayNameShort = formatHildonDate(QDateTime::fromString("06.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 5 */
-	sl = FridayNameShort.split(' ', QString::SkipEmptyParts);
+	sl = FridayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	FridayNameShort = sl.at(0);
         QString SatdayNameShort = formatHildonDate(QDateTime::fromString("07.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 6 */
-	sl = SatdayNameShort.split(' ', QString::SkipEmptyParts);
+	sl = SatdayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	SatdayNameShort = sl.at(0);
         QString SundayNameShort = formatHildonDate(QDateTime::fromString("01.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 7 */
-	sl = SundayNameShort.split(' ', QString::SkipEmptyParts);
+	sl = SundayNameShort.remove(QRegExp(", ")).split(' ', QString::SkipEmptyParts);
 	SundayNameShort = sl.at(0);
         //QTextStream(stdout) << sl.at(0);
         name.replace("1", MondayNameShort );

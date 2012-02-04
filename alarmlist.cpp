@@ -6,8 +6,6 @@
 #include "osso-intl.h"
 #include <QDebug>
 #include <QSettings>
-// for dgettext
-#include <libintl.h>
 // for strftime
 #include <time.h>
 // for setlocale
@@ -312,7 +310,8 @@ void AlarmList::loadAlarms()
             if ( j>0 )
                 tmp.remove(j, tmp.length()-j);
             // line2 = QDate::longDayName(tmp.toInt());
-            line2 = formatHildonDate(qdtm, hildonDayOfWeek);
+            line2 = _("cloc_ti_start_day");
+            line2.replace("%s", formatHildonDate(qdtm, hildonDayOfWeek));
         }
 
     }

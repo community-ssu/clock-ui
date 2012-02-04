@@ -8,6 +8,10 @@
 #include <QDateTime>
 #include <QMaemo5TimePickSelector>
 #include "valuebutton.h"
+/* osso-clock text needed for snooze/stop button translation */
+#define TEXTDOMAIN "osso-clock"
+#define STOP_BUTTON_KEY "cloc_bd_stop"
+#define SNOOZE_BUTTON_KEY "cloc_bd_alarm_notification_snooze"
 
 static uint32_t daysToMask(QList<int> days)
 {
@@ -305,19 +309,20 @@ void NewAlarm::addAlarm()
     QByteArray ba = name.toUtf8();
     const char *str1 = ba.data();
     alarm_event_set_message(event, str1);
+    /* Set the textdomain to be used while making
+     * translation lookups */
+    alarm_event_set_attr_string(event, "textdomain", TEXTDOMAIN);
+    /* Set the title of the alarm. */
+    alarm_event_set_title(event, "Alarm");
 
     alarm_event_set_alarm_appid(event,"worldclock_alarmd_id");
 
-    // Acknowledge action
-    act = alarm_event_add_actions(event, 1);
-    alarm_action_set_label(act, _("cloc_bd_stop").toUtf8());
-    act->flags |= ALARM_ACTION_WHEN_RESPONDED;
-    act->flags |= ALARM_ACTION_TYPE_NOP;
 
     // Snooze action
     act = alarm_event_add_actions(event, 1);
-    alarm_action_set_label(act, _("cloc_bd_alarm_notification_snooze").toUtf8());
-    act->flags |= ALARM_ACTION_WHEN_RESPONDED;
+    //alarm_action_set_label(act, _("cloc_bd_alarm_notification_snooze").toUtf8());
+    alarm_action_set_label(act, SNOOZE_BUTTON_KEY);
+    act->flags = ALARM_ACTION_WHEN_RESPONDED;
     act->flags |= ALARM_ACTION_TYPE_SNOOZE;
 
     if ( !enabled )
@@ -359,6 +364,17 @@ void NewAlarm::addAlarm()
         if ( tmp.contains("7") )
             ldays << 7;
     }
+    // Acknowledge action
+    act = alarm_event_add_actions(event, 1);
+    //alarm_action_set_label(act, _("cloc_bd_stop").toUtf8());
+    alarm_action_set_label(act, STOP_BUTTON_KEY);
+    if(ldays.first() == 0) {
+       act->flags |= ALARM_ACTION_WHEN_RESPONDED;
+       act->flags |= ALARM_ACTION_TYPE_DISABLE;
+    } else {
+       act->flags = ALARM_ACTION_WHEN_RESPONDED;
+       act->flags |= ALARM_ACTION_TYPE_NOP;
+    }
 
     QString temp = ui->pushButton->valueText();
     int j = temp.indexOf(":");
@@ -390,7 +406,6 @@ void NewAlarm::addAlarm()
         event->alarm_time = -1;
         event->alarm_tm.tm_hour = currDate.time().hour();
         event->alarm_tm.tm_min = currDate.time().minute();
-
       } else {
         //qDebug("Using the new recurrence API");
         event->recur_count = -1;
@@ -408,6 +423,61 @@ void NewAlarm::addAlarm()
         Q_ASSERT(event->recurrence_cnt == 1);
       }
     //}
+    /* Send notification on banner */
+    QDateTime now = QDateTime::currentDateTime();
+
+    QDateTime alarmTime = QDateTime( now.date(), QTime(currDate.time().hour(),currDate.time().minute(),0) );
+    QString AlarmText = _("cloc_notify_alarm_set");
+    if(((ldays.first() == 0) || (ldays.first() == 8)) || (( alarmTime > now ) && \
+    (ldays.contains(QDate::currentDate().dayOfWeek()))) ||
+    ((ldays.contains(QDate::currentDate().addDays(1).dayOfWeek())) && ( alarmTime < now )))
+    {
+         int secsDiff = now.secsTo(alarmTime);
+         QDate nullDate(2012, 1, 1);
+         QDateTime nullTime = QDateTime::QDateTime(nullDate);
+         QDateTime upTime = nullTime.addSecs(secsDiff);
+         QVariant days = nullTime.daysTo(upTime);
+         QTime timeTime = upTime.time();
+         int hours = timeTime.hour();
+         int minutes = timeTime.minute();
+         int seconds = timeTime.second();
+         if ( seconds > 30 ) 
+            minutes = minutes + 1; 
+         QString hhmm = QString("%1:%2").arg(QString().sprintf("%02d",hours)).arg(QString().sprintf("%02d",minutes));
+         AlarmText.replace("%s",hhmm);
+    } else {
+         AlarmText = _("cloc_notify_alarm_set_days");
+         AlarmText.replace("%s" ,"");
+         int curDayOfWeek = QDate::currentDate().dayOfWeek();
+         int i;
+         int nextDayOfWeek = curDayOfWeek;
+         for(i= 1; i < 8; i++)
+         {
+            if ( nextDayOfWeek == 7 )
+                nextDayOfWeek = 1;
+            else
+		nextDayOfWeek++;
+            if ( tmp.contains(QString().sprintf("%1d",nextDayOfWeek) )) {
+                if (i == 1 ) {
+ 	           AlarmText = AlarmText + _("cloc_va_amount_day");
+                   AlarmText.replace("%d",QString().sprintf("%1d",i));
+                   break;
+                } else {
+                   AlarmText = AlarmText + ngettext("cloc_va_amount_day", "cloc_va_amount_days", i);
+                   AlarmText.replace("%d",QString().sprintf("%1d",i));
+                   break;
+                }
+            }
+         }
+    }
+    if ( enabled ) {
+       QString notificationDuration = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
+                        /org/freedesktop/Notifications org.freedesktop.Notifications.SystemNoteInfoprint \
+                        string:\"" + AlarmText + "\"";
+       QProcess::startDetached(notificationDuration);
+    }
+ 
+
 
     alarm_event_set_sound(event, NULL);
 
