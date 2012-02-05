@@ -313,7 +313,7 @@ void NewAlarm::addAlarm()
      * translation lookups */
     alarm_event_set_attr_string(event, "textdomain", TEXTDOMAIN);
     /* Set the title of the alarm. */
-    alarm_event_set_title(event, "Alarm");
+    //alarm_event_set_title(event, "Alarm");
 
     alarm_event_set_alarm_appid(event,"worldclock_alarmd_id");
 

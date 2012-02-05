@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_4->setPalette(pal);
     ui->label_5->setPalette(pal);
     ui->label_6->setPalette(pal);
+    ui->date->setPalette(pal);
 
 
     ui->pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
@@ -222,8 +223,8 @@ void MainWindow::loadAlarm()
 void MainWindow::loadWorld()
 {
     QString text = _("cloc_ti_start_gmt");
-    ui->label_6->setText( text.remove("%s") + "(" + ww->line1 + ")");
-    ui->listWidget->item(2)->setData(Qt::UserRole+2, text.remove("%s") + "(" + ww->line1 + ")");
+    ui->label_6->setText( text.remove("%s") + ww->line1);
+    ui->listWidget->item(2)->setData(Qt::UserRole+2, text.remove("%s") + ww->line1 );
 }
 
 void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()

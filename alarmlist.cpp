@@ -145,11 +145,11 @@ void AlarmList::loadAlarms()
             // get time of alarm action
             time_t ttime = alarm_event_get_trigger(aevent);
 
-
             // convert GTK's ttime to Qt's DateTime
             QDateTime qdtm = QDateTime::fromTime_t(ttime);
             // get time part from DateTime variable
             QTime qtm = qdtm.time();
+            QTime qtm_sched(aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             // let's count day to current alarm triggering
             int days = 0;
             QDateTime currDate;
@@ -180,7 +180,15 @@ void AlarmList::loadAlarms()
 
             QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
-            pepe->setText(1, QLocale::system().toString( qtm, QLocale::ShortFormat) );
+	    // if non repeating do not look at trigger time (incl snooze)
+            if ( aevent->alarm_tm.tm_hour == -1 ) {
+                pepe->setText(1, QLocale::system().toString( qtm, QLocale::ShortFormat) );
+                pepe->setText(5, QLocale::system().toString( qtm, QLocale::ShortFormat) );
+            }
+            else {
+                pepe->setText(1, QLocale::system().toString( qtm_sched, QLocale::ShortFormat) );
+                pepe->setText(5, QLocale::system().toString( qtm, QLocale::ShortFormat) );
+            }
             pepe->setWhatsThis(1, "time");
 
             pepe->setText(2, aTitle );
@@ -294,7 +302,7 @@ void AlarmList::loadAlarms()
 
     if ( (ui->treeWidget->topLevelItemCount()>0) && (activeAlarms>0) )
     {
-        line1 = _("cloc_ti_next") + " " + ui->treeWidget->topLevelItem(0)->text(1);
+        line1 = _("cloc_ti_next") + " " + ui->treeWidget->topLevelItem(0)->text(5);
         line2 = "";
         QDateTime qdtm = QDateTime::fromTime_t( ui->treeWidget->topLevelItem(0)->text(4).toInt() );
         QDateTime currDate;
