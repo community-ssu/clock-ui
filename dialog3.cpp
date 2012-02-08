@@ -82,7 +82,6 @@ void Dialog3::keyReleaseEvent(QKeyEvent *k)
         }
     }
 
-
 }
 
 void Dialog3::on_search_textChanged(QString filter)

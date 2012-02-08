@@ -10,10 +10,6 @@
 #include <libosso.h>
 #include <QDebug>
 #include <QSettings>
-// for strftime
-//#include <time.h>
-// for setlocale
-//#include <locale.h>
 
 static const char *getHildonTranslation(const char *string)
 {
