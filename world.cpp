@@ -11,9 +11,9 @@
 #include <QDebug>
 #include <QSettings>
 // for strftime
-#include <time.h>
+//#include <time.h>
 // for setlocale
-#include <locale.h>
+//#include <locale.h>
 
 static const char *getHildonTranslation(const char *string)
 {
@@ -100,10 +100,6 @@ QString World::longdate(QString data)
 
     if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
         return localAMtxt;
-/*    else if ( (data.contains("a.m.")) || (data.contains("p.m.")) )
-        return "a.m.";
-    else if ( (data.contains("AM")) || (data.contains("PM")) )
-        return "AM"; */
     else
         return "no";
 }
@@ -137,13 +133,21 @@ void World::on_pushButton_pressed()
     hw->exec();
     if ( hw->selected != "" )
     {
-        addCity(hw->selected.toInt());
-
+	// load current worlclock numbers from config file
         QSettings settings("cepiperez", "worldclock");
         QStringList listado = settings.value("Cities",QStringList()).toStringList();
-        listado.append(hw->selected);
-        settings.setValue("Cities", listado);
-        settings.sync();
+	if ( listado.contains(hw->selected) ) {
+            QString notificationDuplicate = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
+                        /org/freedesktop/Notifications org.freedesktop.Notifications.SystemNoteInfoprint \
+                        string:\"" + _("cloc_ib_world_clock_same") + "\"";
+            QProcess::startDetached(notificationDuplicate);
+	}
+	else {
+             addCity(hw->selected.toInt());
+             listado.append(hw->selected);
+             settings.setValue("Cities", listado);
+             settings.sync();
+        }
     }
     delete hw;
 }

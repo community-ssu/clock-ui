@@ -11,7 +11,7 @@ Dialog3::Dialog3(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
-    this->setWindowTitle(_("cloc_ia_choose_time_zone"));
+    this->setWindowTitle(_("cloc_ti_search_city_title"));
 
     ui->pushButton->setIcon(QIcon::fromTheme("general_close"));
     ui->swidget->setVisible(false);
