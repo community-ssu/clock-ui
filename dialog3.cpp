@@ -81,7 +81,6 @@ void Dialog3::keyReleaseEvent(QKeyEvent *k)
             ui->search->setText( ui->search->text() + k->text() );
         }
     }
-
 }
 
 void Dialog3::on_search_textChanged(QString filter)
