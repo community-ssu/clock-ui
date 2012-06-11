@@ -9,9 +9,9 @@
 
 QString hPath;
 QIcon ich;
-QSettings hsettings("cepiperez", "filemanager");
-QSettings hfoldericons("cepiperez", "filemanager_folders");
-QSettings hfileicons("cepiperez", "filemanager_icons");
+QSettings hsettings("worldclock", "filemanager");
+QSettings hfoldericons("worldclock", "filemanager_folders");
+QSettings hfileicons("worldclock", "filemanager_icons");
 
 
 Home::Home(QWidget *parent, QString path) :

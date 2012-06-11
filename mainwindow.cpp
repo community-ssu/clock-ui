@@ -31,9 +31,12 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle(_("cloc_ap_name"));
 
     // Read some variables
-    QSettings settings("cepiperez", "worldclock");
-    Bool BackgroundImg = settings.value("Background").toBool();
-    SecondsAdded = settings.value("SecondsAdded").toBool();
+    // set background by default
+    Bool BackgroundImg = true;
+    QSettings settings("worldclock", "worldclock");
+    if (settings.contains("Background"))
+    	BackgroundImg = settings.value("Background").toBool();
+    Bool SecondsAdded = settings.value("SecondsAdded").toBool();
     // Compose image text
     intl("hildon-fm");
     QString ImageText = QString::fromUtf8(ngettext("sfil_va_number_of_objects_image", "sfil_va_number_of_objects_images", 1));
@@ -176,6 +179,8 @@ void MainWindow::updateTime()
             ui->hour->setText(CurrTime);
    
 
+//    ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
+
     ui->hour_2->setText( ui->hour->text() );
 
     QDate fecha = QDate::currentDate();
@@ -278,7 +283,7 @@ void MainWindow::on_action_cloc_alarm_settings_title_triggered()
 
 void MainWindow::on_action_sfil_va_number_of_objects_images_triggered()
 {
-    QSettings settings("cepiperez", "worldclock");
+    QSettings settings("worldclock", "worldclock");
     if ( ui->action_sfil_va_number_of_objects_images->isChecked() )
         settings.setValue("Background", "true");
     else
@@ -288,7 +293,7 @@ void MainWindow::on_action_sfil_va_number_of_objects_images_triggered()
 
 void MainWindow::on_action_disp_seconds_triggered()
 {
-    QSettings settings("cepiperez", "worldclock");
+    QSettings settings("worldclock", "worldclock");
     if ( ui->action_disp_seconds->isChecked() ) {
         settings.setValue("SecondsAdded", "true");
 	SecondsAdded = true;

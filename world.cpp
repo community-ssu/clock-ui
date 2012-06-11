@@ -68,7 +68,7 @@ World::World(QWidget *parent) :
 
     loadCurrent();
 
-    QSettings settings("cepiperez", "worldclock");
+    QSettings settings("worldclock", "worldclock");
     QStringList listado = settings.value("Cities",QStringList()).toStringList();
     if ( listado.count() > 0 )
     {
@@ -130,7 +130,7 @@ void World::on_pushButton_pressed()
     if ( hw->selected != "" )
     {
 	// load current worlclock numbers from config file
-        QSettings settings("cepiperez", "worldclock");
+        QSettings settings("worldclock", "worldclock");
         QStringList listado = settings.value("Cities",QStringList()).toStringList();
 	if ( listado.contains(hw->selected) ) {
             QString notificationDuplicate = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
@@ -310,7 +310,7 @@ void World::removeSel()
         for (int i=0; i<ui->treeWidget->topLevelItemCount()-1; ++i)
             listado.append( ui->treeWidget->topLevelItem(i+1)->statusTip(0) );
     }
-    QSettings settings("cepiperez", "worldclock");
+    QSettings settings("worldclock", "worldclock");
     settings.setValue("Cities", listado);
     settings.sync();
 
