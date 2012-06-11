@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QSettings settings("worldclock", "worldclock");
     if (settings.contains("Background"))
     	BackgroundImg = settings.value("Background").toBool();
-    Bool SecondsAdded = settings.value("SecondsAdded").toBool();
+    SecondsAdded = settings.value("SecondsAdded").toBool();
     // Compose image text
     intl("hildon-fm");
     QString ImageText = QString::fromUtf8(ngettext("sfil_va_number_of_objects_image", "sfil_va_number_of_objects_images", 1));
