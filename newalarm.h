@@ -38,8 +38,8 @@ private slots:
     void on_buttonBox_2_clicked(QAbstractButton* button);
     void orientationChanged();
     void on_buttonBox_clicked(QAbstractButton* button);
-    void on_pushButton_pressed();
-    void on_pushButton_2_pressed();
+    void on_time_pushButton_pressed();
+    void on_repeat_pushButton_pressed();
 };
 
 #endif // NEWALARM_H

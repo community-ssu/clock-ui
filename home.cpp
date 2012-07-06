@@ -23,15 +23,15 @@ Home::Home(QWidget *parent, QString path) :
     selected = "";
 
     this->setWindowTitle(_("cloc_ti_open_sound_clip"));
-    ui->pushButton->setIcon( QIcon::fromTheme("filemanager_folder_up") );
+    ui->folderButton_up->setIcon( QIcon::fromTheme("filemanager_folder_up") );
 
     QFileInfo dr(path);
 
-    ui->button->setIcon( QIcon::fromTheme("general_folder") );
-    ui->button->setText( dr.fileName() );
-    if ( path == "/") ui->button->setText( "/" );
-    ui->button->setValueText( path );
-    if ( path == "/") ui->button->setValueText( "" );
+    ui->folderbutton->setIcon( QIcon::fromTheme("general_folder") );
+    ui->folderbutton->setText( dr.fileName() );
+    if ( path == "/") ui->folderbutton->setText( "/" );
+    ui->folderbutton->setValueText( path );
+    if ( path == "/") ui->folderbutton->setValueText( "" );
 
     CargarBrowser( path );
 
@@ -52,17 +52,17 @@ void Home::CargarBrowser(QString directorio)
     dir.setFilter ( QDir::Dirs | QDir::Hidden );
     if ( !dir.isReadable() )
           return;
-    ui->button->setText( QFileInfo(directorio).fileName() );
-    if ( directorio == "/") ui->button->setText( "/" );
-    ui->button->setValueText( directorio );
-    if ( directorio == "/") ui->button->setValueText( "" );
+    ui->folderbutton->setText( QFileInfo(directorio).fileName() );
+    if ( directorio == "/") ui->folderbutton->setText( "/" );
+    ui->folderbutton->setValueText( directorio );
+    if ( directorio == "/") ui->folderbutton->setValueText( "" );
 
     ui->listWidget->clear();
 
     dir.setFilter( QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot );
     dir.setSorting( QDir::Name | QDir::DirsFirst | QDir::IgnoreCase );
 
-    //dir.setSorting( QDir::DirsFirst );
+    QRegExp fileExt( "\\.ogg$|\\.mp3$|\\.aac$" );
     QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i)
     {
@@ -75,9 +75,7 @@ void Home::CargarBrowser(QString directorio)
             item1->setIcon(QIcon::fromTheme("general_folder"));
             ui->listWidget->insertItem( i, item1 );
         }
-        else if ( (fileInfo.completeSuffix().toLower()=="mp3") ||
-                  (fileInfo.completeSuffix().toLower()=="ogg") ||
-                  (fileInfo.completeSuffix().toLower()=="aac") )
+          else if (fileInfo.fileName().toLower().contains(fileExt))
         {
             QListWidgetItem *item1 = new QListWidgetItem( ui->listWidget );
             item1->setText(fileInfo.fileName());
@@ -115,7 +113,7 @@ void Home::on_listWidget_itemClicked(QListWidgetItem* item)
 
 }
 
-void Home::on_pushButton_clicked()
+void Home::on_folderButton_up_clicked()
 {
     if ( hPath == "/" ) return;
     QString nPath = hPath;

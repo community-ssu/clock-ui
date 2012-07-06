@@ -15,9 +15,9 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="newWorldclock_pushButton">
      <property name="text">
-      <string>PushButton</string>
+      <string>newWorldclock</string>
      </property>
      <property name="iconSize">
       <size>

@@ -28,8 +28,8 @@ private:
     GMainLoop* loop;
 
 private slots:
-    void on_buttonBox_2_clicked(QAbstractButton* button);
-    void on_buttonBox_clicked(QAbstractButton* button);
+    void on_moreButton_portrait_clicked(QAbstractButton* button);
+    void on_moreButton_landscape_clicked(QAbstractButton* button);
     void on_listWidget_itemActivated(QListWidgetItem* item);
     void orientationChanged();
     virtual void reject();

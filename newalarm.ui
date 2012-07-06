@@ -43,14 +43,14 @@
        </widget>
       </item>
       <item>
-       <widget class="ValueButton" name="pushButton" native="true">
+       <widget class="ValueButton" name="time_pushButton" native="true">
         <property name="text" stdset="0">
          <string/>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="ValueButton" name="pushButton_2" native="true">
+       <widget class="ValueButton" name="repeat_pushButton" native="true">
         <property name="text" stdset="0">
          <string/>
         </property>

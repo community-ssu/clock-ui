@@ -37,7 +37,7 @@
        <widget class="QLineEdit" name="search"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="cancelSearch_pushButton">
         <property name="text">
          <string/>
         </property>

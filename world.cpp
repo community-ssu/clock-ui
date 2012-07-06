@@ -60,8 +60,8 @@ World::World(QWidget *parent) :
 
     this->setWindowTitle(_("cloc_ti_world_clocks"));
 
-    ui->pushButton->setIcon(QIcon::fromTheme("general_add"));
-    ui->pushButton->setText(_("cloc_me_new_world_clock"));
+    ui->newWorldclock_pushButton->setIcon(QIcon::fromTheme("general_add"));
+    ui->newWorldclock_pushButton->setText(_("cloc_me_new_world_clock"));
 
     FileDelegate *pluginDelegate = new FileDelegate(ui->treeWidget);
     ui->treeWidget->setItemDelegate(pluginDelegate);
@@ -123,7 +123,7 @@ void World::orientationChanged()
 
 }
 
-void World::on_pushButton_pressed()
+void World::on_newWorldclock_pushButton_pressed()
 {
     Dialog3* hw = new Dialog3(this);
     hw->exec();

@@ -120,7 +120,8 @@ void ValueButton::paintEvent(QPaintEvent *paint)
     {
         QFontMetrics fm(f);
         if ( QFileInfo(name).isFile() )
-            name = QFileInfo(name).baseName();
+             name = QFileInfo(name.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName();
+            //name = QFileInfo(name).baseName();
         name = fm.elidedText(name, Qt::ElideRight, this->width()-250);
         p.drawText(240,0,this->width()-240,this->height(),Qt::AlignVCenter|Qt::AlignLeft,name, &r);
     }

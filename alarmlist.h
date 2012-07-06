@@ -32,7 +32,8 @@ private:
 private slots:
     void on_treeWidget_itemActivated(QTreeWidgetItem* item, int column);
     void orientationChanged();
-    void on_pushButton_pressed();
+    //void on_listWidget_itemActivated(QListWidgetItem* item);
+    void on_newAlarm_pressed();
 };
 
 #endif // ALARMLIST_H

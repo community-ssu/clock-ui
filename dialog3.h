@@ -28,7 +28,7 @@ protected:
 private slots:
     void on_listWidget_itemActivated(QListWidgetItem* item);
     void on_search_textChanged(QString );
-    void on_pushButton_pressed();
+    void on_cancelSearch_pushButton_pressed();
 };
 
 #endif // DIALOG3_H

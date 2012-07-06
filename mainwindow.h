@@ -26,7 +26,6 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    void paintEvent(QPaintEvent*);
     QTimer *timer;
 
 private slots:
@@ -39,12 +38,14 @@ private slots:
     void loadAlarm();
     void loadWorld();
     void on_listWidget_itemActivated(QListWidgetItem* item);
-    void on_pushButton_3_released();
-    void on_pushButton_3_pressed();
-    void on_pushButton_2_pressed();
-    void on_pushButton_2_released();
-    void on_pushButton_pressed();
-    void on_pushButton_released();
+    void on_nwAlarm_pushButton_released();
+    void on_nwAlarm_pushButton_pressed();
+    void on_timeButton_landscape_released();
+    void on_timeButton_portrait_released();
+    void on_wrldClk_pushButton_pressed();
+    void on_wrldClk_pushButton_released();
+    void on_Alarm_pushButton_pressed();
+    void on_Alarm_pushButton_released();
     void orientationChanged();
 
 };

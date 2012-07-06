@@ -68,8 +68,8 @@ AlarmList::AlarmList(QWidget *parent) :
     FileDelegate *pluginDelegate = new FileDelegate(ui->treeWidget);
     ui->treeWidget->setItemDelegate(pluginDelegate);
 
-    ui->pushButton->setIcon(QIcon::fromTheme("general_add"));
-    ui->pushButton->setText(_("clock_ti_new_alarm"));
+    ui->newAlarm->setIcon(QIcon::fromTheme("general_add"));
+    ui->newAlarm->setText(_("clock_ti_new_alarm"));
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
@@ -196,8 +196,6 @@ void AlarmList::loadAlarms()
 
             pepe->setText(4, QString::number(ttime));
 
-            //qDebug() << "DAYS FOR ALARM: " << cook1 << dias << fl1;
-
             unsigned f = aevent->flags;
 
             if ( f==136240 || f==131072 || f==132648 || f==131624 || f==552 || f==1576 || \
@@ -317,7 +315,6 @@ void AlarmList::loadAlarms()
             int j = tmp.indexOf(",");
             if ( j>0 )
                 tmp.remove(j, tmp.length()-j);
-            // line2 = QDate::longDayName(tmp.toInt());
             line2 = _("cloc_ti_start_day");
             line2.replace("%s", formatHildonDate(qdtm, hildonDayOfWeek));
         }
@@ -332,7 +329,7 @@ void AlarmList::loadAlarms()
 
 }
 
-void AlarmList::on_pushButton_pressed()
+void AlarmList::on_newAlarm_pressed()
 {
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();

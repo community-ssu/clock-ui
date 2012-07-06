@@ -16,7 +16,7 @@ class Home : public QDialog
 public:
     explicit Home(QWidget *parent = 0, QString path = "");
     ~Home();
-    QMaemo5ValueButton* button;
+    QMaemo5ValueButton* folderbutton;
     QString selected;
 
 public slots:
@@ -26,7 +26,7 @@ private:
     Ui::Home *ui;
 
 private slots:
-    void on_pushButton_clicked();
+    void on_folderButton_up_clicked();
     void on_listWidget_itemClicked(QListWidgetItem* item);
 };
 

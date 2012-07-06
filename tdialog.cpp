@@ -6,6 +6,8 @@
 #include "valuebutton.h"
 #include "gconfitem.h"
 #include "home.h"
+//#include <gstreamer-0.10/gst/gst.h>
+//#include "glib-2.0/glib/gmain.h"
 
 TDialog::TDialog(QWidget *parent) :
     QDialog(parent),
@@ -19,24 +21,28 @@ TDialog::TDialog(QWidget *parent) :
     this->setWindowTitle(_("cloc_ti_alarm_tone"));
 
     intl("calendar");
-    ui->buttonBox->button(QDialogButtonBox::Retry)->setText(_("cal_more_events"));
-    ui->buttonBox_2->button(QDialogButtonBox::Retry)->setText(_("cal_more_events"));
+    ui->moreButton_landscape->button(QDialogButtonBox::Retry)->setText(_("cal_more_events"));
+    ui->moreButton_portrait->button(QDialogButtonBox::Retry)->setText(_("cal_more_events"));
     intl("osso-connectivity-ui");
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setText(_("conn_iaps_bd_done"));
-    ui->buttonBox_2->button(QDialogButtonBox::Apply)->setText(_("conn_iaps_bd_done"));
+    ui->moreButton_landscape->button(QDialogButtonBox::Apply)->setText(_("conn_iaps_bd_done"));
+    ui->moreButton_portrait->button(QDialogButtonBox::Apply)->setText(_("conn_iaps_bd_done"));
     intl("osso-clock");
 
     QListWidgetItem *item1;
 
     GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
     QString text = item->value().toString();
+    QRegExp fileExt( "\\.ogg$|\\.mp3$|\\.aac$" );
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+    fileExt.setCaseSensitivity(cs);
 
     if ( text != "/"  )
     {
         item1 = new QListWidgetItem();
         item1->setTextAlignment(Qt::AlignCenter);
-        item1->setText( QFileInfo(text).baseName() );
+        //item1->setText( QFileInfo(text).baseName() );
         item1->setWhatsThis(text);
+        item1->setText( QFileInfo(text.remove(fileExt)).fileName() );
         ui->listWidget->addItem(item1);
     }
 
@@ -91,13 +97,13 @@ void TDialog::orientationChanged()
 {
 
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
-        ui->buttonBox->hide();
-        ui->buttonBox_2->show();
+        ui->moreButton_landscape->hide();
+        ui->moreButton_portrait->show();
         this->setMinimumHeight((ui->listWidget->count()*70)+170);
         this->setMaximumHeight((ui->listWidget->count()*70)+170);
     } else {
-        ui->buttonBox_2->hide();
-        ui->buttonBox->show();
+        ui->moreButton_portrait->hide();
+        ui->moreButton_landscape->show();
         this->setMinimumHeight((ui->listWidget->count()*70)+10);
         this->setMaximumHeight((ui->listWidget->count()*70)+10);
     }
@@ -127,12 +133,16 @@ void TDialog::on_listWidget_itemActivated(QListWidgetItem* item)
 
 }
 
-void TDialog::on_buttonBox_clicked(QAbstractButton* button)
+void TDialog::on_moreButton_landscape_clicked(QAbstractButton* button)
 {
     stopSound();
 
     intl("calendar");
     QString tmp = _("cal_more_events");
+    QRegExp fileExt( "\\.ogg$|\\.mp3$|\\.aac$" );
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+    fileExt.setCaseSensitivity(cs);
+
     intl("osso-clock");
     if ( button->text() == tmp )
     {
@@ -144,16 +154,18 @@ void TDialog::on_buttonBox_clicked(QAbstractButton* button)
             {
                 QListWidgetItem *item1 = new QListWidgetItem();
                 item1->setTextAlignment(Qt::AlignCenter);
-                item1->setText( QFileInfo(hw->selected).baseName() );
+                //item1->setText( QFileInfo(hw->selected).baseName() );
                 item1->setWhatsThis(hw->selected);
+                item1->setText( QFileInfo(hw->selected.remove(fileExt)).fileName() );
                 ui->listWidget->insertItem(0, item1);
                 orientationChanged();
                 ui->listWidget->setCurrentRow(0);
             }
             else
             {
-                ui->listWidget->item(0)->setText( QFileInfo(hw->selected).baseName() );
+                //ui->listWidget->item(0)->setText( QFileInfo(hw->selected).baseName() );
                 ui->listWidget->item(0)->setWhatsThis(hw->selected);
+                ui->listWidget->item(0)->setText( QFileInfo(hw->selected.remove(fileExt)).fileName() );
                 ui->listWidget->setCurrentRow(0);
             }
         }
@@ -167,7 +179,7 @@ void TDialog::on_buttonBox_clicked(QAbstractButton* button)
 
 }
 
-void TDialog::on_buttonBox_2_clicked(QAbstractButton* button)
+void TDialog::on_moreButton_portrait_clicked(QAbstractButton* button)
 {
-    on_buttonBox_clicked(button);
+    on_moreButton_landscape_clicked(button);
 }

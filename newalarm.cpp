@@ -76,10 +76,10 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
         this->setWindowTitle(_("clock_ti_new_alarm"));
 
     ui->lineEdit->setPlaceholderText(_("cloc_va_placeholder_title"));
-    ui->pushButton->setStatusTip(_("cloc_fi_time"));
-    ui->pushButton_2->setStatusTip(_("cloc_fi_repeat"));
-    ui->pushButton_2->setValueText("0");
-    ui->pushButton_2->setWhatsThis("date");
+    ui->time_pushButton->setStatusTip(_("cloc_fi_time"));
+    ui->repeat_pushButton->setStatusTip(_("cloc_fi_repeat"));
+    ui->repeat_pushButton->setValueText("0");
+    ui->repeat_pushButton->setWhatsThis("date");
     ui->checkBox->setText(_("cloc_fi_active"));
 
     intl("osso-connectivity-ui");
@@ -91,21 +91,18 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     ui->buttonBox->button(QDialogButtonBox::Retry)->setVisible(edit);
     ui->buttonBox_2->button(QDialogButtonBox::Retry)->setVisible(edit);
 
-    /*QMaemo5TimePickSelector * picker = new QMaemo5TimePickSelector(ui->pushButton);
-    ui->pushButton->setPickSelector(picker);*/
-
     if ( name != "" )
         ui->lineEdit->setText(name);
 
     if ( time != "" )
-        ui->pushButton->setValueText(time);
+        ui->time_pushButton->setValueText(time);
     else
-        ui->pushButton->setValueText( QLocale::system().toString( QTime::currentTime(), QLocale::ShortFormat) );
+        ui->time_pushButton->setValueText( QLocale::system().toString( QTime::currentTime(), QLocale::ShortFormat) );
 
     if ( days != "" )
-        ui->pushButton_2->setValueText(days);
+        ui->repeat_pushButton->setValueText(days);
     else
-        ui->pushButton_2->setValueText(_("cloc_va_never"));
+        ui->repeat_pushButton->setValueText(_("cloc_va_never"));
 
     if ( !isEditing )
         ui->checkBox->hide();
@@ -146,13 +143,13 @@ void NewAlarm::orientationChanged()
 
 }
 
-void NewAlarm::on_pushButton_pressed()
+void NewAlarm::on_time_pushButton_pressed()
 {
-    QString temp = ui->pushButton->valueText();
+    QString temp = ui->time_pushButton->valueText();
     int j = temp.indexOf(":");
     temp.remove(j, temp.length()-j);
     int val1 = temp.toInt();
-    temp = ui->pushButton->valueText();
+    temp = ui->time_pushButton->valueText();
     j = temp.indexOf(":");
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
@@ -160,11 +157,11 @@ void NewAlarm::on_pushButton_pressed()
     QString localAMtxt = QLocale::system().amText();
 
     bool ampm = false;
-    if ( longdate(ui->pushButton->valueText()) != "no"  )
+    if ( longdate(ui->time_pushButton->valueText()) != "no"  )
         ampm = true;
 
     bool am = true;
-    if (ui->pushButton->valueText().contains(localPMtxt) )
+    if (ui->time_pushButton->valueText().contains(localPMtxt) )
         am = false;
 
     QString dam = localAMtxt;
@@ -178,13 +175,13 @@ void NewAlarm::on_pushButton_pressed()
         QTime tiempo;
         int hora = hw->res1;
         int mins = hw->res2;
-        if ( (longdate(ui->pushButton->valueText())!="no") && (!hw->isam) )
+        if ( (longdate(ui->time_pushButton->valueText())!="no") && (!hw->isam) )
         {
             hora = hw->res1+12;
         }
         tiempo.setHMS(hora, mins, 0);
 
-        ui->pushButton->setValueText( QLocale::system().toString(tiempo, QLocale::ShortFormat));
+        ui->time_pushButton->setValueText( QLocale::system().toString(tiempo, QLocale::ShortFormat));
     }
     delete hw;
 
@@ -203,9 +200,9 @@ QString NewAlarm::longdate(QString data)
 }
 
 
-void NewAlarm::on_pushButton_2_pressed()
+void NewAlarm::on_repeat_pushButton_pressed()
 {
-    Dialog* hw = new Dialog(this, ui->pushButton_2->statusTip(), ui->pushButton_2->valueText());
+    Dialog* hw = new Dialog(this, ui->repeat_pushButton->statusTip(), ui->repeat_pushButton->valueText());
     int result = hw->exec();
 
     if (result == QDialog::Accepted)
@@ -224,7 +221,7 @@ void NewAlarm::on_pushButton_2_pressed()
             lista.append("8");
         }
 
-        ui->pushButton_2->setValueText(lista);
+        ui->repeat_pushButton->setValueText(lista);
     }
     delete hw;
 
@@ -289,8 +286,8 @@ void NewAlarm::addAlarm()
     intl("osso-clock");
 
     name = ui->lineEdit->text();
-    days = ui->pushButton_2->valueText();
-    time = ui->pushButton->valueText();
+    days = ui->repeat_pushButton->valueText();
+    time = ui->time_pushButton->valueText();
     enabled = ui->checkBox->isChecked();
     QString localPMtxt = QLocale::system().pmText();
     QString localAMtxt = QLocale::system().amText();
@@ -374,15 +371,15 @@ void NewAlarm::addAlarm()
        act->flags |= ALARM_ACTION_TYPE_NOP;
     }
 
-    QString temp = ui->pushButton->valueText();
+    QString temp = ui->time_pushButton->valueText();
     int j = temp.indexOf(":");
     temp.remove(j, temp.length()-j);
     int val1 = temp.toInt();
-    temp = ui->pushButton->valueText();
+    temp = ui->time_pushButton->valueText();
     j = temp.indexOf(":");
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
-    QString tmpx = ui->pushButton->valueText();
+    QString tmpx = ui->time_pushButton->valueText();
 //    tmpx.remove(".");
     if ( tmpx.contains(localPMtxt) && val1!=12 )
         val1 = val1+12;
@@ -393,11 +390,18 @@ void NewAlarm::addAlarm()
     currDate.setTime(QTime( val1, val2 ));
     event->alarm_time = currDate.toTime_t();
 
-    if(ldays.first() == 0) {
+    /*if(days.first() == 8) {
+      event->recur_secs = 86400; // 24 hours
+      event->recur_count = -1; // Reoccur infinitely
+      event->alarm_time = toTime_t(currDate.time()); // Set event time
+      alarm_recur_t* recur = alarm_event_add_recurrences(event, 1);
+      recur->mask_wday = ALARM_RECUR_WDAY_ALL;
+    } else {*/
+      if(ldays.first() == 0) {
         event->alarm_time = -1;
         event->alarm_tm.tm_hour = currDate.time().hour();
         event->alarm_tm.tm_min = currDate.time().minute();
-    } else {
+      } else {
         //qDebug("Using the new recurrence API");
         event->recur_count = -1;
         event->recur_secs = 0; // We re not using this way for recurrence
@@ -479,6 +483,8 @@ void NewAlarm::addAlarm()
     act = 0;
     event = 0;
 
+    //cookie = event->cookie;
+    //qDebug() << "Guardando alarma nueva" << realcookie;
 
 }
 

@@ -21,7 +21,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="folderButton_up">
      <property name="minimumSize">
       <size>
        <width>74</width>
@@ -65,20 +65,27 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QMaemo5ValueButton" name="button">
+    <widget class="QMaemo5ValueButton" name="folderbutton" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
        <height>70</height>
       </size>
      </property>
-     <property name="text">
+     <property name="text" stdset="0">
       <string>PushButton</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QMaemo5ValueButton</class>
+   <extends>QWidget</extends>
+   <header>qmaemo5valuebutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

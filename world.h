@@ -31,7 +31,7 @@ private slots:
     void addCity(int cityId);
     void loadCurrent();
     void orientationChanged();
-    void on_pushButton_pressed();
+    void on_newWorldclock_pushButton_pressed();
 };
 
 #endif // WORLD_H

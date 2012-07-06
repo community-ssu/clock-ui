@@ -13,7 +13,7 @@ Dialog3::Dialog3(QWidget *parent) :
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setWindowTitle(_("cloc_ti_search_city_title"));
 
-    ui->pushButton->setIcon(QIcon::fromTheme("general_close"));
+    ui->cancelSearch_pushButton->setIcon(QIcon::fromTheme("general_close"));
     ui->swidget->setVisible(false);
 
     this->selected = "";
@@ -57,7 +57,7 @@ Dialog3::~Dialog3()
     delete ui;
 }
 
-void Dialog3::on_pushButton_pressed()
+void Dialog3::on_cancelSearch_pushButton_pressed()
 {
     ui->search->setText("");
     ui->swidget->setVisible(false);
@@ -81,6 +81,8 @@ void Dialog3::keyReleaseEvent(QKeyEvent *k)
             ui->search->setText( ui->search->text() + k->text() );
         }
     }
+
+
 }
 
 void Dialog3::on_search_textChanged(QString filter)
