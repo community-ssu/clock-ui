@@ -30,7 +30,9 @@ AlSettings::AlSettings(QWidget *parent) :
     else
         ui->alsound_pushButton->setValueText( QFileInfo(item->value().toString().remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
 
+    // get default snooze value
     int val = alarmd_get_default_snooze();
+
     ui->snooze_pushButton->setWhatsThis(QString::number(val));
     val = val/60;
 
@@ -86,8 +88,8 @@ void AlSettings::on_snooze_pushButton_pressed()
             val = 5;
         else if ( hw->selected == 600 )
             val = 10;
-        else if ( hw->selected == 1200 )
-            val = 20;
+        else if ( hw->selected == 900 )
+            val = 15;
         QString tmp = _("cloc_va_diff_hours_mins");
         tmp.replace("%s %d", QString::number(val));
         ui->snooze_pushButton->setValueText(tmp);
@@ -121,7 +123,9 @@ void AlSettings::on_buttonBox_clicked(QAbstractButton*)
 {
     qDebug() << ui->alsound_pushButton->statusTip();
     qDebug() << ui->snooze_pushButton->statusTip();
-    int val = ui->snooze_pushButton->statusTip().toInt();
+    int val = ui->snooze_pushButton->valueText().remove(QRegExp(" \\D+")).toInt();
+
+    val = val*60;
     alarmd_set_default_snooze(val);
 
     QString text;
