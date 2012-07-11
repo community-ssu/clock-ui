@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
     MainDelegate *delegate = new MainDelegate(ui->listWidget);
     ui->listWidget->setItemDelegate(delegate);
 
-    QFont f = ui->timeButton_landscape->font();
+    QFont f( "Nokia Sans");
     f.setPointSize(48);
     ui->timeButton_landscape->setFont(f);
     f.setPointSize(18);

@@ -265,7 +265,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>42</height>
+           <height>32</height>
           </size>
          </property>
         </spacer>
@@ -277,7 +277,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>50</width>
+           <width>51</width>
            <height>40</height>
           </size>
          </property>
