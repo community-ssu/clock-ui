@@ -28,6 +28,7 @@ Dialog3::Dialog3(QWidget *parent) :
         QString name = QString::fromUtf8(cityinfo_get_name(cities[i]));
         QString country = QString::fromUtf8(cityinfo_get_country(cities[i]));
         QString zone = ":" + QString::fromUtf8(cityinfo_get_zone(cities[i]));
+        // QString c_code = ":" + QString::fromUtf8(cityinfo_get_code(cities[i]));
 
         QString timeoffset;
         QString sign;
@@ -44,6 +45,15 @@ Dialog3::Dialog3(QWidget *parent) :
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
         item1->setText(timeoffset);
         item1->setStatusTip(QString::number(cities[i]->id));
+        if (qstrcmp(cityinfo_get_code(cities[i]),"IS") == 0)
+	{
+            // use Iceland for own UTC zone
+            timeoffset = QString("GMT %3 (%1/%2)").arg("GMT").arg("UTC").arg(sign+QString::number(-offset/3600));
+            QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
+            item1->setText(timeoffset);
+            // and give this own UTC its unique own number
+            item1->setStatusTip(QString::number(999));
+	}
         if (zone == defTZ)
             defTZ = timeoffset;
     }

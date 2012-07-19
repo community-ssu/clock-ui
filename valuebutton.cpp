@@ -32,6 +32,7 @@ static const char *getHildonTranslation(const char *string)
 }
 
 const char *hildonDateDayNameShort = getHildonTranslation("wdgt_va_date_day_name_short");
+const char *hildonDateDayNameLong = getHildonTranslation("wdgt_va_week");
 
 static QString formatHildonDate(const QDateTime &dt, const char *format)
 {
@@ -79,38 +80,58 @@ void ValueButton::paintEvent(QPaintEvent *paint)
 
   if ( this->whatsThis() == "date" )
     {
-	/* Calculate the daynames and remove the trailing comma for Polish and French point abv. */
-        QString MondayNameShort = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 1 */
-	QStringList sl = MondayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	MondayNameShort = sl.at(0);
-        QString TuedayNameShort = formatHildonDate(QDateTime::fromString("03.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 2 */
-	sl = TuedayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	TuedayNameShort = sl.at(0);
-        QString WeddayNameShort = formatHildonDate(QDateTime::fromString("04.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 3 */
-	sl = WeddayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	WeddayNameShort = sl.at(0);
-        QString ThudayNameShort = formatHildonDate(QDateTime::fromString("05.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 4 */
-	sl = ThudayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	ThudayNameShort = sl.at(0);
-        QString FridayNameShort = formatHildonDate(QDateTime::fromString("06.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 5 */
-	sl = FridayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	FridayNameShort = sl.at(0);
-        QString SatdayNameShort = formatHildonDate(QDateTime::fromString("07.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 6 */
-	sl = SatdayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	SatdayNameShort = sl.at(0);
-        QString SundayNameShort = formatHildonDate(QDateTime::fromString("01.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 7 */
-	sl = SundayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-	SundayNameShort = sl.at(0);
         //QTextStream(stdout) << sl.at(0);
-        name.replace("1", MondayNameShort );
-        name.replace("2", TuedayNameShort );
-        name.replace("3", WeddayNameShort );
-        name.replace("4", ThudayNameShort );
-        name.replace("5", FridayNameShort );
-        name.replace("6", SatdayNameShort );
-        name.replace("7", SundayNameShort );
         name.replace("0", _("cloc_va_never") );
         name.replace("8", _("cloc_va_everyday") );
+	if (name.count(",") > 1)
+	{
+		/* Calculate the daynames and remove the trailing comma for Polish and French point abv. */
+		QString MondayNameShort = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 1 */
+		QStringList sl = MondayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		MondayNameShort = sl.at(0);
+        	QString TuedayNameShort = formatHildonDate(QDateTime::fromString("03.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 2 */
+		sl = TuedayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		TuedayNameShort = sl.at(0);
+        	QString WeddayNameShort = formatHildonDate(QDateTime::fromString("04.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 3 */
+		sl = WeddayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		WeddayNameShort = sl.at(0);
+		QString ThudayNameShort = formatHildonDate(QDateTime::fromString("05.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 4 */
+		sl = ThudayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		ThudayNameShort = sl.at(0);
+		QString FridayNameShort = formatHildonDate(QDateTime::fromString("06.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 5 */
+		sl = FridayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		FridayNameShort = sl.at(0);
+        	QString SatdayNameShort = formatHildonDate(QDateTime::fromString("07.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 6 */
+		sl = SatdayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		SatdayNameShort = sl.at(0);
+		QString SundayNameShort = formatHildonDate(QDateTime::fromString("01.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 7 */
+		sl = SundayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
+		SundayNameShort = sl.at(0);
+		name.replace("1", MondayNameShort );
+		name.replace("2", TuedayNameShort );
+		name.replace("3", WeddayNameShort );
+		name.replace("4", ThudayNameShort );
+		name.replace("5", FridayNameShort );
+		name.replace("6", SatdayNameShort );
+		name.replace("7", SundayNameShort );
+	}
+	else
+	{
+		QString MondayNameLong = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 1 */
+		QString TuedayNameLong = formatHildonDate(QDateTime::fromString("03.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 1 */
+		QString WeddayNameLong = formatHildonDate(QDateTime::fromString("04.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 3 */
+		QString ThudayNameLong = formatHildonDate(QDateTime::fromString("05.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 4 */
+		QString FridayNameLong = formatHildonDate(QDateTime::fromString("06.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 5 */
+		QString SatdayNameLong = formatHildonDate(QDateTime::fromString("07.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 6 */
+		QString SundayNameLong = formatHildonDate(QDateTime::fromString("01.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 7 */
+		name.replace("1", MondayNameLong );
+		name.replace("2", TuedayNameLong );
+		name.replace("3", WeddayNameLong );
+		name.replace("4", ThudayNameLong );
+		name.replace("5", FridayNameLong );
+		name.replace("6", SatdayNameLong );
+		name.replace("7", SundayNameLong );
+	}
     }
 
     p.setPen(QPen(QMaemo5Style::standardColor("ActiveTextColor")));
@@ -121,7 +142,6 @@ void ValueButton::paintEvent(QPaintEvent *paint)
         QFontMetrics fm(f);
         if ( QFileInfo(name).isFile() )
              name = QFileInfo(name.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName();
-            //name = QFileInfo(name).baseName();
         name = fm.elidedText(name, Qt::ElideRight, this->width()-250);
         p.drawText(240,0,this->width()-240,this->height(),Qt::AlignVCenter|Qt::AlignLeft,name, &r);
     }

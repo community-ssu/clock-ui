@@ -7,6 +7,7 @@
 #include "filedelegate.h"
 #include "cityinfo.h"
 #include "clockd/libtime.h"
+#include "gconfitem.h"
 #include <libosso.h>
 #include <QDebug>
 #include <QSettings>
@@ -152,9 +153,25 @@ void World::addCity(int cityId)
 {
     QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
+    bool UTCtime = false;
+    QString n;
+    if (cityId == 999)
+    {
+	// our own added UTC timezone
+	UTCtime = true;
+	// UTC is equal to iceland timezone, so use we that info
+	cityId = 164;
+    }
     Cityinfo* city = cityinfo_from_id(cityId);
 
-    QString n = QString::fromUtf8(city->name) + "  startdesc" + QString::fromUtf8(city->country);
+    if (UTCtime)
+    {
+	// restore own UTC timezone id
+	cityId = 999;
+        n = QString::fromUtf8("GMT") + "  startdesc" + QString::fromUtf8("UTC");
+    }
+    else
+        n = QString::fromUtf8(city->name) + "  startdesc" + QString::fromUtf8(city->country);
     pepe->setText(1, n);
     pepe->setWhatsThis(1, "world-name");
 
@@ -181,17 +198,7 @@ void World::addCity(int cityId)
     // also remove trailing comma/point
     QStringList sl = CurrentdayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
     CurrentdayNameShort = sl.at(0);
-    QString LocalDateShort = tiempo.date().toString(Qt::DefaultLocaleShortDate);
-    QRegExp LongYearEnd( "\\d{4}$" ); 
-    /* we have 4 digits at the end of the date, meaning yyyy
-       next we replace this by the last two digits (yy), so no century info */
-    if (LongYearEnd.indexIn(LocalDateShort) != -1 )
-  	LocalDateShort.replace(LongYearEnd, LocalDateShort.right(2));
-    QRegExp LongYearBegin( "^\\d{4}" ); 
-    /* we have 4 digits at the beginning of the date, meaning yyyy
-       next we replace this by the last two digits (yy), so no century info */
-    if (LongYearBegin.indexIn(LocalDateShort) != -1 )
-  	LocalDateShort.replace(LongYearBegin, LocalDateShort.mid(2,2));
+    QString LocalDateShort = tiempo.date().toString(Qt::SystemLocaleShortDate);
 
     pepe->setText(2, CurrentdayNameShort + " "
                   + LocalDateShort
@@ -210,6 +217,8 @@ void World::loadCurrent()
 {
     int ret = 0;
     char current_tz[32];
+    // get the current home city
+    GConfItem *homeCityCode = new GConfItem("/apps/clock/home-location");
     QString timeoffset;
     ret = time_get_timezone(&current_tz[0], 32);
     if(ret>0 && ret < 32)
@@ -219,9 +228,9 @@ void World::loadCurrent()
       bool current_found = false;
       while(*cities_iter && !current_found)
       {
-        char* tz = cityinfo_get_zone(*cities_iter);
+        int cityId = cityinfo_get_id(*cities_iter);
 
-        if(g_strcmp0(tz, current_tz+1)==0)
+        if(homeCityCode->value().toInt()==cityId)
         {
           current_found = true;
 
@@ -253,18 +262,7 @@ void World::loadCurrent()
           QString CurrentdayNameShort = formatHildonDate(date_time, hildonDateDayNameShrt);
           QStringList sl = CurrentdayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
           CurrentdayNameShort = sl.at(0);
-
-          QString LocalDateShort = fecha.toString(Qt::DefaultLocaleShortDate);
-          QRegExp LongYearEnd( "\\d{4}$" ); 
-          /* we have 4 digits at the end of the date, meaning yyyy
-             next we replace this by the last two digits (yy), so no century info */
-          if (LongYearEnd.indexIn(LocalDateShort) != -1 )
-              LocalDateShort.replace(LongYearEnd, LocalDateShort.right(2));
-          QRegExp LongYearBegin( "^\\d{4}" ); 
-          /* we have 4 digits at the beginning of the date, meaning yyyy
-             next we replace this by the last two digits (yy), so no century info */
-          if (LongYearBegin.indexIn(LocalDateShort) != -1 )
-              LocalDateShort.replace(LongYearBegin, LocalDateShort.mid(2,2));
+          QString LocalDateShort = fecha.toString(Qt::SystemLocaleShortDate);
 
           pepe->setText(2, CurrentdayNameShort + " "
                         + LocalDateShort
@@ -289,9 +287,14 @@ void World::loadCurrent()
 
 void World::on_treeWidget_customContextMenuRequested(QPoint pos)
 {
-    if ( ( ui->treeWidget->topLevelItemCount() == 1 ) ||
-         ( ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) ) )
-        return;
+    if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) )
+    {
+		// Open date/time settings upon longpress of local time
+		osso_context_t *osso; 
+		osso = osso_initialize("worldclock", "", TRUE, NULL); 
+		osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE); 
+		return;
+    }
 
     intl("rtcom-call-ui");
     QMenu *contextMenu = new QMenu(this);
@@ -333,6 +336,4 @@ void World::updateClocks()
         }
 
     }
-
-
 }

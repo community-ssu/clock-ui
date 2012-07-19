@@ -84,17 +84,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_dati_ia_adjust_date_and_time->setText(_("dati_ia_adjust_date_and_time"));
     ui->action_cloc_me_menu_settings_regional->setText(_("cloc_me_menu_settings_regional"));
     ui->action_cloc_alarm_settings_title->setText(_("cloc_alarm_settings_title"));
-    ui->action_sfil_va_number_of_objects_images->setText(ImageText);
+    // ui->action_sfil_va_number_of_objects_images->setText(ImageText);
     ui->action_disp_seconds->setText(SecondsText);
-    if ( BackgroundImg )
-	ui->action_sfil_va_number_of_objects_images->setChecked(true);
+    // if ( BackgroundImg )
+    // 	ui->action_sfil_va_number_of_objects_images->setChecked(true);
     if ( SecondsAdded )
 	ui->action_disp_seconds->setChecked(true);
 
     MainDelegate *delegate = new MainDelegate(ui->listWidget);
     ui->listWidget->setItemDelegate(delegate);
 
-    QFont f( "Nokia Sans");
+    QFont f;
     f.setPointSize(48);
     ui->timeButton_landscape->setFont(f);
     f.setPointSize(18);
@@ -172,8 +172,6 @@ void MainWindow::updateTime()
        else
             ui->timeButton_landscape->setText(CurrTime);
    
-
-//    ui->hour->setText( QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat) );
 
     ui->timeButton_portrait->setText( ui->timeButton_landscape->text() );
 

@@ -109,8 +109,6 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
 
     ui->checkBox->setChecked(enabled);
 
-    on_lineEdit_textChanged(name);
-
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
 
@@ -486,20 +484,4 @@ void NewAlarm::addAlarm()
     //cookie = event->cookie;
     //qDebug() << "Guardando alarma nueva" << realcookie;
 
-}
-
-
-//void NewAlarm::on_lineEdit_textChanged(QString text)
-void NewAlarm::on_lineEdit_textChanged(QString)
-{
-    /*if ( text == "" )
-    {
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
-    }
-    else
-    {
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
-    }*/
 }

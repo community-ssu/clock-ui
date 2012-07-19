@@ -508,7 +508,6 @@
      <string>Menu</string>
     </property>
     <addaction name="action_disp_seconds"/>
-    <addaction name="action_sfil_va_number_of_objects_images"/>
     <addaction name="action_cloc_me_menu_settings_regional"/>
     <addaction name="action_dati_ia_adjust_date_and_time"/>
     <addaction name="action_cloc_alarm_settings_title"/>
