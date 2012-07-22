@@ -11,7 +11,7 @@
 
 
 //When starting another instance, instead raise this.
-static gint rpc_callback(const gchar* interface, const gchar* method, GArray* arguments, gpointer user_data, osso_rpc_t* retval) {
+static gint rpc_callback(const gchar* interface, const gchar* method, GArray*, gpointer user_data, osso_rpc_t* retval) {
 	QMainWindow*  window;
 	window = (QMainWindow*)user_data;
 

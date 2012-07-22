@@ -83,6 +83,7 @@ World::World(QWidget *parent) :
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
 
+
 }
 
 World::~World()
@@ -285,24 +286,29 @@ void World::loadCurrent()
 
 }
 
-void World::on_treeWidget_customContextMenuRequested(QPoint pos)
+void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 {
-    if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) )
-    {
-		// Open date/time settings upon longpress of local time
+	// Open date/time settings window upon short press of local time
+	if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) )
+	{
 		osso_context_t *osso; 
 		osso = osso_initialize("worldclock", "", TRUE, NULL); 
 		osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE); 
-		return;
-    }
-
-    intl("rtcom-call-ui");
-    QMenu *contextMenu = new QMenu(this);
-    contextMenu->addAction(QIcon(), _("call_me_context_menu_delete"), this, SLOT(removeSel()));
-    intl("osso-clock");
-    contextMenu->exec(mapToGlobal(pos));
-
+	}
 }
+
+void World::on_treeWidget_customContextMenuRequested(QPoint pos)
+{
+    if (! ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) )
+    {
+	    intl("rtcom-call-ui");
+	    QMenu *contextMenu = new QMenu(this);
+	    contextMenu->addAction(QIcon(), _("call_me_context_menu_delete"), this, SLOT(removeSel()));
+	    intl("osso-clock");
+	    contextMenu->exec(mapToGlobal(pos));
+    }
+}
+
 
 void World::removeSel()
 {

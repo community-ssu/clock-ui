@@ -28,6 +28,7 @@ private:
 private slots:
     void removeSel();
     void on_treeWidget_customContextMenuRequested(QPoint pos);
+    void on_treeWidget_itemActivated(QTreeWidgetItem*);
     void addCity(int cityId);
     void loadCurrent();
     void orientationChanged();
