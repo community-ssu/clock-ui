@@ -6,7 +6,6 @@
 #include "dialog.h"
 #include "dialog2.h"
 #include <QDateTime>
-#include <QMaemo5TimePickSelector>
 #include "valuebutton.h"
 /* osso-clock text needed for snooze/stop button translation */
 #define TEXTDOMAIN "osso-clock"

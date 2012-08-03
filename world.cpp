@@ -274,7 +274,13 @@ void World::loadCurrent()
           tr.remove("GMT ");
           curTime = tr.toInt();
 
-          ui->treeWidget->addTopLevelItem(pepe);
+          if ( ui->treeWidget->topLevelItemCount() == 0 )
+	          ui->treeWidget->addTopLevelItem(pepe);
+          else
+          {
+                  ui->treeWidget->takeTopLevelItem (0);
+                  ui->treeWidget->insertTopLevelItem (0,pepe);
+          }
 
         }
         ++cities_iter;
@@ -294,6 +300,7 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 		osso_context_t *osso; 
 		osso = osso_initialize("worldclock", "", TRUE, NULL); 
 		osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE); 
+		loadCurrent();
 	}
 }
 

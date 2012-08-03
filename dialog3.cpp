@@ -38,9 +38,9 @@ Dialog3::Dialog3(QWidget *parent) :
         else
             sign = "+";
         if((offset % 3600)==0)
-            timeoffset = QString("GMT %3 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600));
+            timeoffset = QString("[%1]GMT %3 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600));
         else
-            timeoffset = QString("GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg("30");
+            timeoffset = QString("[%1]GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg("30");
 
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
         item1->setText(timeoffset);
@@ -48,7 +48,7 @@ Dialog3::Dialog3(QWidget *parent) :
         if (qstrcmp(cityinfo_get_code(cities[i]),"IS") == 0)
 	{
             // use Iceland for own UTC zone
-            timeoffset = QString("GMT %3 (%1/%2)").arg("GMT").arg("UTC").arg(sign+QString::number(-offset/3600));
+            timeoffset = QString("[%1]GMT %3 (%1/%2)").arg("GMT").arg("UTC").arg(sign+QString::number(-offset/3600));
             QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
             item1->setText(timeoffset);
             // and give this own UTC its unique own number
@@ -58,7 +58,15 @@ Dialog3::Dialog3(QWidget *parent) :
             defTZ = timeoffset;
     }
     cityinfo_free_all(cities);
+    // sort cities
     ui->listWidget->sortItems();
+    // and remove the sort key (cityname) in front
+    for ( int i=0; i < ui->listWidget->count(); ++i)
+    {
+            QString cityInfoLine = ui->listWidget->item(i)->text();
+            cityInfoLine.remove(QRegExp("^\\[.+\\]"));
+            ui->listWidget->item(i)->setText(cityInfoLine);
+    }
 
 }
 

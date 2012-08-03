@@ -229,6 +229,8 @@ void MainWindow::on_timeButton_landscape_released()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+    // set new local time
+    ww->loadCurrent();
 }
 
 void MainWindow::on_timeButton_portrait_released()
@@ -236,6 +238,8 @@ void MainWindow::on_timeButton_portrait_released()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+    // set new local time
+    ww->loadCurrent();
 }
 
 void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
@@ -279,6 +283,8 @@ void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+    // set new local time
+    ww->loadCurrent();
 }
 
 void MainWindow::on_action_cloc_alarm_settings_title_triggered()

@@ -21,6 +21,7 @@ public:
 
 public slots:
     void updateClocks();
+    void loadCurrent();
 
 private:
     Ui::World *ui;
@@ -30,7 +31,6 @@ private slots:
     void on_treeWidget_customContextMenuRequested(QPoint pos);
     void on_treeWidget_itemActivated(QTreeWidgetItem*);
     void addCity(int cityId);
-    void loadCurrent();
     void orientationChanged();
     void on_newWorldclock_pushButton_pressed();
 };
