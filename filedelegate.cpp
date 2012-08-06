@@ -44,8 +44,9 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   QString name = index.data(Qt::DisplayRole).toString();
   QString help = index.data(Qt::WhatsThisRole).toString();
   QString localPMtxt = QLocale::system().pmText();
+  localPMtxt.remove(QRegExp("(\\,|\\.)"));
   QString localAMtxt = QLocale::system().amText();
-
+  localAMtxt.remove(QRegExp("(\\,|\\.)"));
 
   if ( help == "time" )
   {

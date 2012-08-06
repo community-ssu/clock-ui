@@ -3,6 +3,7 @@
 #include "ui_alarmlist.h"
 #include "filedelegate.h"
 #include "newalarm.h"
+#include "gconfitem.h"
 #include "osso-intl.h"
 #include <QDebug>
 #include <QSettings>
@@ -21,6 +22,11 @@ static const char *getHildonTranslation(const char *string)
 }
 
 const char *hildonDayOfWeek = getHildonTranslation("wdgt_va_week");
+const char *hildonAMformat = getHildonTranslation("wdgt_va_12h_time_am");
+const char *hildonPMformat = getHildonTranslation("wdgt_va_12h_time_pm");
+const char *hildon24format = getHildonTranslation("wdgt_va_24h_time");
+const char *hildonHHformat = getHildonTranslation("wdgt_va_24h_hours");
+
 
 static QString formatHildonDate(const QDateTime &dt, const char *format)
 {
@@ -85,7 +91,9 @@ QString AlarmList::longdate(QString data)
 {
 
     QString localPMtxt = QLocale::system().pmText();
+    localPMtxt.remove(QRegExp("(\\,|\\.)"));
     QString localAMtxt = QLocale::system().amText();
+    localAMtxt.remove(QRegExp("(\\,|\\.)"));
     if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
         return localAMtxt;
     else
@@ -150,6 +158,8 @@ void AlarmList::loadAlarms()
             // get time part from DateTime variable
             QTime qtm = qdtm.time();
             QTime qtm_sched(aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
+            QDateTime qdtm_sched = QDateTime::fromTime_t(ttime);
+            //QDateTime qdtm_sched(aevent->alarm_tm.tm_year,aevent->alarm_tm.tm_mon,aevent->alarm_tm.tm_wday,aevent->alarm_tm.tm_mday,aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             // let's count day to current alarm triggering
             int days = 0;
             QDateTime currDate;
@@ -180,14 +190,52 @@ void AlarmList::loadAlarms()
 
             QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
+            // get the current time format
+            GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
+            bool HH24true = HH24->value().toBool();
+
 	    // if non repeating do not look at trigger time (incl snooze)
             if ( aevent->alarm_tm.tm_hour == -1 ) {
-                pepe->setText(1, QLocale::system().toString( qtm, QLocale::ShortFormat) );
-                pepe->setText(5, QLocale::system().toString( qtm, QLocale::ShortFormat) );
+                if (HH24true)
+                {
+                    pepe->setText(1, formatHildonDate(qdtm, hildon24format) );
+                    pepe->setText(5, formatHildonDate(qdtm, hildon24format) );
+                }
+                else
+                {
+                    QString HH = formatHildonDate(qdtm, hildonHHformat);
+                    if ( HH.toInt() > 11 )
+                    {
+                         pepe->setText(1, formatHildonDate(qdtm, hildonPMformat) );
+                         pepe->setText(5, formatHildonDate(qdtm, hildonPMformat) );
+                    }
+                    else
+                    {
+                         pepe->setText(1, formatHildonDate(qdtm, hildonAMformat) );
+                         pepe->setText(5, formatHildonDate(qdtm, hildonAMformat) );
+                    }
+                }
             }
             else {
-                pepe->setText(1, QLocale::system().toString( qtm_sched, QLocale::ShortFormat) );
-                pepe->setText(5, QLocale::system().toString( qtm, QLocale::ShortFormat) );
+                if (HH24true)
+                {
+                    pepe->setText(1, formatHildonDate(qdtm_sched, hildon24format) );
+                    pepe->setText(5, formatHildonDate(qdtm, hildon24format) );
+                }
+                else
+                {
+                    QString HH = formatHildonDate(qdtm, hildonHHformat);
+                    if ( HH.toInt() > 11 )
+                    {
+                         pepe->setText(1, formatHildonDate(qdtm_sched, hildonPMformat) );
+                         pepe->setText(5, formatHildonDate(qdtm, hildonPMformat) );
+                    }
+                    else
+                    {
+                         pepe->setText(1, formatHildonDate(qdtm_sched, hildonAMformat) );
+                         pepe->setText(5, formatHildonDate(qdtm, hildonAMformat) );
+                    }
+                }
             }
             pepe->setWhatsThis(1, "time");
 
@@ -262,7 +310,6 @@ void AlarmList::loadAlarms()
                     if ( dias == ALARM_RECUR_WDAY_SUN )
                     {
                         sunday = 1;
-                        //days.append(QDate::shortDayName(7));
                         dias = dias - ALARM_RECUR_WDAY_SUN;
                     }
 

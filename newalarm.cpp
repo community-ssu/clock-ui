@@ -5,12 +5,55 @@
 #include "alarmd/libalarm.h"
 #include "dialog.h"
 #include "dialog2.h"
+#include "gconfitem.h"
 #include <QDateTime>
 #include "valuebutton.h"
 /* osso-clock text needed for snooze/stop button translation */
 #define TEXTDOMAIN "osso-clock"
 #define STOP_BUTTON_KEY "cloc_bd_stop"
 #define SNOOZE_BUTTON_KEY "cloc_bd_alarm_notification_snooze"
+
+static const char *getHildonTranslation(const char *string)
+{
+     setlocale (LC_ALL, "");
+     const char *translation = ::dgettext("hildon-libs", string);
+     if (qstrcmp(string, translation) == 0)
+         return 0;
+     return translation;
+}
+
+static QString formatHildonDate(const QDateTime &dt, const char *format)
+{
+     if (!format)
+         return QString();
+
+     char buf[255];
+     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+     if (!dt.date().isNull()) {
+         tm.tm_wday = dt.date().dayOfWeek() % 7;
+         tm.tm_mday = dt.date().day();
+         tm.tm_mon = dt.date().month() - 1;
+         tm.tm_year = dt.date().year() - 1900;
+     }
+     if (!dt.time().isNull()) {
+         tm.tm_sec = dt.time().second();
+         tm.tm_min = dt.time().minute();
+         tm.tm_hour = dt.time().hour();
+     }
+
+     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
+     if (!resultSize)
+         return QString();
+
+     return QString::fromUtf8(buf, resultSize);
+}
+
+const char *hildonAMfmt = getHildonTranslation("wdgt_va_12h_time_am");
+const char *hildonPMfmt = getHildonTranslation("wdgt_va_12h_time_pm");
+const char *hildon24fmt = getHildonTranslation("wdgt_va_24h_time");
+const char *hildonHHfmt = getHildonTranslation("wdgt_va_24h_hours");
+
 
 static uint32_t daysToMask(QList<int> days)
 {
@@ -59,6 +102,10 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
+    // get the current time format
+    GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
+    bool HH24true = HH24->value().toBool();
+
     isEditing = edit;
     deleted = 1;
 
@@ -96,7 +143,18 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     if ( time != "" )
         ui->time_pushButton->setValueText(time);
     else
-        ui->time_pushButton->setValueText( QLocale::system().toString( QTime::currentTime(), QLocale::ShortFormat) );
+    {
+        if (HH24true)
+            ui->time_pushButton->setValueText(formatHildonDate(QDateTime::currentDateTime(), hildon24fmt) );
+        else
+        {
+           QString HH = formatHildonDate(QDateTime::currentDateTime(), hildonHHfmt);
+           if ( HH.toInt() > 11 )
+                ui->time_pushButton->setValueText(formatHildonDate(QDateTime::currentDateTime(), hildonPMfmt) );
+          else
+                 ui->time_pushButton->setValueText(formatHildonDate(QDateTime::currentDateTime(), hildonAMfmt) );
+        }
+    }
 
     if ( days != "" )
         ui->repeat_pushButton->setValueText(days);
@@ -151,7 +209,9 @@ void NewAlarm::on_time_pushButton_pressed()
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
     QString localPMtxt = QLocale::system().pmText();
+    localPMtxt.remove(QRegExp("(\\,|\\.)"));
     QString localAMtxt = QLocale::system().amText();
+    localAMtxt.remove(QRegExp("(\\,|\\.)"));
 
     bool ampm = false;
     if ( longdate(ui->time_pushButton->valueText()) != "no"  )
@@ -188,7 +248,9 @@ QString NewAlarm::longdate(QString data)
 {
 
     QString localPMtxt = QLocale::system().pmText();
+    localPMtxt.remove(QRegExp("(\\,|\\.)"));
     QString localAMtxt = QLocale::system().amText();
+    localAMtxt.remove(QRegExp("(\\,|\\.)"));
     if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
         return localAMtxt;
     else
@@ -287,7 +349,9 @@ void NewAlarm::addAlarm()
     time = ui->time_pushButton->valueText();
     enabled = ui->checkBox->isChecked();
     QString localPMtxt = QLocale::system().pmText();
+    localPMtxt.remove(QRegExp("(\\,|\\.)"));
     QString localAMtxt = QLocale::system().amText();
+    localAMtxt.remove(QRegExp("(\\,|\\.)"));
 
     alarm_event_t * event = 0;
     alarm_action_t * act = 0;
@@ -377,7 +441,6 @@ void NewAlarm::addAlarm()
     temp.remove(0, j+1);
     int val2 = temp.left(2).toInt();
     QString tmpx = ui->time_pushButton->valueText();
-//    tmpx.remove(".");
     if ( tmpx.contains(localPMtxt) && val1!=12 )
         val1 = val1+12;
     if ( tmpx.contains(localAMtxt) && val1==12 )
@@ -387,18 +450,11 @@ void NewAlarm::addAlarm()
     currDate.setTime(QTime( val1, val2 ));
     event->alarm_time = currDate.toTime_t();
 
-    /*if(days.first() == 8) {
-      event->recur_secs = 86400; // 24 hours
-      event->recur_count = -1; // Reoccur infinitely
-      event->alarm_time = toTime_t(currDate.time()); // Set event time
-      alarm_recur_t* recur = alarm_event_add_recurrences(event, 1);
-      recur->mask_wday = ALARM_RECUR_WDAY_ALL;
-    } else {*/
-      if(ldays.first() == 0) {
+    if(ldays.first() == 0) {
         event->alarm_time = -1;
         event->alarm_tm.tm_hour = currDate.time().hour();
         event->alarm_tm.tm_min = currDate.time().minute();
-      } else {
+    } else {
         //qDebug("Using the new recurrence API");
         event->recur_count = -1;
         event->recur_secs = 0; // We re not using this way for recurrence
@@ -413,8 +469,8 @@ void NewAlarm::addAlarm()
         //qDebug() << "DIAS: " << ldays;
         recur->mask_wday = daysToMask(ldays);
         Q_ASSERT(event->recurrence_cnt == 1);
-      }
-    //}
+    }
+
     /* Send notification on banner */
     QDateTime now = QDateTime::currentDateTime();
 
@@ -436,6 +492,8 @@ void NewAlarm::addAlarm()
          if ( seconds > 30 ) 
             minutes = minutes + 1; 
          QString hhmm = QString("%1:%2").arg(QString().sprintf("%02d",hours)).arg(QString().sprintf("%02d",minutes));
+         // can happen is alarm is set within 30 secs
+         hhmm.replace("23:60","24:00");
          AlarmText.replace("%s",hhmm);
     } else {
          AlarmText = _("cloc_notify_alarm_set_days");

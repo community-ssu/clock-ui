@@ -18,10 +18,12 @@ public:
     QString line1;
     int curTime;
     QString longdate(QString data);
+    bool HH24true;
 
 public slots:
     void updateClocks();
     void loadCurrent();
+    void getAMPM();
 
 private:
     Ui::World *ui;

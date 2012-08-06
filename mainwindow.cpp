@@ -9,6 +9,7 @@
 #include "maintdelegate.h"
 #include "world.h"
 #include "alsettings.h"
+#include "gconfitem.h"
 #include <QDateTime>
 #include <libosso.h>
 #include <QMaemo5Style>
@@ -18,6 +19,46 @@
 #include <gtk-2.0/gtk/gtk.h>
 #include <gtk-2.0/gtk/gtkwidget.h>
 
+static const char *getHildonTranslation(const char *string)
+{
+     setlocale (LC_ALL, "");
+     const char *translation = ::dgettext("hildon-libs", string);
+     if (qstrcmp(string, translation) == 0)
+         return 0;
+     return translation;
+}
+
+static QString formatHildonDate(const QDateTime &dt, const char *format)
+{
+     if (!format)
+         return QString();
+
+     char buf[255];
+     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+     if (!dt.date().isNull()) {
+         tm.tm_wday = dt.date().dayOfWeek() % 7;
+         tm.tm_mday = dt.date().day();
+         tm.tm_mon = dt.date().month() - 1;
+         tm.tm_year = dt.date().year() - 1900;
+     }
+     if (!dt.time().isNull()) {
+         tm.tm_sec = dt.time().second();
+         tm.tm_min = dt.time().minute();
+         tm.tm_hour = dt.time().hour();
+     }
+
+     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
+     if (!resultSize)
+         return QString();
+
+     return QString::fromUtf8(buf, resultSize);
+}
+
+const char *hildon24hFormat = getHildonTranslation("wdgt_va_24h_time");
+const char *hildon12hAMFormat = getHildonTranslation("wdgt_va_12h_time_am");
+const char *hildon12hPMFormat = getHildonTranslation("wdgt_va_12h_time_pm");
+const char *hildonHHFormat = getHildonTranslation("wdgt_va_24h_hours");
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -128,6 +169,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ww = new World(this);
     loadWorld();
 
+    // get current time format
+    getAMPM();
     updateTime();
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
@@ -152,9 +195,29 @@ void MainWindow::orientationChanged()
     }
 }
 
+void MainWindow::getAMPM()
+{
+       // get the current time format
+       GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
+       HH24true = HH24->value().toBool();
+}
+
 void MainWindow::updateTime()
 {
-       QString CurrTime = QLocale::system().toString(QTime::currentTime(), QLocale::ShortFormat);
+       QString CurrTime;
+       if (HH24true)
+          CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon24hFormat);
+       else
+       {
+          QString HH = formatHildonDate(QDateTime::currentDateTime(), hildonHHFormat);
+          if ( HH.toInt() > 11 )
+               CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon12hPMFormat);
+          else
+               CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon12hAMFormat);
+       }
+	
+       // due to QTBUG-16136 12h/24h change is not updated in QLocale during application run
+       // so we look for ourselves for time-format at the proper moments, and change it accordingly
        if ( SecondsAdded ) {
           QString secs = QTime::currentTime().toString( ":ss" );
           QRegExp TimeFormat12h( "\\D$" );
@@ -205,6 +268,12 @@ void MainWindow::on_wrldClk_pushButton_released()
     ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
     ww->exec();
     loadWorld();
+    // extra for refresh
+    // get time_format
+    getAMPM();
+    sw->loadAlarms();
+    loadAlarm();
+    ww->loadCurrent();
 }
 
 void MainWindow::on_nwAlarm_pushButton_pressed()
@@ -229,8 +298,14 @@ void MainWindow::on_timeButton_landscape_released()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
-    // set new local time
+    // get time_format
+    getAMPM();
+    // refresh local time
     ww->loadCurrent();
+    // refresh alarm
+    sw->loadAlarms();
+    loadAlarm();
+    loadWorld();
 }
 
 void MainWindow::on_timeButton_portrait_released()
@@ -238,8 +313,16 @@ void MainWindow::on_timeButton_portrait_released()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
-    // set new local time
+    // get time_format
+    getAMPM();
+    // refresh local time
     ww->loadCurrent();
+    // refresh current timezone
+    loadWorld();
+    // refresh alarm
+    sw->loadAlarms();
+    loadAlarm();
+    loadWorld();
 }
 
 void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
@@ -283,8 +366,15 @@ void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
     osso_context_t *osso;
     osso = osso_initialize("worldclock", "", TRUE, NULL);
     osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
-    // set new local time
+    // get time_format
+    getAMPM();
+    // refresh local time
     ww->loadCurrent();
+    // refresh current timezone
+    loadWorld();
+    // refresh alarm
+    sw->loadAlarms();
+    loadAlarm();
 }
 
 void MainWindow::on_action_cloc_alarm_settings_title_triggered()

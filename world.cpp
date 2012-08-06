@@ -22,6 +22,10 @@ static const char *getHildonTranslation(const char *string)
 }
 
 const char *hildonDateDayNameShrt = getHildonTranslation("wdgt_va_date_day_name_short");
+const char *hildonAMfrmt = getHildonTranslation("wdgt_va_12h_time_am");
+const char *hildonPMfrmt = getHildonTranslation("wdgt_va_12h_time_pm");
+const char *hildon24frmt = getHildonTranslation("wdgt_va_24h_time");
+const char *hildonHHfrmt = getHildonTranslation("wdgt_va_24h_hours");
 
 static QString formatHildonDate(const QDateTime &dt, const char *format)
 {
@@ -67,6 +71,7 @@ World::World(QWidget *parent) :
     FileDelegate *pluginDelegate = new FileDelegate(ui->treeWidget);
     ui->treeWidget->setItemDelegate(pluginDelegate);
 
+    getAMPM();
     loadCurrent();
 
     QSettings settings("worldclock", "worldclock");
@@ -94,7 +99,9 @@ World::~World()
 QString World::longdate(QString data)
 {
     QString localPMtxt = QLocale::system().pmText();
+    localPMtxt = localPMtxt.remove(QRegExp("(\\,|\\.)"));
     QString localAMtxt = QLocale::system().amText();
+    localAMtxt = localAMtxt.remove(QRegExp("(\\,|\\.)"));
 
     if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
         return localAMtxt;
@@ -123,6 +130,13 @@ void World::orientationChanged()
     }
     ui->treeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+}
+
+void World::getAMPM()
+{
+       // get the current time format
+       GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
+       HH24true = HH24->value().toBool();
 }
 
 void World::on_newWorldclock_pushButton_pressed()
@@ -193,7 +207,16 @@ void World::addCity(int cityId)
     tiempo = tiempo.toUTC();
     tiempo = tiempo.addSecs( -offset );
 
-    pepe->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
+    if (HH24true)
+          pepe->setText(0, formatHildonDate(tiempo, hildon24frmt) );
+    else
+    {
+          QString HH = formatHildonDate(tiempo, hildonHHfrmt);
+          if ( HH.toInt() > 11 )
+                pepe->setText(0, formatHildonDate(tiempo, hildonPMfrmt) );
+          else
+                pepe->setText(0, formatHildonDate(tiempo, hildonAMfrmt) );
+    }
     pepe->setWhatsThis(0, "time");
     QString CurrentdayNameShort = formatHildonDate(tiempo, hildonDateDayNameShrt);
     // also remove trailing comma/point
@@ -218,6 +241,8 @@ void World::loadCurrent()
 {
     int ret = 0;
     char current_tz[32];
+    // get the current time format
+    getAMPM();
     // get the current home city
     GConfItem *homeCityCode = new GConfItem("/apps/clock/home-location");
     QString timeoffset;
@@ -237,8 +262,17 @@ void World::loadCurrent()
 
           QTreeWidgetItem *pepe = new QTreeWidgetItem();
 
-          QTime tiempo = QTime::currentTime();
-          pepe->setText(0, QLocale::system().toString( tiempo, QLocale::ShortFormat) );
+          QDateTime tiempo = QDateTime::currentDateTime();
+          if (HH24true)
+              pepe->setText(0, formatHildonDate(tiempo, hildon24frmt) );
+          else
+          {
+              QString HH = formatHildonDate(tiempo, hildonHHfrmt);
+              if ( HH.toInt() > 11 )
+                   pepe->setText(0, formatHildonDate(tiempo, hildonPMfrmt) );
+              else
+                   pepe->setText(0, formatHildonDate(tiempo, hildonAMfrmt) );
+          }
           pepe->setWhatsThis(0, "time");
 
           pepe->setText(1, _("cloc_fi_local_time") + " startdesc (" +
@@ -261,6 +295,7 @@ void World::loadCurrent()
           QDateTime date_time = QDateTime::currentDateTime();
           /* Local time */
           QString CurrentdayNameShort = formatHildonDate(date_time, hildonDateDayNameShrt);
+
           QStringList sl = CurrentdayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
           CurrentdayNameShort = sl.at(0);
           QString LocalDateShort = fecha.toString(Qt::SystemLocaleShortDate);
@@ -290,6 +325,8 @@ void World::loadCurrent()
 
     line1 = timeoffset;
 
+    orientationChanged();
+
 }
 
 void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
@@ -300,7 +337,9 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 		osso_context_t *osso; 
 		osso = osso_initialize("worldclock", "", TRUE, NULL); 
 		osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE); 
-		loadCurrent();
+                // refresh alarm
+                loadCurrent();
+                orientationChanged();
 	}
 }
 
@@ -335,7 +374,16 @@ void World::removeSel()
 void World::updateClocks()
 {
     QDateTime tiempo = QDateTime::currentDateTime();
-    ui->treeWidget->topLevelItem(0)->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
+    if (HH24true)
+          ui->treeWidget->topLevelItem(0)->setText(0, formatHildonDate(tiempo, hildon24frmt) );
+    else
+    {
+        QString HH = formatHildonDate(tiempo, hildonHHfrmt);
+        if ( HH.toInt() > 11 )
+             ui->treeWidget->topLevelItem(0)->setText(0, formatHildonDate(tiempo, hildonPMfrmt) );
+        else
+             ui->treeWidget->topLevelItem(0)->setText(0, formatHildonDate(tiempo, hildonAMfrmt) );
+    }
 
     if ( ui->treeWidget->topLevelItemCount() > 1 )
     {
@@ -345,7 +393,16 @@ void World::updateClocks()
             tiempo = QDateTime::currentDateTime();
             tiempo = tiempo.toUTC();
             tiempo = tiempo.addSecs( -off );
-            ui->treeWidget->topLevelItem(i+1)->setText(0, QLocale::system().toString( tiempo.time(), QLocale::ShortFormat) );
+            if (HH24true)
+               ui->treeWidget->topLevelItem(i+1)->setText(0, formatHildonDate(tiempo, hildon24frmt) );
+            else
+            {
+               QString HH = formatHildonDate(tiempo, hildonHHfrmt);
+               if ( HH.toInt() > 11 )
+                  ui->treeWidget->topLevelItem(i+1)->setText(0, formatHildonDate(tiempo, hildonPMfrmt) );
+               else
+                  ui->treeWidget->topLevelItem(i+1)->setText(0, formatHildonDate(tiempo, hildonAMfrmt) );
+            }
         }
 
     }
