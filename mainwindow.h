@@ -23,6 +23,7 @@ public:
     AlarmList *sw;
     World * ww;
     bool SecondsAdded;
+    bool HH24true;
 
 private:
     Ui::MainWindow *ui;
@@ -47,7 +48,7 @@ private slots:
     void on_Alarm_pushButton_pressed();
     void on_Alarm_pushButton_released();
     void orientationChanged();
-
+    void getAMPM();
 };
 
 #endif // MAINWINDOW_H
