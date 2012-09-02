@@ -9,10 +9,12 @@
 //#include <gstreamer-0.10/gst/gst.h>
 //#include "glib-2.0/glib/gmain.h"
 
+
 TDialog::TDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TDialog)
 {
+    extern QString musicFile;
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
@@ -28,11 +30,15 @@ TDialog::TDialog(QWidget *parent) :
     ui->moreButton_portrait->button(QDialogButtonBox::Apply)->setText(_("conn_iaps_bd_done"));
     intl("osso-clock");
 
+    QRegExp fileExt( "\\.ogg$|\\.mp3$|\\.aac$" );
+
     QListWidgetItem *item1;
 
     GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
     QString text = item->value().toString();
-    QRegExp fileExt( "\\.ogg$|\\.mp3$|\\.aac$" );
+
+    if (musicFile.toLower().contains(fileExt) && ! musicFile.toLower().contains("/usr/share/sounds/ui-clock_alarm_"))
+    	text = musicFile;
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
     fileExt.setCaseSensitivity(cs);
 
@@ -40,7 +46,6 @@ TDialog::TDialog(QWidget *parent) :
     {
         item1 = new QListWidgetItem();
         item1->setTextAlignment(Qt::AlignCenter);
-        //item1->setText( QFileInfo(text).baseName() );
         item1->setWhatsThis(text);
         item1->setText( QFileInfo(text.remove(fileExt)).fileName() );
         ui->listWidget->addItem(item1);
@@ -154,7 +159,6 @@ void TDialog::on_moreButton_landscape_clicked(QAbstractButton* button)
             {
                 QListWidgetItem *item1 = new QListWidgetItem();
                 item1->setTextAlignment(Qt::AlignCenter);
-                //item1->setText( QFileInfo(hw->selected).baseName() );
                 item1->setWhatsThis(hw->selected);
                 item1->setText( QFileInfo(hw->selected.remove(fileExt)).fileName() );
                 ui->listWidget->insertItem(0, item1);
@@ -163,7 +167,6 @@ void TDialog::on_moreButton_landscape_clicked(QAbstractButton* button)
             }
             else
             {
-                //ui->listWidget->item(0)->setText( QFileInfo(hw->selected).baseName() );
                 ui->listWidget->item(0)->setWhatsThis(hw->selected);
                 ui->listWidget->item(0)->setText( QFileInfo(hw->selected.remove(fileExt)).fileName() );
                 ui->listWidget->setCurrentRow(0);
@@ -171,8 +174,9 @@ void TDialog::on_moreButton_landscape_clicked(QAbstractButton* button)
         }
         delete hw;
     }
-    else
+    else  // completed pressed
     {
+	// return the full path/filename
         selected = ui->listWidget->currentItem()->whatsThis();
         this->accept();
     }

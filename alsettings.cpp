@@ -7,6 +7,8 @@
 #include "mdialog.h"
 #include "tdialog.h"
 
+QString musicFile;
+
 AlSettings::AlSettings(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AlSettings)
@@ -28,7 +30,10 @@ AlSettings::AlSettings(QWidget *parent) :
     else if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_3.aac" )
         ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
     else
+    {
         ui->alsound_pushButton->setValueText( QFileInfo(item->value().toString().remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
+        musicFile = item->value().toString();
+    }
 
     // get default snooze value
     int val = alarmd_get_default_snooze();
@@ -104,7 +109,8 @@ void AlSettings::on_alsound_pushButton_pressed()
     hw->exec();
     if ( hw->selected != "nothing" )
     {
-        QString tmp = hw->selected;
+    	musicFile = hw->selected;
+        QString tmp = hw->selected;  // the full path/filename
 
         if ( tmp == "/usr/share/sounds/ui-clock_alarm_default.aac" )
             ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
@@ -121,8 +127,6 @@ void AlSettings::on_alsound_pushButton_pressed()
 
 void AlSettings::on_buttonBox_clicked(QAbstractButton*)
 {
-    qDebug() << ui->alsound_pushButton->statusTip();
-    qDebug() << ui->snooze_pushButton->statusTip();
     int val = ui->snooze_pushButton->valueText().remove(QRegExp(" \\D+")).toInt();
 
     val = val*60;
