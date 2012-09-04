@@ -232,6 +232,10 @@ void NewAlarm::on_time_pushButton_pressed()
         QTime tiempo;
         int hora = hw->res1;
         int mins = hw->res2;
+	// enable alarm after accepting time
+	enabled = true;
+	ui->checkBox->setChecked(enabled);
+
         if ( (longdate(ui->time_pushButton->valueText())!="no") && (!hw->isam) )
         {
             hora = hw->res1+12;
