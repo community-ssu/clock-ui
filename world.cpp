@@ -137,6 +137,7 @@ void World::getAMPM()
        // get the current time format
        GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
        HH24true = HH24->value().toBool();
+       delete HH24;
 }
 
 void World::on_newWorldclock_pushButton_pressed()
@@ -322,6 +323,8 @@ void World::loadCurrent()
       }
       cityinfo_free_all(cities);
     }
+
+    delete homeCityCode;
 
     line1 = timeoffset;
 

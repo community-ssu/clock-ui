@@ -200,6 +200,7 @@ void MainWindow::getAMPM()
        // get the current time format
        GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
        HH24true = HH24->value().toBool();
+       delete HH24;
 }
 
 void MainWindow::updateTime()
