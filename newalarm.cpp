@@ -486,7 +486,7 @@ void NewAlarm::addAlarm()
     {
          int secsDiff = now.secsTo(alarmTime);
          QDate nullDate(2012, 1, 1);
-         QDateTime nullTime = QDateTime::QDateTime(nullDate);
+         QDateTime nullTime = QDateTime(nullDate);
          QDateTime upTime = nullTime.addSecs(secsDiff);
          QVariant days = nullTime.daysTo(upTime);
          QTime timeTime = upTime.time();
