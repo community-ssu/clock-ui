@@ -159,6 +159,8 @@ void AlarmList::loadAlarms()
             QTime qtm = qdtm.time();
             QTime qtm_sched(aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             QDateTime qdtm_sched = QDateTime::fromTime_t(ttime);
+    	    // set time without snooze:
+	    qdtm_sched.setTime(qtm_sched);
             //QDateTime qdtm_sched(aevent->alarm_tm.tm_year,aevent->alarm_tm.tm_mon,aevent->alarm_tm.tm_wday,aevent->alarm_tm.tm_mday,aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             // let's count day to current alarm triggering
             int days = 0;
@@ -398,9 +400,9 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
 
     if ( column != 0 )
     {
-        NewAlarm *al = new NewAlarm(this, true, item->text(2),
-                                        item->text(1), item->text(3).replace(" ",""),
-                                        checked, item->statusTip(0).toLong() );
+        NewAlarm *al = new NewAlarm(this, true, item->text(2),                         //alarmtext
+                                        item->text(1), item->text(3).replace(" ",""),  //repeat
+                                        checked, item->statusTip(0).toLong() );        //cookie-nbr
         al->exec();
         delete al;
         loadAlarms();
