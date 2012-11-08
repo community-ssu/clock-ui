@@ -90,11 +90,16 @@ MainWindow::MainWindow(QWidget *parent) :
     SecondsText[0] = SecondsText[0].toUpper();
     intl("osso-clock");
 
+
     if ( BackgroundImg ) {
-	    this->setAutoFillBackground(true);
-	    QPalette pal2(palette());
-	    pal2.setBrush(QPalette::Window, QPixmap("/etc/hildon/theme/backgrounds/clock.png"));
-	    this->setPalette(pal2);
+	    QFileInfo bg_fileInfo("/etc/hildon/theme/backgrounds/clock.png"); 
+	    if (bg_fileInfo.exists())
+            {
+		    this->setAutoFillBackground(true);
+		    QPalette pal2(palette());
+		    pal2.setBrush(QPalette::Window, QPixmap("/etc/hildon/theme/backgrounds/clock.png"));
+		    this->setPalette(pal2);
+            }
     }
 
     QPalette pal(palette());
