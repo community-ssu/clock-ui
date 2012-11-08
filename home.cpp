@@ -85,11 +85,20 @@ void Home::CargarBrowser(QString directorio)
 
     }
 
+    connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
 
     if ( ui->listWidget->count() > 0 ) {
         ui->listWidget->scrollToItem(ui->listWidget->item(0));
     }
 
+}
+
+void Home::orientationChanged()
+{
+    if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
+    {
+        this->resize(398, 692);
+    }
 }
 
 void Home::on_listWidget_itemClicked(QListWidgetItem* item)

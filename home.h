@@ -28,6 +28,7 @@ private:
 private slots:
     void on_folderButton_up_clicked();
     void on_listWidget_itemClicked(QListWidgetItem* item);
+    void orientationChanged();
 };
 
 #endif // HOME_H
