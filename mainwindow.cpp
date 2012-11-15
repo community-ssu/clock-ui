@@ -59,6 +59,7 @@ const char *hildon24hFormat = getHildonTranslation("wdgt_va_24h_time");
 const char *hildon12hAMFormat = getHildonTranslation("wdgt_va_12h_time_am");
 const char *hildon12hPMFormat = getHildonTranslation("wdgt_va_12h_time_pm");
 const char *hildonHHFormat = getHildonTranslation("wdgt_va_24h_hours");
+bool dl_loaded = false;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -301,17 +302,22 @@ void MainWindow::on_nwAlarm_pushButton_released()
 
 void MainWindow::on_timeButton_landscape_released()
 {
-    osso_context_t *osso;
-    osso = osso_initialize("worldclock", "", TRUE, NULL);
-    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
-    // get time_format
-    getAMPM();
-    // refresh local time
-    ww->loadCurrent();
-    // refresh alarm
-    sw->loadAlarms();
-    loadAlarm();
-    loadWorld();
+    if (! dl_loaded ) // do not reload if already active
+    {	    
+	    dl_loaded = true;
+	    osso_context_t *osso;
+	    osso = osso_initialize("worldclock", "", TRUE, NULL);
+	    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+	    // get time_format
+	    getAMPM();
+	    // refresh local time
+	    ww->loadCurrent();
+	    // refresh alarm
+	    sw->loadAlarms();
+	    loadAlarm();
+	    loadWorld();
+	    dl_loaded = false;
+    }
 }
 
 void MainWindow::on_timeButton_portrait_released()

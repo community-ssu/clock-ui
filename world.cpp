@@ -26,6 +26,8 @@ const char *hildonAMfrmt = getHildonTranslation("wdgt_va_12h_time_am");
 const char *hildonPMfrmt = getHildonTranslation("wdgt_va_12h_time_pm");
 const char *hildon24frmt = getHildonTranslation("wdgt_va_24h_time");
 const char *hildonHHfrmt = getHildonTranslation("wdgt_va_24h_hours");
+bool dl_started = false;
+
 
 static QString formatHildonDate(const QDateTime &dt, const char *format)
 {
@@ -335,14 +337,16 @@ void World::loadCurrent()
 void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 {
 	// Open date/time settings window upon short press of local time
-	if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) )
+	if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) && not dl_started )
 	{
+		dl_started = true;
 		osso_context_t *osso; 
 		osso = osso_initialize("worldclock", "", TRUE, NULL); 
 		osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE); 
                 // refresh alarm
                 loadCurrent();
                 orientationChanged();
+		dl_started = false;
 	}
 }
 
