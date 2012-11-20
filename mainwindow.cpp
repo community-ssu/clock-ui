@@ -322,19 +322,24 @@ void MainWindow::on_timeButton_landscape_released()
 
 void MainWindow::on_timeButton_portrait_released()
 {
-    osso_context_t *osso;
-    osso = osso_initialize("worldclock", "", TRUE, NULL);
-    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
-    // get time_format
-    getAMPM();
-    // refresh local time
-    ww->loadCurrent();
-    // refresh current timezone
-    loadWorld();
-    // refresh alarm
-    sw->loadAlarms();
-    loadAlarm();
-    loadWorld();
+    if (! dl_loaded ) // do not reload if already active
+    {	    
+	    dl_loaded = true;
+	    osso_context_t *osso;
+	    osso = osso_initialize("worldclock", "", TRUE, NULL);
+	    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+	    // get time_format
+	    getAMPM();
+	    // refresh local time
+	    ww->loadCurrent();
+	    // refresh current timezone
+	    loadWorld();
+	    // refresh alarm
+	    sw->loadAlarms();
+	    loadAlarm();
+	    loadWorld();
+	    dl_loaded = false;
+     }
 }
 
 void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
