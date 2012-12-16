@@ -38,6 +38,13 @@ MDialog::MDialog(QWidget *parent) :
     item1->setWhatsThis("900");
     ui->listWidget->addItem(item1);
 
+    tmp = _("cloc_va_diff_hours_mins");
+    tmp.replace("%s %d", "30");
+    item1 = new QListWidgetItem();
+    item1->setTextAlignment(Qt::AlignCenter);
+    item1->setText(tmp);
+    item1->setWhatsThis("1800");
+    ui->listWidget->addItem(item1);
 
 }
 

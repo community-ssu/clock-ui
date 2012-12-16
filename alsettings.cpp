@@ -87,14 +87,8 @@ void AlSettings::on_snooze_pushButton_pressed()
     hw->exec();
     if ( hw->selected > -1 )
     {
-        int val=0;
-
-        if ( hw->selected == 300 )
-            val = 5;
-        else if ( hw->selected == 600 )
-            val = 10;
-        else if ( hw->selected == 900 )
-            val = 15;
+	// convert snooze seconds to minutes
+	int val = hw->selected/60;
         QString tmp = _("cloc_va_diff_hours_mins");
         tmp.replace("%s %d", QString::number(val));
         ui->snooze_pushButton->setValueText(tmp);

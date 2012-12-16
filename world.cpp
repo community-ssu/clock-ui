@@ -122,10 +122,12 @@ void World::orientationChanged()
 
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
     {
+	// portrait
         ui->treeWidget->header()->resizeSection(0,116+len);
         ui->treeWidget->header()->resizeSection(1,210-len);
         ui->treeWidget->header()->resizeSection(2,100);
     } else {
+	// landscape
         ui->treeWidget->header()->resizeSection(0,116+len);
         ui->treeWidget->header()->resizeSection(1,424-len);
         ui->treeWidget->header()->resizeSection(2,206);
