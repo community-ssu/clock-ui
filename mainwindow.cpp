@@ -67,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setAttribute(Qt::WA_Maemo5StackedWindow);
-    this->setWindowFlags(Qt::Window);
     ui->setupUi(this);
 
     this->setWindowTitle(_("cloc_ap_name"));
