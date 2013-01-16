@@ -8,9 +8,10 @@
 #include "cityinfo.h"
 #include "clockd/libtime.h"
 #include "gconfitem.h"
-#include <libosso.h>
 #include <QDebug>
 #include <QSettings>
+
+#include <dlfcn.h>
 
 static const char *getHildonTranslation(const char *string)
 {
@@ -342,9 +343,18 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 	if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) && not dl_started )
 	{
 		dl_started = true;
-		osso_context_t *osso; 
-		osso = osso_initialize("worldclock", "", TRUE, NULL); 
-		osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE); 
+
+		void * handle;
+		int (*execute)(void *, void *, int);
+
+		handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
+		if ( handle ) {
+			execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+			if ( execute )
+				execute(NULL, NULL, 1);
+			dlclose(handle);
+		}
+
                 // refresh alarm
                 loadCurrent();
                 orientationChanged();

@@ -11,8 +11,9 @@
 #include "alsettings.h"
 #include "gconfitem.h"
 #include <QDateTime>
-#include <libosso.h>
 #include <QMaemo5Style>
+
+#include <dlfcn.h>
 
 #include <X11/Xlib.h>
 #include <gtk-2.0/gdk/gdkx.h>
@@ -304,9 +305,18 @@ void MainWindow::on_timeButton_landscape_released()
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
-	    osso_context_t *osso;
-	    osso = osso_initialize("worldclock", "", TRUE, NULL);
-	    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+
+	    void * handle;
+	    int (*execute)(void *, void *, int);
+
+	    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
+	    if ( handle ) {
+	    execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+	    if ( execute )
+	        execute(NULL, NULL, 1);
+	        dlclose(handle);
+	    }
+
 	    // get time_format
 	    getAMPM();
 	    // refresh local time
@@ -324,9 +334,18 @@ void MainWindow::on_timeButton_portrait_released()
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
-	    osso_context_t *osso;
-	    osso = osso_initialize("worldclock", "", TRUE, NULL);
-	    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+
+	    void * handle;
+	    int (*execute)(void *, void *, int);
+
+	    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
+	    if ( handle ) {
+	        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+	        if ( execute )
+	            execute(NULL, NULL, 1);
+	        dlclose(handle);
+	    }
+
 	    // get time_format
 	    getAMPM();
 	    // refresh local time
@@ -372,16 +391,31 @@ void MainWindow::loadWorld()
 
 void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
 {
-    osso_context_t *osso;
-    osso = osso_initialize("worldclock", "", TRUE, NULL);
-    osso_cp_plugin_execute(osso, "libcplanguageregional.so", this, TRUE);
+    void * handle;
+    int (*execute)(void *, void *, int);
+
+    handle = dlopen("/usr/lib/hildon-control-panel/libcplanguageregional.so", RTLD_LAZY);
+    if ( handle ) {
+        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+        if ( execute )
+            execute(NULL, NULL, 1);
+        dlclose(handle);
+    }
 }
 
 void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
 {
-    osso_context_t *osso;
-    osso = osso_initialize("worldclock", "", TRUE, NULL);
-    osso_cp_plugin_execute(osso, "libcpdatetime.so", this, TRUE);
+    void * handle;
+    int (*execute)(void *, void *, int);
+
+    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
+    if ( handle ) {
+        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+        if ( execute )
+            execute(NULL, NULL, 1);
+        dlclose(handle);
+    }
+
     // get time_format
     getAMPM();
     // refresh local time

@@ -63,7 +63,7 @@ CONFIG += mobility
 MOBILITY = 
 
 CONFIG += link_pkgconfig
-PKGCONFIG += libosso glib-2.0 gtk+-2.0 gstreamer-0.10
+PKGCONFIG += glib-2.0 gtk+-2.0 gstreamer-0.10
 
 symbian {
     TARGET.UID3 = 0xeda884b4
@@ -74,7 +74,7 @@ symbian {
 
 maemo5 {
     QT += maemo5
-    LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf
+    LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf -ldl
 }
 
 maemo5 {
