@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
+#include <QtDBus/QDBusInterface>
 
 namespace Ui {
     class AlarmList;

@@ -80,6 +80,12 @@ AlarmList::AlarmList(QWidget *parent) :
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
 
+    // refresh the current alarmlist as soon as an alarm event occurs
+    QDBusConnection::systemBus().connect(QString(),
+                                 "/com/nokia/alarmd",
+ 				 "com.nokia.alarmd",
+ 				 "queue_status_ind",
+ 	                         this, SLOT(loadAlarms()));
 }
 
 AlarmList::~AlarmList()
