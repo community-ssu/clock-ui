@@ -17,8 +17,8 @@
 
 */
 
-#ifndef OSSO_INTL
-#define OSSO_INTL
+#ifndef OSSO_INTL_H
+#define OSSO_INTL_H
 
 #include <QByteArray>
 #include <QString>
