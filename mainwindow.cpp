@@ -457,3 +457,10 @@ void MainWindow::on_action_disp_seconds_triggered()
     settings.sync();
 }
 
+#ifdef Q_WS_MAEMO_5
+void MainWindow::top_application()
+{
+    raise();
+    activateWindow();
+}
+#endif

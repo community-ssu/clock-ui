@@ -16,6 +16,7 @@ namespace Ui {
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "com.nokia.worldclock")
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -24,6 +25,11 @@ public:
     World * ww;
     bool SecondsAdded;
     bool HH24true;
+
+public slots:
+#ifdef Q_WS_MAEMO_5
+    Q_SCRIPTABLE void top_application();
+#endif
 
 private:
     Ui::MainWindow *ui;

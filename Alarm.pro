@@ -73,7 +73,7 @@ symbian {
 }
 
 maemo5 {
-    QT += maemo5
+    QT += maemo5 dbus
     LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf -ldl
 }
 
