@@ -1,4 +1,3 @@
-#include "qmaemo5rotator.h"
 #include "tdialog.h"
 #include "ui_tdialog.h"
 #include "osso-intl.h"

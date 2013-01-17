@@ -1,9 +1,8 @@
-#include "qmaemo5rotator.h"
 #include "alsettings.h"
 #include "ui_alsettings.h"
 #include "osso-intl.h"
 #include "gconfitem.h"
-#include "alarmd/libalarm.h"
+#include "libalarm.h"
 #include "mdialog.h"
 #include "tdialog.h"
 

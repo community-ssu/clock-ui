@@ -44,8 +44,7 @@ HEADERS  += mainwindow.h \
     alsettings.h \
     mdialog.h \
     tdialog.h \
-    home.h \
-    gconfitem.h
+    home.h
 
 FORMS    += mainwindow.ui \
     alarmlist.ui \
@@ -63,7 +62,7 @@ CONFIG += mobility
 MOBILITY = 
 
 CONFIG += link_pkgconfig
-PKGCONFIG += glib-2.0 gtk+-2.0 gstreamer-0.10
+PKGCONFIG += gstreamer-0.10 gq-gconf alarm libcityinfo0-0
 
 symbian {
     TARGET.UID3 = 0xeda884b4
@@ -81,7 +80,7 @@ unix {
 
 maemo5 {
     QT += maemo5 dbus
-    LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf -ldl
+    LIBS += -ldl
     service.path = $$PREFIX/share/dbus-1/services
     service.files += com.nokia.worldclock.service
 }

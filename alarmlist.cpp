@@ -1,4 +1,3 @@
-#include "qmaemo5rotator.h"
 #include "alarmlist.h"
 #include "ui_alarmlist.h"
 #include "filedelegate.h"
@@ -7,6 +6,7 @@
 #include "osso-intl.h"
 #include <QDebug>
 #include <QSettings>
+#include <QDesktopWidget>
 // for strftime
 #include <time.h>
 // for setlocale

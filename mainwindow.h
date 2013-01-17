@@ -4,8 +4,8 @@
 #include "alarmlist.h"
 #include "world.h"
 #include <time.h>
-#include <alarmd/alarm_dbus.h>
-#include <alarmd/libalarm.h>
+#include <alarm_dbus.h>
+#include <libalarm.h>
 #include <QListWidgetItem>
 #include <QMainWindow>
 

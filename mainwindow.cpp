@@ -1,5 +1,3 @@
-#include <libnotify/notify.h>
-#include "qmaemo5rotator.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "alarmlist.h"
@@ -14,11 +12,6 @@
 #include <QMaemo5Style>
 
 #include <dlfcn.h>
-
-#include <X11/Xlib.h>
-#include <gtk-2.0/gdk/gdkx.h>
-#include <gtk-2.0/gtk/gtk.h>
-#include <gtk-2.0/gtk/gtkwidget.h>
 
 static const char *getHildonTranslation(const char *string)
 {
@@ -74,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Read some variables
     // set background by default
-    Bool BackgroundImg = true;
+    bool BackgroundImg = true;
     QSettings settings("worldclock", "worldclock");
     if (settings.contains("Background"))
     	BackgroundImg = settings.value("Background").toBool();

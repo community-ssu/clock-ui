@@ -3,8 +3,8 @@
 
 #include <QDialog>
 #include <time.h>
-#include <alarmd/alarm_dbus.h>
-#include <alarmd/libalarm.h>
+#include <alarm_dbus.h>
+#include <libalarm.h>
 #include <QDateTime>
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>

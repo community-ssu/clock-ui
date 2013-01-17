@@ -1,5 +1,4 @@
 #include "qabstracteventdispatcher.h"
-#include "qmaemo5rotator.h"
 #include "world.h"
 #include "ui_world.h"
 #include "osso-intl.h"
@@ -10,6 +9,10 @@
 #include "gconfitem.h"
 #include <QDebug>
 #include <QSettings>
+#include <QDateTime>
+#include <QDesktopWidget>
+#include <QMenu>
+#include <QProcess>
 
 #include <dlfcn.h>
 

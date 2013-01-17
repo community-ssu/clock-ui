@@ -1,10 +1,10 @@
 #include "home.h"
 #include "ui_home.h"
 #include "qsettings.h"
-#include "qmaemo5rotator.h"
 #include <qdir.h>
 #include <qfileinfo.h>
 #include "osso-intl.h"
+#include <QDesktopWidget>
 
 
 QString hPath;
