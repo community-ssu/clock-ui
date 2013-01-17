@@ -80,7 +80,7 @@ unix {
 
 maemo5 {
     QT += maemo5 dbus
-    LIBS += -ldl
+    LIBS += -ldl -ltime
     INSTALLS += service
     service.path = $$PREFIX/share/dbus-1/services
     service.files += com.nokia.worldclock.service
