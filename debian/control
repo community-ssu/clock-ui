@@ -1,0 +1,12 @@
+Source: clock-ui
+Section: misc
+Priority: extra
+Maintainer: Pali Rohár <pali.rohar@gmail.com>
+Build-Depends: debhelper (>= 5), libqt4-dev, libgstreamer0.10-dev, libgq-gconf-dev, libalarm-dev, libcityinfo-dev
+Standards-Version: 3.9.3
+
+Package: clock-ui
+Architecture: any
+Depends: osso-clock-l10n-mr0 | osso-clock-l10n-engb, osso-connectivity-ui-l10n-mr0 | osso-connectivity-ui-l10n-engb, osso-display-l10n-mr0 | osso-display-l10n-engb, hildon-fm-l10n-mr0 | hildon-fm-l10n-public, calendar-l10n-mr0 | calendar-l10n-engb, rtcom-call-ui-l10n-mr0 | rtcom-call-ui-l10n-engb, ${shlibs:Depends}, ${misc:Depends}
+Description: UI part of the clock
+ UI part of the clock.
