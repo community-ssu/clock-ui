@@ -1,0 +1,17 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=cloc_ap_name
+Comment=cloc_ap_application_title_thumb
+Exec=/usr/bin/worldclock
+Icon=general_clock
+X-Maemo-Prestarted=never
+#X-Maemo-Prestarted-Priority=500
+X-Icon-path=/usr/share/pixmaps/
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Service=worldclock
+X-Osso-Type=application/x-executable
+X-Osso-User-Position=11
+X-Maemo-Category=Main
+X-Text-Domain=osso-clock

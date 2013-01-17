@@ -72,12 +72,16 @@ symbian {
     TARGET.EPOCHEAPSIZE = 0x020000 0x800000
 }
 
-maemo5 {
-    QT += maemo5 dbus
-    LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf -ldl
+unix {
+   INSTALLS += target desktop
+   target.path = $$PREFIX/bin
+   desktop.path = $$PREFIX/share/applications/hildon
+   desktop.files += worldclock.desktop
 }
 
 maemo5 {
-    target.path = /opt/Alarm/bin
-    INSTALLS += target
+    QT += maemo5 dbus
+    LIBS += -lalarm -lhildon-time-zone-chooser0 -lclockcore0 -lcityinfo0 -lgq-gconf -ldl
+    service.path = $$PREFIX/share/dbus-1/services
+    service.files += com.nokia.worldclock.service
 }
