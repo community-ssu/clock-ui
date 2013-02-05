@@ -298,18 +298,7 @@ void MainWindow::on_timeButton_landscape_released()
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
-
-	    void * handle;
-	    int (*execute)(void *, void *, int);
-
-	    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-	    if ( handle ) {
-	    execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-	    if ( execute )
-	        execute(NULL, NULL, 1);
-	        dlclose(handle);
-	    }
-
+	    openplugin("libcpdatetime");
 	    // get time_format
 	    getAMPM();
 	    // refresh local time
@@ -327,18 +316,7 @@ void MainWindow::on_timeButton_portrait_released()
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
-
-	    void * handle;
-	    int (*execute)(void *, void *, int);
-
-	    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-	    if ( handle ) {
-	        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-	        if ( execute )
-	            execute(NULL, NULL, 1);
-	        dlclose(handle);
-	    }
-
+	    openplugin("libcpdatetime");
 	    // get time_format
 	    getAMPM();
 	    // refresh local time
@@ -384,31 +362,12 @@ void MainWindow::loadWorld()
 
 void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
 {
-    void * handle;
-    int (*execute)(void *, void *, int);
-
-    handle = dlopen("/usr/lib/hildon-control-panel/libcplanguageregional.so", RTLD_LAZY);
-    if ( handle ) {
-        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-        if ( execute )
-            execute(NULL, NULL, 1);
-        dlclose(handle);
-    }
+    openplugin("libcplanguageregional");
 }
 
 void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
 {
-    void * handle;
-    int (*execute)(void *, void *, int);
-
-    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-    if ( handle ) {
-        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-        if ( execute )
-            execute(NULL, NULL, 1);
-        dlclose(handle);
-    }
-
+    openplugin("libcpdatetime");
     // get time_format
     getAMPM();
     // refresh local time
@@ -457,3 +416,25 @@ void MainWindow::top_application()
     activateWindow();
 }
 #endif
+
+void MainWindow::openplugin(const QByteArray &plugin)
+{
+    void * handle;
+    int (*execute)(void *, void *, int);
+
+    /* very very ugly hack:
+       second param to execute should be pointer to GtkWidget, when is NULL libcpdatetime.so not working
+       because Gtk checking if this is valid GtkWidget pointer, we can pass some valid pointer...
+       this allow us to open libcpdatetime.so from Qt without Gtk parent widget
+     */
+    int dummy = 0;
+
+    handle = dlopen(QByteArray("/usr/lib/hildon-control-panel/") + plugin + ".so", RTLD_LAZY);
+    if ( handle ) {
+        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+        if ( execute ) {
+            execute(NULL, &dummy, 1);
+        }
+        dlclose(handle);
+    }
+}

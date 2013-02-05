@@ -7,6 +7,7 @@
 #include "cityinfo.h"
 #include "clockd/libtime.h"
 #include "gconfitem.h"
+#include "mainwindow.h"
 #include <QDebug>
 #include <QSettings>
 #include <QDateTime>
@@ -346,18 +347,9 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 	if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) && not dl_started )
 	{
 		dl_started = true;
-
-		void * handle;
-		int (*execute)(void *, void *, int);
-
-		handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-		if ( handle ) {
-			execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-			if ( execute )
-				execute(NULL, NULL, 1);
-			dlclose(handle);
-		}
-
+		MainWindow * w = dynamic_cast <MainWindow*> (parent());
+		if ( w )
+			w->openplugin("libcpdatetime");
                 // refresh alarm
                 loadCurrent();
                 orientationChanged();
