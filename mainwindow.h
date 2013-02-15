@@ -26,6 +26,8 @@ public:
     bool SecondsAdded;
     bool HH24true;
 
+    void openplugin(const QByteArray &plugin);
+
 public slots:
 #ifdef Q_WS_MAEMO_5
     Q_SCRIPTABLE void top_application();
