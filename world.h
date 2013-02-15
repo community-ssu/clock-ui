@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QTreeWidgetItem>
+#include "citydetail.h"
 
 namespace Ui {
     class World;
@@ -16,9 +17,9 @@ public:
     explicit World(QWidget *parent = 0);
     ~World();
     QString line1;
-    int curTime;
     QString longdate(QString data);
     bool HH24true;
+    CityDetail * c_details;
 
 public slots:
     void updateClocks();
@@ -27,14 +28,16 @@ public slots:
 
 private:
     Ui::World *ui;
+    int curTime;
 
 private slots:
-    void removeSel();
     void on_treeWidget_customContextMenuRequested(QPoint pos);
     void on_treeWidget_itemActivated(QTreeWidgetItem*);
     void addCity(int cityId);
     void orientationChanged();
     void on_newWorldclock_pushButton_pressed();
+    void onChildClosed();
+    void removeSel();
 };
 
 #endif // WORLD_H

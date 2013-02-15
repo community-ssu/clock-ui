@@ -1,3 +1,17 @@
+clock-ui (0.6-3) unstable; urgency=low
+
+  * prevent opening of multiple worldclock detail windows by multiple fast
+    presses
+
+ -- Pali Rohár <pali.rohar@gmail.com>  Thu, 4 Feb 2013 18:45:18 +0100
+
+clock-ui (0.6-2) unstable; urgency=low
+
+  * reverted introduced glitch in portrait mode
+  * made timediff format in world clock details equal to default clock
+
+ -- Pali Rohár <pali.rohar@gmail.com>  Thu, 4 Feb 2013 18:45:18 +0100
+
 clock-ui (0.6-1) unstable; urgency=low
 
   * Initial release

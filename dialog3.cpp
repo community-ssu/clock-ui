@@ -5,6 +5,8 @@
 #include "osso-intl.h"
 #include <QSettings>
 
+/* Setting the worldclock cities */
+
 Dialog3::Dialog3(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog3)
@@ -40,7 +42,10 @@ Dialog3::Dialog3(QWidget *parent) :
         if((offset % 3600)==0)
             timeoffset = QString("[%1]GMT %3 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600));
         else
-            timeoffset = QString("[%1]GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg("30");
+	{
+	    int minutes = -offset/60 %60;
+            timeoffset = QString("[%1]GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg(minutes);
+	}
 
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
         item1->setText(timeoffset);

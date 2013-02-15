@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     alsettings.cpp \
     mdialog.cpp \
     tdialog.cpp \
-    home.cpp
+    home.cpp \
+    citydetail.cpp
 
 HEADERS  += mainwindow.h \
     alarmlist.h \
@@ -44,7 +45,8 @@ HEADERS  += mainwindow.h \
     alsettings.h \
     mdialog.h \
     tdialog.h \
-    home.h
+    home.h \
+    citydetail.h
 
 FORMS    += mainwindow.ui \
     alarmlist.ui \
@@ -56,7 +58,8 @@ FORMS    += mainwindow.ui \
     alsettings.ui \
     mdialog.ui \
     tdialog.ui \
-    home.ui
+    home.ui \
+    citydetail.ui
 
 CONFIG += mobility
 MOBILITY = 

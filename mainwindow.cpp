@@ -96,22 +96,39 @@ MainWindow::MainWindow(QWidget *parent) :
             }
     }
 
+    // set to secondary text color
+    QColor secondaryColor = QMaemo5Style::standardColor("SecondaryTextColor");
+    ui->nextAlarm->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+                                .arg(secondaryColor.red())
+                                .arg(secondaryColor.green())
+                                .arg(secondaryColor.blue()));
+    ui->alarmDay->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+                                .arg(secondaryColor.red())
+                                .arg(secondaryColor.green())
+                                .arg(secondaryColor.blue()));
+    ui->timeZone->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+                                .arg(secondaryColor.red())
+                                .arg(secondaryColor.green())
+                                .arg(secondaryColor.blue()));
+    ui->date_landscape->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+                                .arg(secondaryColor.red())
+                                .arg(secondaryColor.green())
+                                .arg(secondaryColor.blue()));
+    ui->date_portrait->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+                                .arg(secondaryColor.red())
+                                .arg(secondaryColor.green())
+                                .arg(secondaryColor.blue()));
+
     QPalette pal(palette());
     pal.setColor(QPalette::Background, QMaemo5Style::standardColor("DefaultBackgroundColor"));
     ui->widget_3->setAutoFillBackground(true);
     ui->widget_3->setPalette(pal);
 
     pal.setBrush(QPalette::Active, QPalette::WindowText, QMaemo5Style::standardColor("DefaultTextColor"));
+    ui->widget_3->setPalette(pal);
     ui->newAlarm->setPalette(pal);
     ui->Alarms->setPalette(pal);
     ui->worldClocks->setPalette(pal);
-    pal.setBrush(QPalette::Active, QPalette::WindowText, QMaemo5Style::standardColor("SecondaryTextColor"));
-    ui->nextAlarm->setPalette(pal);
-    ui->alarmDay->setPalette(pal);
-    ui->timeZone->setPalette(pal);
-    ui->date_landscape->setPalette(pal);
-    ui->date_portrait->setPalette(pal);
-
 
     ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
     ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
@@ -124,10 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_dati_ia_adjust_date_and_time->setText(_("dati_ia_adjust_date_and_time"));
     ui->action_cloc_me_menu_settings_regional->setText(_("cloc_me_menu_settings_regional"));
     ui->action_cloc_alarm_settings_title->setText(_("cloc_alarm_settings_title"));
-    // ui->action_sfil_va_number_of_objects_images->setText(ImageText);
     ui->action_disp_seconds->setText(SecondsText);
-    // if ( BackgroundImg )
-    // 	ui->action_sfil_va_number_of_objects_images->setChecked(true);
     if ( SecondsAdded )
 	ui->action_disp_seconds->setChecked(true);
 
@@ -241,7 +255,7 @@ void MainWindow::updateTime()
     QDate fecha = QDate::currentDate();
     ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
     ui->date_portrait->setText( ui->date_landscape->text() );
-
+    // also update the worldclockscreen clocks
     ww->updateClocks();
 }
 
@@ -298,18 +312,7 @@ void MainWindow::on_timeButton_landscape_released()
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
-
-	    void * handle;
-	    int (*execute)(void *, void *, int);
-
-	    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-	    if ( handle ) {
-	    execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-	    if ( execute )
-	        execute(NULL, NULL, 1);
-	        dlclose(handle);
-	    }
-
+	    openplugin("libcpdatetime");
 	    // get time_format
 	    getAMPM();
 	    // refresh local time
@@ -327,18 +330,7 @@ void MainWindow::on_timeButton_portrait_released()
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
-
-	    void * handle;
-	    int (*execute)(void *, void *, int);
-
-	    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-	    if ( handle ) {
-	        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-	        if ( execute )
-	            execute(NULL, NULL, 1);
-	        dlclose(handle);
-	    }
-
+	    openplugin("libcpdatetime");
 	    // get time_format
 	    getAMPM();
 	    // refresh local time
@@ -384,31 +376,12 @@ void MainWindow::loadWorld()
 
 void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
 {
-    void * handle;
-    int (*execute)(void *, void *, int);
-
-    handle = dlopen("/usr/lib/hildon-control-panel/libcplanguageregional.so", RTLD_LAZY);
-    if ( handle ) {
-        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-        if ( execute )
-            execute(NULL, NULL, 1);
-        dlclose(handle);
-    }
+    openplugin("libcplanguageregional");
 }
 
 void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
 {
-    void * handle;
-    int (*execute)(void *, void *, int);
-
-    handle = dlopen("/usr/lib/hildon-control-panel/libcpdatetime.so", RTLD_LAZY);
-    if ( handle ) {
-        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
-        if ( execute )
-            execute(NULL, NULL, 1);
-        dlclose(handle);
-    }
-
+    openplugin("libcpdatetime");
     // get time_format
     getAMPM();
     // refresh local time
@@ -457,3 +430,25 @@ void MainWindow::top_application()
     activateWindow();
 }
 #endif
+
+void MainWindow::openplugin(const QByteArray &plugin)
+{
+    void * handle;
+    int (*execute)(void *, void *, int);
+
+    /* very very ugly hack:
+       second param to execute should be pointer to GtkWidget, when is NULL libcpdatetime.so not working
+       because Gtk checking if this is valid GtkWidget pointer, we can pass some valid pointer...
+       this allow us to open libcpdatetime.so from Qt without Gtk parent widget
+     */
+    int dummy = 0;
+
+    handle = dlopen(QByteArray("/usr/lib/hildon-control-panel/") + plugin + ".so", RTLD_LAZY);
+    if ( handle ) {
+        execute = (int(*)(void *, void *, int))dlsym(handle, "execute");
+        if ( execute ) {
+            execute(NULL, &dummy, 1);
+        }
+        dlclose(handle);
+    }
+}
