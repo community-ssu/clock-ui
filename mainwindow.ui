@@ -31,7 +31,7 @@
         <number>20</number>
        </property>
        <item row="4" column="2">
-        <widget class="AlarmButton" name="Alarm_pushButton" native="true">
+        <widget class="QPushButton" name="Alarm_pushButton">
          <property name="minimumSize">
           <size>
            <width>164</width>
@@ -44,13 +44,26 @@
            <height>164</height>
           </size>
          </property>
-         <property name="text" stdset="0">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton:pressed
+{
+background: transparent url(/etc/hildon/theme/mediaplayer/Button.png);
+border: none;
+}</string>
+         </property>
+         <property name="text">
           <string/>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item row="4" column="3">
-        <widget class="AlarmButton" name="wrldClk_pushButton" native="true">
+        <widget class="QPushButton" name="wrldClk_pushButton">
          <property name="minimumSize">
           <size>
            <width>164</width>
@@ -63,8 +76,21 @@
            <height>164</height>
           </size>
          </property>
-         <property name="text" stdset="0">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton:pressed
+{
+background: transparent url(/etc/hildon/theme/mediaplayer/Button.png);
+border: none;
+}</string>
+         </property>
+         <property name="text">
           <string/>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -236,7 +262,7 @@
         </spacer>
        </item>
        <item row="4" column="1">
-        <widget class="AlarmButton" name="nwAlarm_pushButton" native="true">
+        <widget class="QPushButton" name="nwAlarm_pushButton">
          <property name="minimumSize">
           <size>
            <width>164</width>
@@ -249,8 +275,21 @@
            <height>164</height>
           </size>
          </property>
-         <property name="text" stdset="0">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton:pressed
+{
+background: transparent url(/etc/hildon/theme/mediaplayer/Button.png);
+border: none;
+}</string>
+         </property>
+         <property name="text">
           <string/>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -265,7 +304,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>32</height>
+           <height>41</height>
           </size>
          </property>
         </spacer>
@@ -314,10 +353,17 @@
           <enum>Qt::NoFocus</enum>
          </property>
          <property name="styleSheet">
-          <string notr="true">QPushButton{background: transparent;}</string>
+          <string notr="true">QPushButton:pressed
+{
+border-image: url(/etc/hildon/theme/mediaplayer/Button.png);
+border: none;
+}</string>
          </property>
          <property name="text">
           <string>Time</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -547,13 +593,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>AlarmButton</class>
-   <extends>QWidget</extends>
-   <header location="global">alarmbutton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

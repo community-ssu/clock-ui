@@ -360,6 +360,7 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
                 // refresh alarm
                 loadCurrent();
                 orientationChanged();
+    		ui->treeWidget->setCurrentItem(0);
 		dl_started = false;
 	}
 	else
@@ -457,5 +458,6 @@ void World::onChildClosed()
     // remove from internal list if no longer in config file
     if (!citylist.contains(ui->treeWidget->currentItem()->statusTip(0)))
     	ui->treeWidget->takeTopLevelItem( ui->treeWidget->indexOfTopLevelItem(ui->treeWidget->currentItem()) );
+    ui->treeWidget->setCurrentItem(0);
     dl_started = false;
 }
