@@ -3,6 +3,7 @@
 #include "ui_world.h"
 #include "osso-intl.h"
 #include "dialog3.h"
+#include "citydetail.h"
 #include "filedelegate.h"
 #include "cityinfo.h"
 #include "clockd/libtime.h"
@@ -14,7 +15,6 @@
 #include <QDesktopWidget>
 #include <QMenu>
 #include <QProcess>
-
 #include <dlfcn.h>
 
 static const char *getHildonTranslation(const char *string)
@@ -32,7 +32,6 @@ const char *hildonPMfrmt = getHildonTranslation("wdgt_va_12h_time_pm");
 const char *hildon24frmt = getHildonTranslation("wdgt_va_24h_time");
 const char *hildonHHfrmt = getHildonTranslation("wdgt_va_24h_hours");
 bool dl_started = false;
-
 
 static QString formatHildonDate(const QDateTime &dt, const char *format)
 {
@@ -66,9 +65,9 @@ World::World(QWidget *parent) :
     ui(new Ui::World)
 {
     ui->setupUi(this);
+    this->setWindowFlags(Qt::Window);
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setAttribute(Qt::WA_Maemo5StackedWindow);
-    this->setWindowFlags(Qt::Window);
 
     this->setWindowTitle(_("cloc_ti_world_clocks"));
 
@@ -210,7 +209,10 @@ void World::addCity(int cityId)
     if((offset % 3600)==0)
         timeoffset = QString("GMT %3").arg(sign+QString::number(-offset/3600));
     else
-        timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
+    {
+         int minutes = -offset/60 %60;
+         timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg(abs(minutes));
+    }
 
     QDateTime tiempo = QDateTime::currentDateTime();
 
@@ -299,7 +301,10 @@ void World::loadCurrent()
           if((offset % 3600)==0)
               timeoffset = QString("GMT %3").arg(sign+QString::number(-offset/3600));
           else
-              timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg("30");
+	  {
+              int minutes = -offset/60 %60;
+              timeoffset = QString("GMT %3:%4").arg(sign+QString::number(-offset/3600)).arg(abs(minutes));
+	  }
 
           QDate fecha = QDate::currentDate();
           QDateTime date_time = QDateTime::currentDateTime();
@@ -335,6 +340,7 @@ void World::loadCurrent()
 
     delete homeCityCode;
 
+    // local GMT for the mainwindow
     line1 = timeoffset;
 
     orientationChanged();
@@ -347,6 +353,7 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
 	if (  ui->treeWidget->currentItem()->text(1).contains(_("cloc_fi_local_time")) && not dl_started )
 	{
 		dl_started = true;
+
 		MainWindow * w = dynamic_cast <MainWindow*> (parent());
 		if ( w )
 			w->openplugin("libcpdatetime");
@@ -354,6 +361,24 @@ void World::on_treeWidget_itemActivated(QTreeWidgetItem*)
                 loadCurrent();
                 orientationChanged();
 		dl_started = false;
+	}
+	else
+	{
+		if (!dl_started)
+		{
+			// show city details
+    			dl_started = true;
+			QString CityCountry = ui->treeWidget->currentItem()->text(1).replace("  startdesc",", ");
+			QString ExtGMT = ui->treeWidget->currentItem()->text(2).replace("  startdesc","|");
+			ExtGMT = ExtGMT.section( "|", 1, 1 );
+			QString LocGMT = line1;
+			QString SelCityCode = ui->treeWidget->currentItem()->statusTip(0);
+			int OffsetSecs = ui->treeWidget->currentItem()->statusTip(1).toInt();
+			CityDetail * c_details = new CityDetail(this,CityCountry,SelCityCode,ExtGMT,LocGMT,HH24true,OffsetSecs);
+			c_details->show();
+			connect(c_details, SIGNAL(destroyed()), this, SLOT(onChildClosed()));
+			this->hide();
+		}
 	}
 }
 
@@ -372,6 +397,7 @@ void World::on_treeWidget_customContextMenuRequested(QPoint pos)
 
 void World::removeSel()
 {
+    // remove currentItem from list
     ui->treeWidget->takeTopLevelItem( ui->treeWidget->indexOfTopLevelItem(ui->treeWidget->currentItem()) );
     QStringList listado;
     if ( ui->treeWidget->topLevelItemCount() > 1 )
@@ -379,6 +405,7 @@ void World::removeSel()
         for (int i=0; i<ui->treeWidget->topLevelItemCount()-1; ++i)
             listado.append( ui->treeWidget->topLevelItem(i+1)->statusTip(0) );
     }
+    // save to config file
     QSettings settings("worldclock", "worldclock");
     settings.setValue("Cities", listado);
     settings.sync();
@@ -420,4 +447,15 @@ void World::updateClocks()
         }
 
     }
+}
+
+void World::onChildClosed()
+{
+    this->show();
+    QSettings settings("worldclock", "worldclock");
+    QStringList citylist = settings.value("Cities",QStringList()).toStringList();
+    // remove from internal list if no longer in config file
+    if (!citylist.contains(ui->treeWidget->currentItem()->statusTip(0)))
+    	ui->treeWidget->takeTopLevelItem( ui->treeWidget->indexOfTopLevelItem(ui->treeWidget->currentItem()) );
+    dl_started = false;
 }
