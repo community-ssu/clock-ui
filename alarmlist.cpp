@@ -384,7 +384,7 @@ void AlarmList::loadAlarms()
 
 }
 
-void AlarmList::on_newAlarm_pressed()
+void AlarmList::on_newAlarm_clicked()
 {
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();

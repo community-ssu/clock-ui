@@ -177,6 +177,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
 
+//    connect(ui->Alarm_pushButton, SIGNAL(clicked()), this, SLOT(Alarm_pushButton_picked()));
+
     sw = new AlarmList(this);
     loadAlarm();
     ww = new World(this);
@@ -267,6 +269,11 @@ void MainWindow::on_Alarm_pushButton_pressed()
 void MainWindow::on_Alarm_pushButton_released()
 {
     ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
+}
+
+void MainWindow::on_Alarm_pushButton_clicked()
+{
+    ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
     sw->exec();
     sw->loadAlarms();
     loadAlarm();
@@ -278,6 +285,11 @@ void MainWindow::on_wrldClk_pushButton_pressed()
 }
 
 void MainWindow::on_wrldClk_pushButton_released()
+{
+    ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
+}
+
+void MainWindow::on_wrldClk_pushButton_clicked()
 {
     ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
     ww->exec();
@@ -298,6 +310,11 @@ void MainWindow::on_nwAlarm_pushButton_pressed()
 void MainWindow::on_nwAlarm_pushButton_released()
 {
     ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
+}
+
+void MainWindow::on_nwAlarm_pushButton_clicked()
+{
+    ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
     NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
     al->exec();
     delete al;
@@ -307,7 +324,7 @@ void MainWindow::on_nwAlarm_pushButton_released()
     loadAlarm();
 }
 
-void MainWindow::on_timeButton_landscape_released()
+void MainWindow::on_timeButton_landscape_clicked()
 {
     if (! dl_loaded ) // do not reload if already active
     {	    
@@ -325,7 +342,7 @@ void MainWindow::on_timeButton_landscape_released()
     }
 }
 
-void MainWindow::on_timeButton_portrait_released()
+void MainWindow::on_timeButton_portrait_clicked()
 {
     if (! dl_loaded ) // do not reload if already active
     {	    
@@ -351,11 +368,11 @@ void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
     ui->listWidget->clearSelection();
 
     if ( sel == 0 )
-        on_nwAlarm_pushButton_released();
+        on_nwAlarm_pushButton_clicked();
     else if ( sel == 1 )
-        on_Alarm_pushButton_released();
+        on_Alarm_pushButton_clicked();
     else if ( sel == 2 )
-        on_wrldClk_pushButton_released();
+        on_wrldClk_pushButton_clicked();
 
 }
 

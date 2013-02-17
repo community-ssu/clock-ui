@@ -30,7 +30,6 @@ Dialog3::Dialog3(QWidget *parent) :
         QString name = QString::fromUtf8(cityinfo_get_name(cities[i]));
         QString country = QString::fromUtf8(cityinfo_get_country(cities[i]));
         QString zone = ":" + QString::fromUtf8(cityinfo_get_zone(cities[i]));
-        // QString c_code = ":" + QString::fromUtf8(cityinfo_get_code(cities[i]));
 
         QString timeoffset;
         QString sign;
@@ -72,7 +71,7 @@ Dialog3::Dialog3(QWidget *parent) :
             cityInfoLine.remove(QRegExp("^\\[.+\\]"));
             ui->listWidget->item(i)->setText(cityInfoLine);
     }
-
+    connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
 }
 
 Dialog3::~Dialog3()
@@ -120,6 +119,16 @@ void Dialog3::on_search_textChanged(QString filter)
         {
             ui->listWidget->item(i)->setHidden(false);
         }
+    }
+}
+
+void Dialog3::orientationChanged()
+{
+    if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
+    {
+	// restore portrait size
+        this->setMinimumHeight(680);
+        this->setMaximumHeight(680);
     }
 }
 

@@ -148,7 +148,7 @@ void World::getAMPM()
        delete HH24;
 }
 
-void World::on_newWorldclock_pushButton_pressed()
+void World::on_newWorldclock_pushButton_clicked()
 {
     Dialog3* hw = new Dialog3(this);
     hw->exec();

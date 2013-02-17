@@ -35,7 +35,7 @@ private slots:
     void on_treeWidget_itemActivated(QTreeWidgetItem*);
     void addCity(int cityId);
     void orientationChanged();
-    void on_newWorldclock_pushButton_pressed();
+    void on_newWorldclock_pushButton_clicked();
     void onChildClosed();
     void removeSel();
 };

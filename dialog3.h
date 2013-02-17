@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QKeyEvent>
 #include <QListWidgetItem>
+#include <QtMaemo5>
 
 namespace Ui {
     class Dialog3;
@@ -29,6 +30,7 @@ private slots:
     void on_listWidget_itemActivated(QListWidgetItem* item);
     void on_search_textChanged(QString );
     void on_cancelSearch_pushButton_pressed();
+    void orientationChanged();
 };
 
 #endif // DIALOG3_H

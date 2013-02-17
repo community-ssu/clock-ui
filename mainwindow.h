@@ -49,12 +49,15 @@ private slots:
     void on_listWidget_itemActivated(QListWidgetItem* item);
     void on_nwAlarm_pushButton_released();
     void on_nwAlarm_pushButton_pressed();
-    void on_timeButton_landscape_released();
-    void on_timeButton_portrait_released();
+    void on_nwAlarm_pushButton_clicked();
+    void on_timeButton_landscape_clicked();
+    void on_timeButton_portrait_clicked();
+    void on_wrldClk_pushButton_clicked();
     void on_wrldClk_pushButton_pressed();
     void on_wrldClk_pushButton_released();
     void on_Alarm_pushButton_pressed();
     void on_Alarm_pushButton_released();
+    void on_Alarm_pushButton_clicked();
     void orientationChanged();
     void getAMPM();
 };
