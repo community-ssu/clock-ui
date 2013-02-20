@@ -43,7 +43,7 @@ Dialog3::Dialog3(QWidget *parent) :
         else
 	{
 	    int minutes = -offset/60 %60;
-            timeoffset = QString("[%1]GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg(minutes);
+            timeoffset = QString("[%1]GMT %3:%4 (%1, %2)").arg(name).arg(country).arg(sign+QString::number(-offset/3600)).arg(abs(minutes));
 	}
 
         QListWidgetItem *item1 = new QListWidgetItem(ui->listWidget);
