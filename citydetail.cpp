@@ -184,11 +184,18 @@ void CityDetail::updateInfo()
           if ( HH.toInt() > 11 )
           {
                CurrTime = formatHildonDate(QDateTime::currentDateTime(), hldon12hPMFormat);
-               ExtTime = formatHildonDate(ext_datetime, hldon12hPMFormat);
 	  }
           else
           {
                CurrTime = formatHildonDate(QDateTime::currentDateTime(), hldon12hAMFormat);
+	  }
+          HH = formatHildonDate(ext_datetime, hldonHHFormat);
+          if ( HH.toInt() > 11 )
+          {
+               ExtTime = formatHildonDate(ext_datetime, hldon12hPMFormat);
+	  }
+          else
+          {
                ExtTime = formatHildonDate(ext_datetime, hldon12hAMFormat);
 	  }
        }
