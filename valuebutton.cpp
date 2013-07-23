@@ -76,15 +76,17 @@ void ValueButton::paintEvent(QPaintEvent *paint)
     p.drawText(20,0,this->width()-20,this->height(),Qt::AlignVCenter|Qt::AlignLeft,this->statusTip(), &r);
 
     QString name = this->valueText();
-    
+    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
 
   if ( this->whatsThis() == "date" )
     {
         //QTextStream(stdout) << sl.at(0);
-        name.replace("0", _("cloc_va_never") );
-        name.replace("8", _("cloc_va_everyday") );
-	if (name.count(",") > 1)
-	{
+    	if ( name.contains(dateSep) )
+		name = "0";
+        if ( name != "0" && name != "8" )
+        {
+           if (name.count(",") > 1)
+           {
 		/* Calculate the daynames and remove the trailing comma for Polish and French point abv. */
 		QString MondayNameShort = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameShort); /* 1 */
 		QStringList sl = MondayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
@@ -114,9 +116,9 @@ void ValueButton::paintEvent(QPaintEvent *paint)
 		name.replace("5", FridayNameShort );
 		name.replace("6", SatdayNameShort );
 		name.replace("7", SundayNameShort );
-	}
-	else
-	{
+           }
+           else
+           {
 		QString MondayNameLong = formatHildonDate(QDateTime::fromString("02.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 1 */
 		QString TuedayNameLong = formatHildonDate(QDateTime::fromString("03.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 1 */
 		QString WeddayNameLong = formatHildonDate(QDateTime::fromString("04.01.2012","dd.MM.yyyy"), hildonDateDayNameLong); /* 3 */
@@ -131,7 +133,10 @@ void ValueButton::paintEvent(QPaintEvent *paint)
 		name.replace("5", FridayNameLong );
 		name.replace("6", SatdayNameLong );
 		name.replace("7", SundayNameLong );
-	}
+            }
+        }
+        name.replace("0", _("cloc_va_never") );
+        name.replace("8", _("cloc_va_everyday") );
     }
 
     p.setPen(QPen(QMaemo5Style::standardColor("ActiveTextColor")));

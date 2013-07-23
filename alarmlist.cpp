@@ -83,9 +83,10 @@ AlarmList::AlarmList(QWidget *parent) :
     // refresh the current alarmlist as soon as an alarm event occurs
     QDBusConnection::systemBus().connect(QString(),
                                  "/com/nokia/alarmd",
- 				 "com.nokia.alarmd",
- 				 "queue_status_ind",
- 	                         this, SLOT(loadAlarms()));
+				 "com.nokia.alarmd",
+				 "queue_status_ind",
+	                         this, SLOT(loadAlarms()));
+
 }
 
 AlarmList::~AlarmList()
@@ -137,14 +138,14 @@ void AlarmList::loadAlarms()
     ui->treeWidget->clear();
 
     int activeAlarms = 0;
+    bool exactDate = false;
+    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
 
     cookie_t *list, *iter; // cookie_t - alarm cookies from GTK
-    time_t now; // time_t structure from GTK
 
     // set number of hours to search alarms
     int timeFrame = 24*7;
 
-    now = time(NULL);
     // get list of alarms
     list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
 
@@ -165,9 +166,9 @@ void AlarmList::loadAlarms()
             QTime qtm = qdtm.time();
             QTime qtm_sched(aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             QDateTime qdtm_sched = QDateTime::fromTime_t(ttime);
-    	    // set time without snooze:
-	    qdtm_sched.setTime(qtm_sched);
-            //QDateTime qdtm_sched(aevent->alarm_tm.tm_year,aevent->alarm_tm.tm_mon,aevent->alarm_tm.tm_wday,aevent->alarm_tm.tm_mday,aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
+	    // set time without snooze:
+            qdtm_sched.setTime(qtm_sched);
+            // QDateTime qdtm_sched(aevent->alarm_tm.tm_year,aevent->alarm_tm.tm_mon,aevent->alarm_tm.tm_wday,aevent->alarm_tm.tm_mday,aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             // let's count day to current alarm triggering
             int days = 0;
             QDateTime currDate;
@@ -203,7 +204,8 @@ void AlarmList::loadAlarms()
             bool HH24true = HH24->value().toBool();
 
 	    // if non repeating do not look at trigger time (incl snooze)
-            if ( aevent->alarm_tm.tm_hour == -1 ) {
+	    // alarm_time != -1 should mean alarm on exact date/time
+            if ( aevent->alarm_tm.tm_hour == -1 || aevent->alarm_time != -1) {
                 if (HH24true)
                 {
                     pepe->setText(1, formatHildonDate(qdtm, hildon24format) );
@@ -334,7 +336,17 @@ void AlarmList::loadAlarms()
             }
             else
             {
-                pepe->setText(3, "0");
+                if (aevent->alarm_time != -1) 
+		{
+			// looks like we have a time incl date alarm
+			exactDate=true;
+			QDateTime timestamp;
+			timestamp.setTime_t(aevent->alarm_time);
+			QString LocalDateShort = timestamp.date().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\W$"));
+			pepe->setText(3, LocalDateShort + timestamp.toString(dateSep+"yyyy"));
+		}
+		else
+			pepe->setText(3, "0");
             }
             pepe->setWhatsThis(3, "days");
             pepe->setStatusTip(0, QString::number(cook1) );
@@ -364,7 +376,7 @@ void AlarmList::loadAlarms()
         //qDebug() << "DIAS PARA: " << ds;
         if ( ds == 1 )
             line2 = _("cloc_ti_start_tomorrow");
-        else if ( ds > 1 )
+        else if ( ds > 1 && ds < 8 )
         {
             QString tmp = ui->treeWidget->topLevelItem(0)->text(3);
             int j = tmp.indexOf(",");
@@ -373,6 +385,10 @@ void AlarmList::loadAlarms()
             line2 = _("cloc_ti_start_day");
             line2.replace("%s", formatHildonDate(qdtm, hildonDayOfWeek));
         }
+        else if ( ds > 7 )
+	{
+            line2 = ui->treeWidget->topLevelItem(0)->text(3);
+	}
 
     }
     else
@@ -404,11 +420,15 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
     if ( item->text(0) == "active" )
         checked = true;
 
+    // column=0: pressed on clock icon: toggle alarm active/inactive
+    // column=1: pressed on time
+    // column=2: pressed on text
+    // column=3: pressed on repeat field
     if ( column != 0 )
     {
-        NewAlarm *al = new NewAlarm(this, true, item->text(2),                         //alarmtext
-                                        item->text(1), item->text(3).replace(" ",""),  //repeat
-                                        checked, item->statusTip(0).toLong() );        //cookie-nbr
+        NewAlarm *al = new NewAlarm(this, true, item->text(2),                        //alarmtext
+                                        item->text(1), item->text(3).replace(" ",""), //repeat
+                                        checked, item->statusTip(0).toLong() );       //cookie-nbr
         al->exec();
         delete al;
         loadAlarms();

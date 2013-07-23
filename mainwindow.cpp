@@ -114,7 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
                                 .arg(secondaryColor.red())
                                 .arg(secondaryColor.green())
                                 .arg(secondaryColor.blue()));
-    ui->date_portrait->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+    ui->dateButton_portrait->setStyleSheet(QString("color: rgb(%1, %2, %3);")
                                 .arg(secondaryColor.red())
                                 .arg(secondaryColor.green())
                                 .arg(secondaryColor.blue()));
@@ -156,7 +156,7 @@ MainWindow::MainWindow(QWidget *parent) :
     f.setPointSize(48);
     ui->timeButton_portrait->setFont(f);
     f.setPointSize(18);
-    ui->date_portrait->setFont(f);
+    ui->dateButton_portrait->setFont(f);
 
     f.setPointSize(13);
     ui->newAlarm->setFont(f);
@@ -202,6 +202,7 @@ void MainWindow::orientationChanged()
 {
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
     {
+	// portrait
         ui->widget->hide();
         ui->widget_2->show();
     } else {
@@ -256,7 +257,7 @@ void MainWindow::updateTime()
 
     QDate fecha = QDate::currentDate();
     ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
-    ui->date_portrait->setText( ui->date_landscape->text() );
+    ui->dateButton_portrait->setText( ui->date_landscape->text() );
     // also update the worldclockscreen clocks
     ww->updateClocks();
 }
@@ -344,22 +345,12 @@ void MainWindow::on_timeButton_landscape_clicked()
 
 void MainWindow::on_timeButton_portrait_clicked()
 {
-    if (! dl_loaded ) // do not reload if already active
-    {	    
-	    dl_loaded = true;
-	    openplugin("libcpdatetime");
-	    // get time_format
-	    getAMPM();
-	    // refresh local time
-	    ww->loadCurrent();
-	    // refresh current timezone
-	    loadWorld();
-	    // refresh alarm
-	    sw->loadAlarms();
-	    loadAlarm();
-	    loadWorld();
-	    dl_loaded = false;
-     }
+	on_timeButton_landscape_clicked();
+}
+
+void MainWindow::on_dateButton_portrait_clicked()
+{
+	on_timeButton_landscape_clicked();
 }
 
 void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)

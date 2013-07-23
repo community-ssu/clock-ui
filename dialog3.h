@@ -18,6 +18,7 @@ public:
     explicit Dialog3(QWidget *parent = 0);
     ~Dialog3();
     QString selected;
+    bool eventFilter(QObject *, QEvent *e);
 
 private:
     Ui::Dialog3 *ui;

@@ -52,6 +52,7 @@ private slots:
     void on_nwAlarm_pushButton_clicked();
     void on_timeButton_landscape_clicked();
     void on_timeButton_portrait_clicked();
+    void on_dateButton_portrait_clicked();
     void on_wrldClk_pushButton_clicked();
     void on_wrldClk_pushButton_pressed();
     void on_wrldClk_pushButton_released();

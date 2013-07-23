@@ -50,6 +50,13 @@
        </widget>
       </item>
       <item>
+       <widget class="ValueButton" name="date_pushButton" native="true">
+        <property name="text" stdset="0">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="ValueButton" name="repeat_pushButton" native="true">
         <property name="text" stdset="0">
          <string/>

@@ -93,6 +93,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       int i = name.count(",");
       if ( i > 2 )
       {
+          //short daynames
           QString l1;
           i = name.indexOf(",");
           l1 = name.left(i+1);
@@ -118,15 +119,20 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       else
       {
           QLocale loc;
-          name.replace("1", loc.dayName(1) );
-          name.replace("2", loc.dayName(2) );
-          name.replace("3", loc.dayName(3) );
-          name.replace("4", loc.dayName(4) );
-          name.replace("5", loc.dayName(5) );
-          name.replace("6", loc.dayName(6) );
-          name.replace("7", loc.dayName(7) );
-          name.replace("0", _("cloc_va_never") );
-          name.replace("8", _("cloc_va_everyday") );
+          QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
+          if ( ! name.contains(dateSep))
+	  {
+             // no exact time/date specified
+             name.replace("1", loc.dayName(1) );
+             name.replace("2", loc.dayName(2) );
+             name.replace("3", loc.dayName(3) );
+             name.replace("4", loc.dayName(4) );
+             name.replace("5", loc.dayName(5) );
+             name.replace("6", loc.dayName(6) );
+             name.replace("7", loc.dayName(7) );
+             name.replace("0", _("cloc_va_never") );
+             name.replace("8", _("cloc_va_everyday") );
+          }
       }
 
       painter->setPen(QPen(QMaemo5Style::standardColor("SecondaryTextColor")));

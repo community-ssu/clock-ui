@@ -27,6 +27,7 @@ SOURCES += main.cpp\
     mdialog.cpp \
     tdialog.cpp \
     home.cpp \
+    dialogdate.cpp \
     citydetail.cpp
 
 HEADERS  += mainwindow.h \
@@ -46,6 +47,7 @@ HEADERS  += mainwindow.h \
     mdialog.h \
     tdialog.h \
     home.h \
+    dialogdate.h \
     citydetail.h
 
 FORMS    += mainwindow.ui \
@@ -59,6 +61,7 @@ FORMS    += mainwindow.ui \
     mdialog.ui \
     tdialog.ui \
     home.ui \
+    dialogdate.ui \
     citydetail.ui
 
 CONFIG += mobility

@@ -38,6 +38,7 @@ private slots:
     void orientationChanged();
     void on_buttonBox_clicked(QAbstractButton* button);
     void on_time_pushButton_pressed();
+    void on_date_pushButton_pressed();
     void on_repeat_pushButton_pressed();
 };
 

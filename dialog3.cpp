@@ -5,7 +5,7 @@
 #include "osso-intl.h"
 #include <QSettings>
 
-/* Setting the worldclock cities */
+/* Setting of the worldclock cities */
 
 Dialog3::Dialog3(QWidget *parent) :
     QDialog(parent),
@@ -16,7 +16,7 @@ Dialog3::Dialog3(QWidget *parent) :
     this->setWindowTitle(_("cloc_ti_search_city_title"));
 
     ui->cancelSearch_pushButton->setIcon(QIcon::fromTheme("general_close"));
-    ui->swidget->setVisible(false);
+    ui->swidget->hide();
 
     this->selected = "";
 
@@ -72,6 +72,7 @@ Dialog3::Dialog3(QWidget *parent) :
             ui->listWidget->item(i)->setText(cityInfoLine);
     }
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
+    ui->listWidget->viewport()->installEventFilter(this);
 }
 
 Dialog3::~Dialog3()
@@ -82,17 +83,18 @@ Dialog3::~Dialog3()
 void Dialog3::on_cancelSearch_pushButton_pressed()
 {
     ui->search->setText("");
-    ui->swidget->setVisible(false);
+    ui->swidget->hide();
 }
 
 void Dialog3::keyReleaseEvent(QKeyEvent *k)
 {
     if ( ui->search->hasFocus()==false )
     {
-        ui->swidget->setVisible(true);
+        ui->swidget->show();
         ui->search->setFocus();
         if ( k->key() == 16777219 )
         {
+	    // backspace
             QString pepe = ui->search->text();
             if ( pepe.length() > 0 ) pepe.remove(pepe.length()-1,1);
             ui->search->setFocus(); ui->search->setText(pepe);
@@ -120,6 +122,16 @@ void Dialog3::on_search_textChanged(QString filter)
             ui->listWidget->item(i)->setHidden(false);
         }
     }
+}
+
+bool Dialog3::eventFilter(QObject *, QEvent *e)
+{
+	if (e->type() == QEvent::MouseButtonPress
+	&& static_cast<QMouseEvent*>(e)->y() > ui->listWidget->viewport()->height() - 25
+	&& ui->swidget->isHidden()) {
+		ui->swidget->show();
+	}
+	return false;
 }
 
 void Dialog3::orientationChanged()

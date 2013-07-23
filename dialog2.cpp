@@ -2,6 +2,8 @@
 #include "ui_dialog2.h"
 #include "osso-intl.h"
 
+/* Setting the time */
+
 Dialog2::Dialog2(QWidget *parent, int hh, int mm, bool ampm,
                  bool am, QString dam, QString dpm) :
     QDialog(parent),
@@ -79,15 +81,13 @@ Dialog2::Dialog2(QWidget *parent, int hh, int mm, bool ampm,
     if ( (ampm) && (hh==12) )
         hh = 0;
 
-
-
-    ui->listWidget->scrollToItem(ui->listWidget->item(hh));
     ui->listWidget->item(hh)->setSelected(true);
     ui->listWidget->setCurrentRow(hh);
+    ui->listWidget->scrollToItem(ui->listWidget->item(hh));
 
-    ui->listWidget_2->scrollToItem(ui->listWidget_2->item(mm));
     ui->listWidget_2->item(mm)->setSelected(true);
     ui->listWidget_2->setCurrentRow(mm);
+    ui->listWidget_2->scrollToItem(ui->listWidget_2->item(mm));
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
@@ -102,15 +102,21 @@ Dialog2::~Dialog2()
 void Dialog2::orientationChanged()
 {
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
+	// portrait
         ui->buttonBox->hide();
         ui->buttonBox_2->show();
         this->setMinimumHeight(680);
         this->setMaximumHeight(680);
+	ui->listWidget->scrollToItem(ui->listWidget->currentItem(), QAbstractItemView::PositionAtCenter);
+	ui->listWidget_2->scrollToItem(ui->listWidget_2->currentItem(), QAbstractItemView::PositionAtCenter);
     } else {
+	// landscape
         ui->buttonBox_2->hide();
         ui->buttonBox->show();
         this->setMinimumHeight(350);
         this->setMaximumHeight(350);
+	ui->listWidget->scrollToItem(ui->listWidget->currentItem(), QAbstractItemView::PositionAtTop);
+	ui->listWidget_2->scrollToItem(ui->listWidget_2->currentItem(), QAbstractItemView::PositionAtTop);
     }
 }
 
