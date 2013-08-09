@@ -98,9 +98,7 @@ QString AlarmList::longdate(QString data)
 {
 
     QString localPMtxt = QLocale::system().pmText();
-    localPMtxt.remove(QRegExp("(\\,|\\.)"));
     QString localAMtxt = QLocale::system().amText();
-    localAMtxt.remove(QRegExp("(\\,|\\.)"));
     if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
         return localAMtxt;
     else
@@ -139,7 +137,8 @@ void AlarmList::loadAlarms()
 
     int activeAlarms = 0;
     bool exactDate = false;
-    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
+    //find the date separator symbol
+    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
 
     cookie_t *list, *iter; // cookie_t - alarm cookies from GTK
 
@@ -168,7 +167,6 @@ void AlarmList::loadAlarms()
             QDateTime qdtm_sched = QDateTime::fromTime_t(ttime);
 	    // set time without snooze:
             qdtm_sched.setTime(qtm_sched);
-            // QDateTime qdtm_sched(aevent->alarm_tm.tm_year,aevent->alarm_tm.tm_mon,aevent->alarm_tm.tm_wday,aevent->alarm_tm.tm_mday,aevent->alarm_tm.tm_hour,aevent->alarm_tm.tm_min, 0);   
             // let's count day to current alarm triggering
             int days = 0;
             QDateTime currDate;
@@ -339,7 +337,7 @@ void AlarmList::loadAlarms()
                 if (aevent->alarm_time != -1) 
 		{
 			// looks like we have a time incl date alarm
-			exactDate=true;
+			exactDate = true;
 			QDateTime timestamp;
 			timestamp.setTime_t(aevent->alarm_time);
 			QString LocalDateShort = timestamp.date().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\W$"));
@@ -352,7 +350,6 @@ void AlarmList::loadAlarms()
             pepe->setStatusTip(0, QString::number(cook1) );
 
             ui->treeWidget->addTopLevelItem(pepe);
-
 
             // free alarm event structure
             alarm_event_delete(aevent);
@@ -373,7 +370,6 @@ void AlarmList::loadAlarms()
         QDateTime currDate;
         currDate = QDateTime::currentDateTime();
         int ds = currDate.daysTo(qdtm);
-        //qDebug() << "DIAS PARA: " << ds;
         if ( ds == 1 )
             line2 = _("cloc_ti_start_tomorrow");
         else if ( ds > 1 && ds < 8 )
@@ -424,28 +420,40 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
     // column=1: pressed on time
     // column=2: pressed on text
     // column=3: pressed on repeat field
+    // text(1): time
+    // text(2): title
+    // text(3): date/repeat
     if ( column != 0 )
     {
         NewAlarm *al = new NewAlarm(this, true, item->text(2),                        //alarmtext
-                                        item->text(1), item->text(3).replace(" ",""), //repeat
+                                        item->text(1), item->text(3).replace(" ",""), //1=time 3=date
                                         checked, item->statusTip(0).toLong() );       //cookie-nbr
         al->exec();
         delete al;
         loadAlarms();
-
     }
     else
     {
-        NewAlarm *al = new NewAlarm(this, true, item->text(2),
-                                        item->text(1), item->text(3),
-                                        !checked, item->statusTip(0).toLong() );
-
-        al->removeAlarm(item->statusTip(0).toLong());
-        al->addAlarm();
-        delete al;
-        loadAlarms();
+	//get date&time of alarm
+	alarm_event_t *eve = 0;
+	eve = alarmd_event_get(item->statusTip(0).toLong());
+	if ( eve->alarm_time == -1 || eve->trigger > QDateTime::currentDateTime().toTime_t())
+	{
+		// it is no specific date&time alarm, or alarm date&time are in the future
+		// toggle active/inactive
+		NewAlarm *al = new NewAlarm(this, true, item->text(2),
+						item->text(1), item->text(3),
+						!checked, item->statusTip(0).toLong() );
+		// remove current alarm
+		al->removeAlarm(item->statusTip(0).toLong());
+		// add toggled on
+		al->addAlarm();
+		delete al;
+		loadAlarms();
+	}
+	// cleanup memory
+	alarm_event_delete(eve);
     }
-
     ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
     ui->treeWidget->sortByColumn(4, Qt::AscendingOrder);
     ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);

@@ -66,7 +66,7 @@ Dialog::Dialog(QWidget *parent, QString name, QString list) :
     item1->setTextAlignment(Qt::AlignCenter);
     item1->setWhatsThis(_("cloc_va_everyday"));
     ui->listWidget->addItem(item1);
-    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
+    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
     if ( list.contains(dateSep) ) list = "0";
     if ( list.contains("0") ) ui->listWidget->item(0)->setSelected(true);
     if ( list.contains("1") ) ui->listWidget->item(1)->setSelected(true);

@@ -44,9 +44,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
   QString name = index.data(Qt::DisplayRole).toString();
   QString help = index.data(Qt::WhatsThisRole).toString();
   QString localPMtxt = QLocale::system().pmText();
-  localPMtxt.remove(QRegExp("(\\,|\\.)"));
   QString localAMtxt = QLocale::system().amText();
-  localAMtxt.remove(QRegExp("(\\,|\\.)"));
 
   if ( help == "time" )
   {
@@ -119,7 +117,7 @@ void FileDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
       else
       {
           QLocale loc;
-          QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
+          QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
           if ( ! name.contains(dateSep))
 	  {
              // no exact time/date specified

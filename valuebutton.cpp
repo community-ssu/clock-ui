@@ -76,7 +76,7 @@ void ValueButton::paintEvent(QPaintEvent *paint)
     p.drawText(20,0,this->width()-20,this->height(),Qt::AlignVCenter|Qt::AlignLeft,this->statusTip(), &r);
 
     QString name = this->valueText();
-    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+")).at(0);
+    QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
 
   if ( this->whatsThis() == "date" )
     {
