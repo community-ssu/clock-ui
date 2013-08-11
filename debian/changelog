@@ -1,3 +1,9 @@
+clock-ui (0.6-1+0cssu2) unstable; urgency=low
+
+  * fix issues found in Spanish and Polish settings
+
+ -- Pali Rohár <pali.rohar@gmail.com>  Sun, 11 Aug 2013 20:37:46 +0200
+
 clock-ui (0.6-1+0cssu1) unstable; urgency=low
 
   * Initial release
