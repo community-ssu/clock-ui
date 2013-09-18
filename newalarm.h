@@ -40,6 +40,7 @@ private slots:
     void on_time_pushButton_pressed();
     void on_date_pushButton_pressed();
     void on_repeat_pushButton_pressed();
+    void on_alsound_pushButton_pressed();
 };
 
 #endif // NEWALARM_H

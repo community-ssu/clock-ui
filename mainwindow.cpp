@@ -233,6 +233,9 @@ void MainWindow::updateTime()
                CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon12hAMFormat);
        }
 	
+       ui->timeButton_landscape->setText("");
+       ui->timeButton_portrait->setText("");
+       QTextDocument Text;
        // due to QTBUG-16136 12h/24h change is not updated in QLocale during application run
        // so we look for ourselves for time-format at the proper moments, and change it accordingly
        if ( SecondsAdded ) {
@@ -243,23 +246,50 @@ void MainWindow::updateTime()
                     QRegExp TimeMinutes( "\\d{2}\\s" );
                     TimeMinutes.indexIn(CurrTime);
                     QString mins = TimeMinutes.cap(0).remove(QRegExp("\\s+$"));
-                    CurrTime.replace(TimeMinutes, mins + secs + " ");
-                    ui->timeButton_landscape->setText(CurrTime);
+                    CurrTime.replace(TimeMinutes, mins + secs + "<span style=font-size:25px;> ");
+		    Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span></span>");
+		    QPixmap pixmap(Text.size().width(), Text.size().height());
+		    pixmap.fill( Qt::transparent );
+		    QPainter painter( &pixmap );
+		    Text.drawContents(&painter, pixmap.rect());
+		    QIcon ButtonIcon(pixmap);
+		    ui->timeButton_landscape->setIcon(ButtonIcon);
+		    ui->timeButton_landscape->setIconSize(pixmap.rect().size());
           }
           else
-                    ui->timeButton_landscape->setText(CurrTime + secs);
+	  {
+		    Text.setHtml("<span style=font-size:60px;>" + CurrTime + secs + "</span>");
+		    QPixmap pixmap(Text.size().width(), Text.size().height());
+		    pixmap.fill( Qt::transparent );
+		    QPainter painter( &pixmap );
+		    Text.drawContents(&painter, pixmap.rect());
+		    QIcon ButtonIcon(pixmap);
+		    ui->timeButton_landscape->setIcon(ButtonIcon);
+		    ui->timeButton_landscape->setIconSize(pixmap.rect().size());
+	  }
        }
        else
-            ui->timeButton_landscape->setText(CurrTime);
+       {
+            CurrTime.replace(" ", "<span style=font-size:25px;> ");
+	    Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span>");
+	    QPixmap pixmap(Text.size().width(), Text.size().height());
+	    pixmap.fill( Qt::transparent );
+	    QPainter painter( &pixmap );
+	    Text.drawContents(&painter, pixmap.rect());
+	    QIcon ButtonIcon(pixmap);
+	    ui->timeButton_landscape->setIcon(ButtonIcon);
+	    ui->timeButton_landscape->setIconSize(pixmap.rect().size());
+       }
    
+       // copy it to the same portrait button
+       ui->timeButton_portrait->setIcon( ui->timeButton_landscape->icon() );
+       ui->timeButton_portrait->setIconSize(ui->timeButton_landscape->iconSize());
 
-    ui->timeButton_portrait->setText( ui->timeButton_landscape->text() );
-
-    QDate fecha = QDate::currentDate();
-    ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
-    ui->dateButton_portrait->setText( ui->date_landscape->text() );
-    // also update the worldclockscreen clocks
-    ww->updateClocks();
+       QDate fecha = QDate::currentDate();
+       ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
+       ui->dateButton_portrait->setText( ui->date_landscape->text() );
+       // also update the worldclockscreen clocks
+       ww->updateClocks();
 }
 
 void MainWindow::on_Alarm_pushButton_pressed()

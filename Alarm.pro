@@ -26,6 +26,7 @@ SOURCES += main.cpp\
     alsettings.cpp \
     mdialog.cpp \
     tdialog.cpp \
+    alarmsndpick.cpp \
     home.cpp \
     dialogdate.cpp \
     citydetail.cpp
@@ -46,6 +47,7 @@ HEADERS  += mainwindow.h \
     alsettings.h \
     mdialog.h \
     tdialog.h \
+    alarmsndpick.h \
     home.h \
     dialogdate.h \
     citydetail.h
@@ -59,6 +61,7 @@ FORMS    += mainwindow.ui \
     dialog3.ui \
     alsettings.ui \
     mdialog.ui \
+    alarmsndpick.ui \
     tdialog.ui \
     home.ui \
     dialogdate.ui \

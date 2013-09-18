@@ -2,6 +2,7 @@
 #include "ui_mdialog.h"
 #include "osso-intl.h"
 
+// snooze settings window
 
 MDialog::MDialog(QWidget *parent) :
     QDialog(parent),

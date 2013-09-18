@@ -5,6 +5,7 @@
 #include "gconfitem.h"
 #include "osso-intl.h"
 #include <QDebug>
+#include <QMaemo5Style>
 #include <QSettings>
 #include <QDesktopWidget>
 // for strftime
@@ -136,7 +137,7 @@ void AlarmList::loadAlarms()
     ui->treeWidget->clear();
 
     int activeAlarms = 0;
-    bool exactDate = false;
+    // bool exactDate = false;
     //find the date separator symbol
     QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
 
@@ -149,6 +150,8 @@ void AlarmList::loadAlarms()
     list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
 
     if (list[0] != (cookie_t) 0) {
+	    ui->label->hide();
+    	    ui->treeWidget->show();
         // iterate through alarm list
         for (iter = list; *iter != (cookie_t) 0; iter++)
         {
@@ -168,16 +171,16 @@ void AlarmList::loadAlarms()
 	    // set time without snooze:
             qdtm_sched.setTime(qtm_sched);
             // let's count day to current alarm triggering
-            int days = 0;
+            // int days = 0;
             QDateTime currDate;
             if (timeFrame > 24) // if we need to look forward for more then one day
             {
                 //  get current date from system
                 currDate = QDateTime::currentDateTime();
                 // calculate seconds from current time to alarm's trigger
-                int secs = currDate.secsTo(qdtm);
+                // int secs = currDate.secsTo(qdtm);
                 // get full days until alarm
-                days = secs / (60 * 60 * 24);
+                // days = secs / (60 * 60 * 24);
             }
             // here we will form alarm's string
             QString sTime;
@@ -337,7 +340,7 @@ void AlarmList::loadAlarms()
                 if (aevent->alarm_time != -1) 
 		{
 			// looks like we have a time incl date alarm
-			exactDate = true;
+			// exactDate = true;
 			QDateTime timestamp;
 			timestamp.setTime_t(aevent->alarm_time);
 			QString LocalDateShort = timestamp.date().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\W$"));
@@ -354,6 +357,21 @@ void AlarmList::loadAlarms()
             // free alarm event structure
             alarm_event_delete(aevent);
         }
+    }
+    else
+    {
+        QColor secondaryColor = QMaemo5Style::standardColor("SecondaryTextColor");
+        ui->label->setStyleSheet(QString("color: rgb(%1, %2, %3);")
+                                         .arg(secondaryColor.red())
+                                         .arg(secondaryColor.green())
+                                         .arg(secondaryColor.blue()));
+        QFont fontNoAlarm;
+        fontNoAlarm.setPointSize(24);
+	ui->label->setFont(fontNoAlarm);
+	ui->label->setAlignment(Qt::AlignCenter);
+	ui->label->setText(_("cloc_ti_start_no"));
+        ui->treeWidget->hide();
+        ui->label->show();
     }
     free(list);
 
@@ -416,13 +434,13 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
     if ( item->text(0) == "active" )
         checked = true;
 
-    // column=0: pressed on clock icon: toggle alarm active/inactive
-    // column=1: pressed on time
-    // column=2: pressed on text
-    // column=3: pressed on repeat field
-    // text(1): time
-    // text(2): title
-    // text(3): date/repeat
+    /* column=0: pressed on clock icon: toggle alarm active/inactive
+       column=1: pressed on time
+       column=2: pressed on text
+       column=3: pressed on repeat field
+       text(1): time
+       text(2): title
+       text(3): date/repeat */
     if ( column != 0 )
     {
         NewAlarm *al = new NewAlarm(this, true, item->text(2),                        //alarmtext

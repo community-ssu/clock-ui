@@ -27,7 +27,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QTreeWidget" name="treeWidget">
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
@@ -78,6 +78,13 @@
        <string>hidden</string>
       </property>
      </column>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>NoAlarm</string>
+     </property>
     </widget>
    </item>
   </layout>

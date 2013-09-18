@@ -1,22 +1,20 @@
-#include "tdialog.h"
-#include "ui_tdialog.h"
+#include "alarmsndpick.h"
+#include "ui_alarmsndpick.h"
 #include "osso-intl.h"
 #include <QDialogButtonBox>
 #include "valuebutton.h"
 #include "gconfitem.h"
 #include "home.h"
 
-// default alarm signal settings window
-
-TDialog::TDialog(QWidget *parent) :
+AlarmSndPick::AlarmSndPick(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::TDialog)
+    ui(new Ui::AlarmSndPick)
 {
-    extern QString musicFile;
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
     selected = "nothing";
+    QString sndFile;
 
     this->setWindowTitle(_("cloc_ti_alarm_tone"));
 
@@ -35,8 +33,8 @@ TDialog::TDialog(QWidget *parent) :
     GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
     QString text = item->value().toString();
 
-    if (musicFile.toLower().contains(fileExt) && ! musicFile.toLower().contains("/usr/share/sounds/ui-clock_alarm_"))
-    	text = musicFile;
+    if (sndFile.toLower().contains(fileExt) && ! sndFile.toLower().contains("/usr/share/sounds/ui-clock_alarm_"))
+    	text = sndFile;
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
     fileExt.setCaseSensitivity(cs);
 
@@ -76,18 +74,18 @@ TDialog::TDialog(QWidget *parent) :
 
 }
 
-TDialog::~TDialog()
+AlarmSndPick::~AlarmSndPick()
 {
     delete ui;
 }
 
-void TDialog::reject()
+void AlarmSndPick::reject()
 {
     stopSound();
     this->hide();
 }
 
-void TDialog::stopSound()
+void AlarmSndPick::stopSound()
 {
     if ( g_main_loop_is_running(loop) )
     {
@@ -96,7 +94,7 @@ void TDialog::stopSound()
     }
 }
 
-void TDialog::orientationChanged()
+void AlarmSndPick::orientationChanged()
 {
 
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
@@ -114,7 +112,7 @@ void TDialog::orientationChanged()
 
 }
 
-void TDialog::on_listWidget_itemActivated(QListWidgetItem* item)
+void AlarmSndPick::on_listWidget_itemActivated(QListWidgetItem* item)
 {
     //selected = item->whatsThis();
     //this->accept();
@@ -136,7 +134,7 @@ void TDialog::on_listWidget_itemActivated(QListWidgetItem* item)
 
 }
 
-void TDialog::on_moreButton_landscape_clicked(QAbstractButton* button)
+void AlarmSndPick::on_moreButton_landscape_clicked(QAbstractButton* button)
 {
     stopSound();
 
@@ -181,7 +179,7 @@ void TDialog::on_moreButton_landscape_clicked(QAbstractButton* button)
 
 }
 
-void TDialog::on_moreButton_portrait_clicked(QAbstractButton* button)
+void AlarmSndPick::on_moreButton_portrait_clicked(QAbstractButton* button)
 {
     on_moreButton_landscape_clicked(button);
 }

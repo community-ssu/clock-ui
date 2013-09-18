@@ -20,9 +20,9 @@ Dialog3::Dialog3(QWidget *parent) :
 
     this->selected = "";
 
-    int ret = 0;
+    // int ret = 0;
     char current_tz[32];
-    ret = time_get_timezone(&current_tz[0],32);
+    // ret = time_get_timezone(&current_tz[0],32);
     QString defTZ = QString::fromUtf8(current_tz);
     ui->listWidget->clear();
     Cityinfo **cities = cityinfo_get_all();
