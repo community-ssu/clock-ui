@@ -1,3 +1,12 @@
+clock-ui (0.6-1+0cssu3) unstable; urgency=low
+
+  * "No alarms" will be displayed in alarmlist if relevant (default clock like)
+  * am/pm textpart in time display made smaller (default clock like)
+  * setting time plus date in past again made more difficult
+  * prepared for possible future custom per alarm sounds
+
+ -- Pali Rohár <pali.rohar@gmail.com>  Wed, 18 Sep 2013 20:27:43 +0200
+
 clock-ui (0.6-1+0cssu2) unstable; urgency=low
 
   * fix issues found in Spanish and Polish settings
