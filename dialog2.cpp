@@ -99,6 +99,21 @@ Dialog2::~Dialog2()
     delete ui;
 }
 
+void Dialog2::centerView()
+{
+    // scroll selected items to center
+    int itemHeight = ui->listWidget->visualItemRect(ui->listWidget->item(0)).height();
+    ui->listWidget->property("kineticScroller").value<QAbstractKineticScroller*>()
+                      ->scrollTo(QPoint(0, qBound(0,
+                      ui->listWidget->currentRow() * itemHeight + (itemHeight - ui->listWidget->height()) / 2,
+                      ui->listWidget->verticalScrollBar()->maximum())));
+    itemHeight = ui->listWidget_2->visualItemRect(ui->listWidget_2->item(0)).height();
+    ui->listWidget_2->property("kineticScroller").value<QAbstractKineticScroller*>()
+                      ->scrollTo(QPoint(0, qBound(0,
+                      ui->listWidget_2->currentRow() * itemHeight + (itemHeight - ui->listWidget_2->height()) / 2,
+                      ui->listWidget_2->verticalScrollBar()->maximum())));
+}
+
 void Dialog2::orientationChanged()
 {
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
@@ -107,17 +122,25 @@ void Dialog2::orientationChanged()
         ui->buttonBox_2->show();
         this->setMinimumHeight(680);
         this->setMaximumHeight(680);
-	ui->listWidget->scrollToItem(ui->listWidget->currentItem(), QAbstractItemView::PositionAtCenter);
-	ui->listWidget_2->scrollToItem(ui->listWidget_2->currentItem(), QAbstractItemView::PositionAtCenter);
+		centerView();
     } else {
 	// landscape
         ui->buttonBox_2->hide();
         ui->buttonBox->show();
         this->setMinimumHeight(350);
         this->setMaximumHeight(350);
-	ui->listWidget->scrollToItem(ui->listWidget->currentItem(), QAbstractItemView::PositionAtTop);
-	ui->listWidget_2->scrollToItem(ui->listWidget_2->currentItem(), QAbstractItemView::PositionAtTop);
+		centerView();
     }
+}
+
+void Dialog2::on_listWidget_clicked()
+{
+	centerView();
+}
+
+void Dialog2::on_listWidget_2_clicked()
+{
+	on_listWidget_clicked();
 }
 
 void Dialog2::on_buttonBox_accepted()

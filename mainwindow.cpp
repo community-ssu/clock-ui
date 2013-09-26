@@ -233,6 +233,7 @@ void MainWindow::updateTime()
                CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon12hAMFormat);
        }
 	
+	   CurrTime = CurrTime.trimmed();
        ui->timeButton_landscape->setText("");
        ui->timeButton_portrait->setText("");
        QTextDocument Text;
@@ -270,6 +271,7 @@ void MainWindow::updateTime()
        }
        else
        {
+		   // no seconds added
             CurrTime.replace(" ", "<span style=font-size:25px;> ");
 	    Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span>");
 	    QPixmap pixmap(Text.size().width(), Text.size().height());

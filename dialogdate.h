@@ -26,6 +26,7 @@ private slots:
     void on_listWidget_year_itemClicked();
     void on_listWidget_month_itemClicked();
     void on_listWidget_day_itemClicked();
+	void centerView();
 
 private:
     Ui::DialogDate *ui;

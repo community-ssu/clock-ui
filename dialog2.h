@@ -25,6 +25,9 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_2_accepted();
     void orientationChanged();
+	void centerView();
+	void on_listWidget_clicked();
+	void on_listWidget_2_clicked();
 
 private:
     Ui::Dialog2 *ui;
