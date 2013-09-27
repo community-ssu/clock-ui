@@ -34,6 +34,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     alarmlist.h \
     filedelegate.h \
+    ListDelegate.h \
     newalarm.h \
     osso-intl.h \
     dialog.h \
@@ -50,6 +51,7 @@ HEADERS  += mainwindow.h \
     alarmsndpick.h \
     home.h \
     dialogdate.h \
+	Metrics.h \
     citydetail.h
 
 FORMS    += mainwindow.ui \
