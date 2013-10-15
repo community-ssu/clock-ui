@@ -1,3 +1,12 @@
+clock-ui (0.6-1+0cssu4) unstable; urgency=low
+
+  * datepicker will show day of week (qalendar like)
+  * smoother scrolling in time- and datepicker
+  * more space for monthnames in datepicker
+  * fixed wrong fontsize with 12 hours clock and no seconds
+
+ -- Pali Rohár <pali.rohar@gmail.com>  Tue, 15 Oct 2013 15:14:37 +0200
+
 clock-ui (0.6-1+0cssu3) unstable; urgency=low
 
   * "No alarms" will be displayed in alarmlist if relevant (default clock like)
