@@ -1,4 +1,17 @@
 #!/usr/bin/make -f
+CXXFLAGS = -Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CXXFLAGS += -O0
+else
+	CXXFLAGS += -O2
+endif
+
+ifneq (,$(findstring thumb,$(DEB_BUILD_OPTIONS)))
+  CXXFLAGS += -mthumb
+endif
+
+export CXXFLAGS
 
 builddir:
 	mkdir -p builddir
@@ -45,7 +58,7 @@ binary-arch: build install
 	dh_installexamples
 	dh_installman
 	dh_link
-	dh_strip
+	dh_strip --dbg-package=clock-ui-dbg
 	dh_compress
 	dh_fixperms
 	dh_installdeb
