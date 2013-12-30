@@ -30,6 +30,7 @@ install: build
 
 	# Add here commands to install the package into debian/clock-ui
 	cd builddir && $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/clock-ui install
+	cd builddir && cp -a $(CURDIR)/builddir/worldclock $(CURDIR)/debian/clock-ui/usr/bin
 
 # Build architecture-independent files here.
 binary-indep: build install
