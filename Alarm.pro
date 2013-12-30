@@ -9,9 +9,8 @@ QT       += core gui
 TARGET = worldclock
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    mainwindow.cpp \
     alarmlist.cpp \
     filedelegate.cpp \
     newalarm.cpp \
@@ -51,7 +50,7 @@ HEADERS  += mainwindow.h \
     alarmsndpick.h \
     home.h \
     dialogdate.h \
-	Metrics.h \
+    Metrics.h \
     citydetail.h
 
 FORMS    += mainwindow.ui \
@@ -96,3 +95,5 @@ maemo5 {
     service.path = $$PREFIX/share/dbus-1/services
     service.files += com.nokia.worldclock.service
 }
+
+QMAKE_CXXFLAGS_RELEASE = $$(CXXFLAGS)
