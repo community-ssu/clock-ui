@@ -368,8 +368,8 @@ void MainWindow::on_timeButton_landscape_clicked()
 	    // refresh local time
 	    ww->loadCurrent();
 	    // refresh alarm
-	    sw->loadAlarms();
 	    loadAlarm();
+	    sw->loadAlarms();
 	    loadWorld();
 	    dl_loaded = false;
     }
