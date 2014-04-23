@@ -207,9 +207,12 @@ void AlarmList::loadAlarms()
 	    // if non repeating do not look at trigger time (incl snooze)
 	    // alarm_time != -1 should mean alarm on exact date/time
             if ( aevent->alarm_tm.tm_hour == -1 || aevent->alarm_time != -1) {
+                // as we now have an exact epoch stamp from the alarm without snooze, let's use that one
+                time_t altime = aevent->alarm_time;
+                QDateTime aldtm = QDateTime::fromTime_t(altime);
                 if (HH24true)
                 {
-                    pepe->setText(1, formatHildonDate(qdtm, hildon24format) );
+                    pepe->setText(1, formatHildonDate(aldtm, hildon24format) );
                     pepe->setText(5, formatHildonDate(qdtm, hildon24format) );
                 }
                 else
@@ -217,12 +220,12 @@ void AlarmList::loadAlarms()
                     QString HH = formatHildonDate(qdtm, hildonHHformat);
                     if ( HH.toInt() > 11 )
                     {
-                         pepe->setText(1, formatHildonDate(qdtm, hildonPMformat) );
+                         pepe->setText(1, formatHildonDate(aldtm, hildonPMformat) );
                          pepe->setText(5, formatHildonDate(qdtm, hildonPMformat) );
                     }
                     else
                     {
-                         pepe->setText(1, formatHildonDate(qdtm, hildonAMformat) );
+                         pepe->setText(1, formatHildonDate(aldtm, hildonAMformat) );
                          pepe->setText(5, formatHildonDate(qdtm, hildonAMformat) );
                     }
                 }
@@ -401,6 +404,7 @@ void AlarmList::loadAlarms()
         }
         else if ( ds > 7 )
 	{
+			// show date
             line2 = ui->treeWidget->topLevelItem(0)->text(3);
 	}
 
@@ -455,9 +459,9 @@ void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
 	//get date&time of alarm
 	alarm_event_t *eve = 0;
 	eve = alarmd_event_get(item->statusTip(0).toLong());
-	if ( eve->alarm_time == -1 || eve->trigger > QDateTime::currentDateTime().toTime_t())
+	if ( eve->alarm_time == -1 || eve->alarm_time > QDateTime::currentDateTime().toTime_t())
 	{
-		// it is no specific date&time alarm, or alarm date&time are in the future
+		// it is no specific date&time alarm, or original alarm date&time are in the future
 		// toggle active/inactive
 		NewAlarm *al = new NewAlarm(this, true, item->text(2),
 						item->text(1), item->text(3),
