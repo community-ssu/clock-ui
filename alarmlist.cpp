@@ -206,7 +206,7 @@ void AlarmList::loadAlarms()
 
 	    // if non repeating do not look at trigger time (incl snooze)
 	    // alarm_time != -1 should mean alarm on exact date/time
-            if ( aevent->alarm_tm.tm_hour == -1 || aevent->alarm_time != -1) {
+            if ( aevent->alarm_tm.tm_hour == -1 && aevent->alarm_time != -1) {
                 // as we now have an exact epoch stamp from the alarm without snooze, let's use that one
                 time_t altime = aevent->alarm_time;
                 QDateTime aldtm = QDateTime::fromTime_t(altime);
@@ -231,6 +231,20 @@ void AlarmList::loadAlarms()
                 }
             }
             else {
+                if ( aevent->recurrence_tab )
+                {
+                    time_t org_time = aevent->snooze_total;
+                    if ( org_time > 0 ) {
+                        // snooze is set. If not it is 0
+                        QDateTime qt_dtm = QDateTime::fromTime_t(org_time);
+                        // get time part
+                        QTime qt_time = qt_dtm.time();
+                        // and make it the time displayed in the list
+                        qdtm_sched.setTime(qt_time);
+                     }
+                     else
+                         qdtm_sched.setTime(qtm); // display trigger time
+                }
                 if (HH24true)
                 {
                     pepe->setText(1, formatHildonDate(qdtm_sched, hildon24format) );
