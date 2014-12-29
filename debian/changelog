@@ -1,3 +1,11 @@
+clock-ui (0.6-1+0cssu6) unstable; urgency=low
+
+  * alarm with date shows original alarm time after snooze
+    and those alarms can no longer be disabled during snooze
+  * recurrent alarms should now keep their original time in the alarmlist
+
+ -- Arno Dekker <adekker@gmail.com>  Wen, 24 Apr 2014 10:05:30 +0200
+
 clock-ui (0.6-1+0cssu5+thumb0) unstable; urgency=low
 
   * Thumb2 compile

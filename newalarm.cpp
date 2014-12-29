@@ -221,7 +221,7 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
 	// get date&time alarm
 	alarm_event_t *eve = 0;
 	eve = alarmd_event_get(realcookie);
-	if ( eve->trigger < QDateTime::currentDateTime().toTime_t())
+	if ( eve->alarm_time < QDateTime::currentDateTime().toTime_t())
 	{
     		ui->checkBox->setEnabled(false);
     		ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
