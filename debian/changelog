@@ -1,3 +1,9 @@
+clock-ui (0.6-1+0cssu6+thumb0) unstable; urgency=low
+
+  * Thumb2 compile
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Mon, 29 Dec 2014 17:10:37 +0200
+
 clock-ui (0.6-1+0cssu6) unstable; urgency=low
 
   * alarm with date shows original alarm time after snooze
