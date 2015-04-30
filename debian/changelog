@@ -1,3 +1,11 @@
+clock-ui (0.6-1+0cssu7) unstable; urgency=low
+
+  * add maemo-launcher support
+  * add -dbg package
+  * add thumb support in debian/rules
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Thu, 30 Apr 2015 19:55:11 +0300
+
 clock-ui (0.6-1+0cssu6) unstable; urgency=low
 
   * alarm with date shows original alarm time after snooze
