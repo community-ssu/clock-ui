@@ -1,6 +1,10 @@
 #!/usr/bin/make -f
 CXXFLAGS = -Wall -g
 
+ifeq (,$(findstring nolauncher,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -shared -rdynamic
+endif
+
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CXXFLAGS += -O0
 else
@@ -17,7 +21,7 @@ builddir:
 	mkdir -p builddir
 
 builddir/Makefile: builddir
-	cd builddir && qmake-qt4 PREFIX=/usr ../Alarm.pro
+	cd builddir && qmake-qt4 CONFIG+=nostrip PREFIX=/usr ../Alarm.pro
 
 build: build-stamp
 
@@ -44,6 +48,9 @@ install: build
 	# Add here commands to install the package into debian/clock-ui
 	cd builddir && $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/clock-ui install
 	cd builddir && cp -a $(CURDIR)/builddir/worldclock $(CURDIR)/debian/clock-ui/usr/bin
+
+	#use maemo launcher
+	dh_maemolauncher
 
 # Build architecture-independent files here.
 binary-indep: build install
