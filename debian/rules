@@ -2,7 +2,8 @@
 CXXFLAGS = -Wall -g
 
 ifeq (,$(findstring nolauncher,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -shared -rdynamic
+	CXXFLAGS += -fPIC
+	LDFLAGS += -shared -rdynamic -Wl,--version-script=$(CURDIR)/worldclock.version
 endif
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -16,6 +17,7 @@ ifneq (,$(findstring thumb,$(DEB_BUILD_OPTIONS)))
 endif
 
 export CXXFLAGS
+export LDFLAGS
 
 builddir:
 	mkdir -p builddir
