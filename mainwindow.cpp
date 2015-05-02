@@ -3,13 +3,15 @@
 #include "alarmlist.h"
 #include "osso-intl.h"
 #include "newalarm.h"
-#include "alarmbutton.h"
 #include "maintdelegate.h"
 #include "world.h"
 #include "alsettings.h"
 #include "gconfitem.h"
 #include <QDateTime>
 #include <QMaemo5Style>
+#include <QSettings>
+#include <QTimer>
+#include <QTextDocument>
 
 #include <dlfcn.h>
 

@@ -11,14 +11,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     mainwindow.cpp \
-    alarmlist.cpp \
     filedelegate.cpp \
     newalarm.cpp \
     dialog.cpp \
     checkdelegate.cpp \
     valuebutton.cpp \
     dialog2.cpp \
-    alarmbutton.cpp \
     maintdelegate.cpp \
     world.cpp \
     dialog3.cpp \
@@ -31,7 +29,6 @@ SOURCES += main.cpp\
     citydetail.cpp
 
 HEADERS  += mainwindow.h \
-    alarmlist.h \
     filedelegate.h \
     ListDelegate.h \
     newalarm.h \
@@ -40,7 +37,6 @@ HEADERS  += mainwindow.h \
     checkdelegate.h \
     valuebutton.h \
     dialog2.h \
-    alarmbutton.h \
     maintdelegate.h \
     world.h \
     dialog3.h \
