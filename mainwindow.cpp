@@ -86,40 +86,31 @@ MainWindow::MainWindow(QWidget *parent) :
     SecondsText[0] = SecondsText[0].toUpper();
     intl("osso-clock");
 
-
-    if ( BackgroundImg ) {
-	    QFileInfo bg_fileInfo("/etc/hildon/theme/backgrounds/clock.png"); 
-	    if (bg_fileInfo.exists())
-            {
-		    this->setAutoFillBackground(true);
-		    QPalette pal2(palette());
-		    pal2.setBrush(QPalette::Window, QPixmap("/etc/hildon/theme/backgrounds/clock.png"));
-		    this->setPalette(pal2);
-            }
+    if (BackgroundImg)
+    {
+        QFileInfo bg_fileInfo("/etc/hildon/theme/backgrounds/clock.png");
+        if (bg_fileInfo.exists())
+        {
+            QPalette pal(palette());
+            setAutoFillBackground(true);
+            pal.setBrush(QPalette::Window,
+                         QPixmap("/etc/hildon/theme/backgrounds/clock.png"));
+            setPalette(pal);
+        }
     }
 
     // set to secondary text color
-    QColor secondaryColor = QMaemo5Style::standardColor("SecondaryTextColor");
-    ui->nextAlarm->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                .arg(secondaryColor.red())
-                                .arg(secondaryColor.green())
-                                .arg(secondaryColor.blue()));
-    ui->alarmDay->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                .arg(secondaryColor.red())
-                                .arg(secondaryColor.green())
-                                .arg(secondaryColor.blue()));
-    ui->timeZone->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                .arg(secondaryColor.red())
-                                .arg(secondaryColor.green())
-                                .arg(secondaryColor.blue()));
-    ui->date_landscape->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                .arg(secondaryColor.red())
-                                .arg(secondaryColor.green())
-                                .arg(secondaryColor.blue()));
-    ui->dateButton_portrait->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                .arg(secondaryColor.red())
-                                .arg(secondaryColor.green())
-                                .arg(secondaryColor.blue()));
+    {
+        QPalette pal(palette());
+        pal.setColor(QPalette::WindowText,
+                     QMaemo5Style::standardColor("SecondaryTextColor"));
+
+        ui->nextAlarm->setPalette(pal);
+        ui->alarmDay->setPalette(pal);
+        ui->timeZone->setPalette(pal);
+        ui->date_landscape->setPalette(pal);
+        ui->dateButton_portrait->setPalette(pal);
+    }
 
     QPalette pal(palette());
     pal.setColor(QPalette::Background, QMaemo5Style::standardColor("DefaultBackgroundColor"));
