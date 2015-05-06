@@ -15,13 +15,15 @@ class NewAlarm : public QDialog
 
 public:
     explicit NewAlarm(QWidget *parent = 0, bool edit = false,
-                      QString Aname = "", QString Atime = "", QString Adays = "",
+                      QString Aname = "", QString Atime = "",
+                      uint32_t wday = 0,
                       bool Acheck = false, long Acook = 0, bool show = true);
     ~NewAlarm();
     bool isEditing;
     long realcookie;
     bool enabled;
-    QString name, time, days;
+    QString name, time;
+    uint32_t wday;
     int deleted;
     bool showed;
     QString longdate(QString data);

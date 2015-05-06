@@ -2,8 +2,9 @@
 #include "ui_dialog.h"
 #include "osso-intl.h"
 #include "checkdelegate.h"
+#include <libalarm.h>
 
-Dialog::Dialog(QWidget *parent, QString name, QString list) :
+Dialog::Dialog(QWidget *parent, QString name, uint32_t wday) :
     QDialog(parent),
     ui(new Ui::Dialog)
 {
@@ -67,16 +68,18 @@ Dialog::Dialog(QWidget *parent, QString name, QString list) :
     item1->setWhatsThis(_("cloc_va_everyday"));
     ui->listWidget->addItem(item1);
     QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
-    if ( list.contains(dateSep) ) list = "0";
-    if ( list.contains("0") ) ui->listWidget->item(0)->setSelected(true);
-    if ( list.contains("1") ) ui->listWidget->item(1)->setSelected(true);
-    if ( list.contains("2") ) ui->listWidget->item(2)->setSelected(true);
-    if ( list.contains("3") ) ui->listWidget->item(3)->setSelected(true);
-    if ( list.contains("4") ) ui->listWidget->item(4)->setSelected(true);
-    if ( list.contains("5") ) ui->listWidget->item(5)->setSelected(true);
-    if ( list.contains("6") ) ui->listWidget->item(6)->setSelected(true);
-    if ( list.contains("7") ) ui->listWidget->item(7)->setSelected(true);
-    if ( list.contains("8") )
+
+    /* FIXME */
+    if (!wday)
+        ui->listWidget->item(0)->setSelected(true);
+    if (wday & (1 << 1)) ui->listWidget->item(1)->setSelected(true);
+    if (wday & (1 << 2)) ui->listWidget->item(2)->setSelected(true);
+    if (wday & (1 << 3)) ui->listWidget->item(3)->setSelected(true);
+    if (wday & (1 << 4)) ui->listWidget->item(4)->setSelected(true);
+    if (wday & (1 << 5)) ui->listWidget->item(5)->setSelected(true);
+    if (wday & (1 << 6)) ui->listWidget->item(6)->setSelected(true);
+    if (wday & (1 << 0)) ui->listWidget->item(7)->setSelected(true);
+    if (wday  == ALARM_RECUR_WDAY_ALL)
         for (int i=1; i<ui->listWidget->count(); ++i)
             ui->listWidget->item(i)->setSelected(true);
 

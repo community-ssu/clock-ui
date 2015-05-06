@@ -312,7 +312,11 @@ void World::loadCurrent()
           QString CurrentdayNameShort = formatHildonDate(date_time, hildonDateDayNameShrt);
 
           QStringList sl = CurrentdayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-          CurrentdayNameShort = sl.at(0);
+          if (sl.count())
+              CurrentdayNameShort = sl.at(0);
+          else
+              CurrentdayNameShort .clear();
+
           QString LocalDateShort = fecha.toString(Qt::SystemLocaleShortDate);
 
           pepe->setText(2, CurrentdayNameShort + " "

@@ -26,7 +26,9 @@ SOURCES += main.cpp\
     alarmsndpick.cpp \
     home.cpp \
     dialogdate.cpp \
-    citydetail.cpp
+    citydetail.cpp \
+    utils.cpp \
+    alarmlist.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
@@ -47,7 +49,9 @@ HEADERS  += mainwindow.h \
     home.h \
     dialogdate.h \
     Metrics.h \
-    citydetail.h
+    citydetail.h \
+    utils.h \
+    alarmlist.h
 
 FORMS    += mainwindow.ui \
     alarmlist.ui \

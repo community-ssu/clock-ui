@@ -301,7 +301,7 @@ void MainWindow::on_Alarm_pushButton_clicked()
 {
     ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
     sw->exec();
-    sw->loadAlarms();
+    sw->addAlarms();
     loadAlarm();
 }
 
@@ -323,7 +323,7 @@ void MainWindow::on_wrldClk_pushButton_clicked()
     // extra for refresh
     // get time_format
     getAMPM();
-    sw->loadAlarms();
+    sw->addAlarms();
     loadAlarm();
     ww->loadCurrent();
 }
@@ -341,12 +341,12 @@ void MainWindow::on_nwAlarm_pushButton_released()
 void MainWindow::on_nwAlarm_pushButton_clicked()
 {
     ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
-    NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
+    NewAlarm *al = new NewAlarm(this,false,"","",0,true,0);
     al->exec();
     delete al;
-    sw->loadAlarms();
+    sw->addAlarms();
     QApplication::processEvents();
-    sw->loadAlarms();
+    sw->addAlarms();
     loadAlarm();
 }
 
@@ -362,7 +362,7 @@ void MainWindow::on_timeButton_landscape_clicked()
 	    ww->loadCurrent();
 	    // refresh alarm
 	    loadAlarm();
-	    sw->loadAlarms();
+        sw->addAlarms();
 	    loadWorld();
 	    dl_loaded = false;
     }
@@ -422,7 +422,7 @@ void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
     // refresh current timezone
     loadWorld();
     // refresh alarm
-    sw->loadAlarms();
+    sw->addAlarms();
     loadAlarm();
 }
 

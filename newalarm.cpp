@@ -9,101 +9,20 @@
 #include <QDateTime>
 #include "valuebutton.h"
 #include "alarmsndpick.h"
+#include "utils.h"
 
 /* osso-clock text needed for snooze/stop button translation */
 #define TEXTDOMAIN "osso-clock"
 #define STOP_BUTTON_KEY "cloc_bd_stop"
 #define SNOOZE_BUTTON_KEY "cloc_bd_alarm_notification_snooze"
 
-static const char *getHildonTranslation(const char *string)
-{
-     setlocale (LC_ALL, "");
-     setlocale(LC_TIME, "C");
-     const char *translation = ::dgettext("hildon-libs", string);
-     if (qstrcmp(string, translation) == 0)
-         return 0;
-     return translation;
-}
-
-const char *hildonDateDayName_Short = getHildonTranslation("wdgt_va_date_day_name_short");
-const char *hildonAMfmt = getHildonTranslation("wdgt_va_12h_time_am");
-const char *hildonPMfmt = getHildonTranslation("wdgt_va_12h_time_pm");
-const char *hildon24fmt = getHildonTranslation("wdgt_va_24h_time");
-const char *hildonHHfmt = getHildonTranslation("wdgt_va_24h_hours");
 QString sndFile;
 QString dateSep = QDate::currentDate().toString(Qt::SystemLocaleShortDate).remove(QRegExp("\\d+|\\s+")).at(0);
 bool dateChoosen = false;
 bool fromEdit = false;
 
-static QString formatHildonDate(const QDateTime &dt, const char *format)
-{
-     if (!format)
-         return QString();
-
-     char buf[255];
-     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-     if (!dt.date().isNull()) {
-         tm.tm_wday = dt.date().dayOfWeek() % 7;
-         tm.tm_mday = dt.date().day();
-         tm.tm_mon = dt.date().month() - 1;
-         tm.tm_year = dt.date().year() - 1900;
-     }
-     if (!dt.time().isNull()) {
-         tm.tm_sec = dt.time().second();
-         tm.tm_min = dt.time().minute();
-         tm.tm_hour = dt.time().hour();
-     }
-
-     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
-     if (!resultSize)
-         return QString();
-
-     return QString::fromUtf8(buf, resultSize);
-}
-
-
-static uint32_t daysToMask(QList<int> days)
-{
-    uint32_t mask = 0;
-
-    foreach(const int& d, days) {
-      switch(d) {
-      case 1:
-        mask |= ALARM_RECUR_WDAY_MON;
-        break;
-      case 2:
-        mask |= ALARM_RECUR_WDAY_TUE;
-        break;
-      case 3:
-        mask |= ALARM_RECUR_WDAY_WED;
-        break;
-      case 4:
-        mask |= ALARM_RECUR_WDAY_THU;
-        break;
-      case 5:
-        mask |= ALARM_RECUR_WDAY_FRI;
-        break;
-      case 6:
-        mask |= ALARM_RECUR_WDAY_SAT;
-        break;
-      case 7:
-        mask |= ALARM_RECUR_WDAY_SUN;
-        break;
-      case 8:
-        mask |= ALARM_RECUR_WDAY_ALL;
-        break;
-      default:
-        Q_ASSERT(0); // Should never go here
-        mask |= ALARM_RECUR_WDAY_ALL;
-        break;
-      }
-    }
-    return mask;
-}
-
 NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
-                   QString Atime, QString Adays, bool Acheck, long Acook, bool show):
+                   QString Atime, uint32_t wday, bool Acheck, long Acook, bool show):
 
     QDialog(parent),
     ui(new Ui::NewAlarm)
@@ -111,24 +30,20 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
 
-    // get the current time format
-    GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
     // get the current default alarm tone
     GConfItem *item = new GConfItem("/apps/clock/alarm-tone");
+
     sndFile = item->value().toString();
     ui->alsound_pushButton->setEnabled(false);  // <- remove once custom sounds work!
-    if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_default.aac" )
+
+    if (sndFile == "/usr/share/sounds/ui-clock_alarm_default.aac")
         ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-    else if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_2.aac" )
+    else if (sndFile == "/usr/share/sounds/ui-clock_alarm_2.aac")
         ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-    else if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_3.aac" )
+    else if (sndFile == "/usr/share/sounds/ui-clock_alarm_3.aac")
         ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
     else
-    {
-        ui->alsound_pushButton->setValueText( QFileInfo(item->value().toString(). \
-				remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
-    }
-    bool isHH24 = HH24->value().toBool();
+        ui->alsound_pushButton->setValueText(QFileInfo(sndFile).baseName());
 
     isEditing = edit;
     deleted = 1;
@@ -136,38 +51,38 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     realcookie = Acook;
     time = Atime;
     name = Aname;
-    days = Adays;
+    this->wday = wday;
     enabled = Acheck;
     showed = show;
 
     if ( edit )
     {
         this->setWindowTitle(_("cloc_ti_edit_alarm_title"));
-	// we need to find it's current alarm tone
-	alarm_event_t *eve = 0;
-	eve = alarmd_event_get(realcookie);
-	QString aSnd;
-        const char * curSnd = eve->sound;
-        aSnd = QString::fromUtf8(curSnd);
-	QString sndShort;
-	if (!aSnd.isEmpty()) // a tone is set
-	{
-           if ( aSnd == "/usr/share/sounds/ui-clock_alarm_default.aac" )
-   	        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-           else if ( aSnd == "/usr/share/sounds/ui-clock_alarm_2.aac" )
-		ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-           else if ( aSnd == "/usr/share/sounds/ui-clock_alarm_3.aac" )
+        // we need to find it's current alarm tone
+        alarm_event_t *eve = 0;
+        eve = alarmd_event_get(realcookie);
+        QString aSnd;
+
+        aSnd = QString::fromUtf8(eve->sound);
+
+        if (!aSnd.isEmpty()) // a tone is set
+        {
+            if ( aSnd == "/usr/share/sounds/ui-clock_alarm_default.aac" )
+                ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
+            else if ( aSnd == "/usr/share/sounds/ui-clock_alarm_2.aac" )
+                ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
+            else if ( aSnd == "/usr/share/sounds/ui-clock_alarm_3.aac" )
                 ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
-           else
-	   {
-		sndFile = aSnd;
-	        ui->alsound_pushButton->setValueText( QFileInfo(aSnd.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
-		aSnd = sndFile;
-	   }
-	}
-	// cleanup memory
-	alarm_event_delete(eve);
-	sndFile = aSnd;
+            else
+            {
+                sndFile = aSnd;
+                ui->alsound_pushButton->setValueText( QFileInfo(aSnd.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
+                aSnd = sndFile;
+            }
+        }
+        // cleanup memory
+        alarm_event_delete(eve);
+        sndFile = aSnd;
     }
     else
         this->setWindowTitle(_("clock_ti_new_alarm"));
@@ -191,131 +106,62 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     ui->buttonBox_2->button(QDialogButtonBox::Retry)->setVisible(edit);
 
     // set alarmname
-    if ( name != "" )
+    if (!name.isEmpty())
         ui->lineEdit->setText(name);
 
     // set time
-    if ( time != "" )
+    if (!time.isEmpty())
         ui->time_pushButton->setValueText(time);
     else
+        /* FIXME? - stock puts "09:00" here */
+        ui->time_pushButton->setValueText(
+                 formatDateTime(QDateTime::currentDateTime().toTime_t(), Time));
+
+    time_t nextDate;
+    if (realcookie && !wday)
     {
-        if (isHH24)
-            ui->time_pushButton->setValueText(formatHildonDate(QDateTime::currentDateTime(), hildon24fmt) );
+        // get date&time alarm
+        alarm_event_t *ae = alarmd_event_get(realcookie);
+
+        if (ae->snooze_total)
+            nextDate = ae->snooze_total;
+        else if (ae->trigger != -1)
+            nextDate = ae->trigger;
+        else if (ae->alarm_time != -1)
+            nextDate = ae->alarm_time;
         else
+            nextDate = QDateTime::currentDateTime().toTime_t();
+
+        if (nextDate < (time_t)QDateTime::currentDateTime().toTime_t())
         {
-           QString HH = formatHildonDate(QDateTime::currentDateTime(), hildonHHfmt);
-           if ( HH.toInt() > 11 )
-                ui->time_pushButton->setValueText(formatHildonDate(QDateTime::currentDateTime(), hildonPMfmt) );
-           else
-                ui->time_pushButton->setValueText(formatHildonDate(QDateTime::currentDateTime(), hildonAMfmt) );
+            /* we can't enable an alarm that is in the past */
+            ui->checkBox->setEnabled(false);
+            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
         }
+
+        alarm_event_delete(ae);
+
+        ui->date_pushButton->setValueText(daysFromWday(wday).join(","));
     }
+    else
+        nextDate = QDateTime::currentDateTime().addDays(1).toTime_t();
 
-    // Make default date tomorrow
-    QString currDayNameShort = formatHildonDate(QDateTime::currentDateTime().addDays(1), hildonDateDayName_Short);
-    QString currDayLong = QDate::currentDate().addDays(1).toString(Qt::DefaultLocaleLongDate);
+    ui->date_pushButton->setValueText(formatDateTime(nextDate, FullDateShort));
 
-    // a specific date is already set
-    if ( days.contains(dateSep))
+    if (wday)
     {
-	// get date&time alarm
-	alarm_event_t *eve = 0;
-	eve = alarmd_event_get(realcookie);
-	if ( eve->alarm_time < QDateTime::currentDateTime().toTime_t())
-	{
-    		ui->checkBox->setEnabled(false);
-    		ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-    		ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
-	}
-	// cleanup memory
-	alarm_event_delete(eve);
-
-        ui->date_pushButton->setValueText(days);
-	QString temp = ui->date_pushButton->valueText();
-	QString subdays;
-	QString submonths;
-	QString subyears;
-	QString testdate = QLocale::system().toString(QDateTime::currentDateTime(), QLocale::LongFormat);
-	testdate.remove(QRegExp("(\\,|\\.|\' |^\\w+)"));
-	testdate.remove(QRegExp("^\\s"));
-	QRegExp rx_month("^\\D.+");
-	if ( rx_month.exactMatch(testdate) )
-	{
-		// month first
-                subdays = temp.section( dateSep, 1, 1 );
-                submonths = temp.section( dateSep, 0, 0 );
-	}
-	else
-	{
-                subdays = temp.section( dateSep, 0, 0 );
-                submonths = temp.section( dateSep, 1, 1 );
-	}
-	subyears = temp.section( dateSep, 2, 2 );
-	currDayNameShort = formatHildonDate(QDateTime::fromString(subyears+submonths+subdays,"yyyyMd"), \
-		       	hildonDateDayName_Short);
-	// we only want the shortdayname itself
-        QStringList sl = currDayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-        currDayNameShort = sl.at(0);
-	// The long date string
-	currDayLong = QDate::fromString(subyears+submonths+subdays,"yyyyMd").toString(Qt::DefaultLocaleLongDate);
-	// remove "de" in spanish and "den" and ":e" in swedish
-	currDayLong.replace(QRegExp("\\sde[n]?\\s")," ");
-	currDayLong.remove(QRegExp(":e"));
-	// we will use the shortdayname
-	currDayLong.replace(QRegExp("^\\w+\\b"),currDayNameShort);
-
-    }
-    else if ( isEditing && !days.contains(dateSep))
-    {
-	QStringList orgTime = time.split(':', QString::SkipEmptyParts);
-	int hourOrg = orgTime.at(0).toInt();
-	int minuteOrg = orgTime.at(1).toInt();
-
-	QTime timeNow = QTime::currentTime();
-	int hourNow = timeNow.hour();
-	int minuteNow = timeNow.minute();
-	if ((hourOrg > hourNow) || (hourOrg == hourNow && minuteOrg > minuteNow))
-	{
-		currDayNameShort = formatHildonDate(QDateTime::currentDateTime(), hildonDateDayName_Short);
-		currDayLong = QDate::currentDate().toString(Qt::DefaultLocaleLongDate);
-	}
-    }
-     
-    // we only want the shortdayname itself
-    QStringList sl = currDayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-    currDayNameShort = sl.at(0);
-
-    // remove "de" in spanish and "den" and ":e" in swedish
-    currDayLong.replace(QRegExp("\\sde[n]?\\s")," ");
-    currDayLong.remove(QRegExp(":e"));
-    // we will use the shortdayname
-    currDayLong.replace(QRegExp("^\\w+\\b"),currDayNameShort);
-
-    ui->date_pushButton->setValueText( currDayLong );
-
-    if ( (days != "") && (days != "0" && !days.contains(dateSep) ))
-    {
-	if ( !ui->date_pushButton->isHidden() )
-        {
-       	    this->setMinimumHeight(this->height() - 75);
-            this->setMaximumHeight(this->height() - 75);
-        }
+        ui->repeat_pushButton->setValueText(daysFromWday(wday).join(","));
         ui->date_pushButton->hide();
     }
-
-    if ( days != "" )
-        ui->repeat_pushButton->setValueText(days);
     else
         ui->repeat_pushButton->setValueText(_("cloc_va_never"));
 
     if ( !isEditing )
         ui->checkBox->hide();
 
-    ui->checkBox->setChecked(enabled);
-
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
-
 }
 
 NewAlarm::~NewAlarm()
@@ -397,48 +243,23 @@ void NewAlarm::on_time_pushButton_pressed()
         tiempo.setHMS(hora, mins, 0);
 
         ui->time_pushButton->setValueText( QLocale::system().toString(tiempo, QLocale::ShortFormat));
-	QTime timeNow = QTime::currentTime();
-	int hourNow = timeNow.hour();
-	int minuteNow = timeNow.minute();
-	// The long date string
-	QString currDayLong = QDate::currentDate().toString(Qt::DefaultLocaleLongDate);
-	if ( ! dateChoosen && !days.contains(dateSep) )
-	{
-		// show if the alarm is still today or else tomorrow
-		if ((hora > hourNow) || (hora == hourNow && mins > minuteNow))
-		{
-			// alarmtime > currenttime, one day back
-			QString currDayNameShort = formatHildonDate(QDateTime::currentDateTime(), hildonDateDayName_Short);
-			// we only want the shortdayname itself
-			QStringList sl = currDayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-			currDayNameShort = sl.at(0);
-			// remove "de" in spanish and "den" and ":e" in swedish
-			currDayLong.replace(QRegExp("\\sde[n]?\\s")," ");
-			currDayLong.remove(QRegExp(":e"));
-			// we will use the shortdayname
-			currDayLong.replace(QRegExp("^\\w+\\b"),currDayNameShort);
-			// The long date string
-		}
-		else
-		{
-			// alarmtime < currenttime, one day plus
-			QString currDayNameShort = formatHildonDate(QDateTime::currentDateTime().addDays(1), hildonDateDayName_Short);
-			// we only want the shortdayname itself
-			QStringList sl = currDayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-			currDayNameShort = sl.at(0);
-			// The long date string
-			currDayLong = QDate::currentDate().addDays(1).toString(Qt::DefaultLocaleLongDate);
-			// remove "de" in spanish and "den" and ":e" in swedish
-			currDayLong.replace(QRegExp("\\sde[n]?\\s")," ");
-			currDayLong.remove(QRegExp(":e"));
-			// we will use the shortdayname
-			currDayLong.replace(QRegExp("^\\w+\\b"),currDayNameShort);
-		}
+        QTime timeNow = QTime::currentTime();
+        int hourNow = timeNow.hour();
+        int minuteNow = timeNow.minute();
+        // The long date string
+        if (!dateChoosen && wday)
+        {
+            // show if the alarm is still today or else tomorrow
+            time_t date;
+            if ((hora > hourNow) || (hora == hourNow && mins > minuteNow))
+                date = QDateTime::currentDateTime().toTime_t();
+            else
+                date = QDateTime::currentDateTime().addDays(1).toTime_t();
 
-		ui->date_pushButton->setValueText( currDayLong );
-	}
-	else
-	{
+            ui->date_pushButton->setValueText(formatDateTime(date, FullDateShort));
+        }
+        else
+        {
             // enable accept button if new settings in future
             QString dateDisplayed = ui->date_pushButton->valueText();
             QStringList sl = dateDisplayed.remove(QRegExp("(\\,|\\.|^\\w+|\\D+$)")).split(' ', QString::SkipEmptyParts);
@@ -522,8 +343,8 @@ void NewAlarm::on_date_pushButton_pressed()
 
     if (result == QDialog::Accepted)
     {
-	dateChoosen = true;
-	ui->checkBox->setEnabled(true);
+        dateChoosen = true;
+        ui->checkBox->setEnabled(true);
         int setDay = hw->dayres;
         int setMonth = hw->monthres;
         int setYear = hw->yearres;
@@ -531,22 +352,9 @@ void NewAlarm::on_date_pushButton_pressed()
         enabled = true;
         ui->checkBox->setChecked(enabled);
  
-	QString currDayNameShort = formatHildonDate(QDateTime::fromString(QString::number(setDay)+ \
-				"."+QString::number(setMonth)+"."+QString::number(setYear),"d.M.yyyy"), hildonDateDayName_Short);
-	// we only want the shortdayname itself
-        QStringList sl = currDayNameShort.remove(QRegExp("(\\,|\\.)")).split(' ', QString::SkipEmptyParts);
-        currDayNameShort = sl.at(0);
-	// The long date string
-	QString currDayLong = QDate::fromString(QString::number(setDay)+"."+QString::number(setMonth)+ \
-			"."+QString::number(setYear),"d.M.yyyy").toString(Qt::DefaultLocaleLongDate);
-	// remove "de" in spanish and "den" and ":e" in swedish
-	currDayLong.replace(QRegExp("\\sde[n]?\\s")," ");
-	currDayLong.remove(QRegExp(":e"));
-	// we will use the shortdayname
-	currDayLong.replace(QRegExp("^\\w+\\b"),currDayNameShort);
-
-        ui->date_pushButton->setValueText( currDayLong );
-	// check in past
+        QDateTime date(QDate(setYear, setMonth, setDay));
+        ui->date_pushButton->setValueText(formatDateTime(date.toTime_t(), FullDateShort));
+        // check in past
         QString temp = ui->time_pushButton->valueText();
         int j = temp.indexOf(":");
         temp.remove(j, temp.length()-j);
@@ -556,7 +364,6 @@ void NewAlarm::on_date_pushButton_pressed()
         temp.remove(0, j+1);
         int minuteval = temp.left(2).toInt();
         QString localPMtxt = QLocale::system().pmText();
-        QString localAMtxt = QLocale::system().amText();
 
         if (ui->time_pushButton->valueText().contains(localPMtxt) )
             hourval = hourval + 12;
@@ -597,53 +404,55 @@ QString NewAlarm::longdate(QString data)
 
 void NewAlarm::on_repeat_pushButton_pressed()
 {
-    Dialog* hw = new Dialog(this, ui->repeat_pushButton->statusTip(), ui->repeat_pushButton->valueText());
+    Dialog* hw = new Dialog(this, ui->repeat_pushButton->statusTip(), wday);
     int result = hw->exec();
 
     if (result == QDialog::Accepted)
     {
         QString lista;
-        for (int i=0; i < hw->result.count(); ++i)
-        {
-            if ( lista.count() > 0 )
-                lista.append(",");
-            lista.append( hw->result.at(i) );
-        }
+        wday = 0;
+
+        lista = hw->result.join(",");
+
+        for (int i = 0; i < hw->result.count(); i ++)
+            wday |= (1 << (hw->result.at(i).toInt()) % 7);
 
         if ( lista.contains("8") )
         {
+            wday = ALARM_RECUR_WDAY_ALL;
             lista.clear();
             lista.append("8");
         }
+
         if ( !lista.contains("0") )
-	{
-		// a repeating alarm; "active checkbox" and "done" can always be enabled
-		ui->checkBox->setEnabled(true);
-		ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-		ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
-		if ( !ui->date_pushButton->isHidden() )
-                {
-                     ui->date_pushButton->hide();
-                     this->setMinimumHeight(this->height() - 75);
-                     this->setMaximumHeight(this->height() - 75);
-		}
-	}
-	else
-	{
-		if ( ui->date_pushButton->isHidden() )
-		{
-               	    this->setMinimumHeight(this->height() + 75);
-                    this->setMaximumHeight(this->height() + 75);
-                    ui->date_pushButton->show();
-		}
+        {
+            // a repeating alarm; "active checkbox" and "done" can always be enabled
+            ui->checkBox->setEnabled(true);
+            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
+            if ( !ui->date_pushButton->isHidden() )
+            {
+                ui->date_pushButton->hide();
+                this->setMinimumHeight(this->height() - 75);
+                this->setMaximumHeight(this->height() - 75);
+            }
+        }
+        else
+        {
+            if ( ui->date_pushButton->isHidden() )
+            {
+                this->setMinimumHeight(this->height() + 75);
+                this->setMaximumHeight(this->height() + 75);
+                ui->date_pushButton->show();
+            }
         }
 
         ui->repeat_pushButton->setValueText(lista);
-	// we have a change, so make active by default
+        // we have a change, so make active by default
         ui->checkBox->setChecked(true);
     }
-    delete hw;
 
+    delete hw;
 }
 
 void NewAlarm::on_alsound_pushButton_pressed()
@@ -727,7 +536,7 @@ void NewAlarm::addAlarm()
     intl("osso-clock");
 
     name = ui->lineEdit->text();
-    days = ui->repeat_pushButton->valueText();
+
     time = ui->time_pushButton->valueText();
     enabled = ui->checkBox->isChecked();
     QString localPMtxt = QLocale::system().pmText();
@@ -747,7 +556,7 @@ void NewAlarm::addAlarm()
      * translation lookups */
     alarm_event_set_attr_string(event, "textdomain", TEXTDOMAIN);
     /* Set the title of the alarm. */
-    //alarm_event_set_title(event, "Alarm");
+    //alarm_event_set_title(event, "Alarm"); "cloc_ti_alarm_notification_title"
 
     alarm_event_set_alarm_appid(event,"worldclock_alarmd_id");
 
@@ -764,44 +573,17 @@ void NewAlarm::addAlarm()
     event->flags |= ALARM_EVENT_SHOW_ICON;
     event->flags |= ALARM_EVENT_POSTPONE_DELAYED;
 
-    QList<int> ldays;
-    QString tmp = days;
-
     intl("osso-clock");
-    // specific date/time:
-    if ( tmp.contains(dateSep) )
-	tmp = "0";
-    if ( tmp == "0" )
-    {
-        ldays << 0;
-    }
-    else if ( tmp == "8" )
-    {
+
+    if (wday)
         event->flags |= ALARM_EVENT_BACK_RESCHEDULE;
-        ldays << 8;
-    }
-    else
-    {
-        event->flags |= ALARM_EVENT_BACK_RESCHEDULE;
-        if ( tmp.contains("1") )
-            ldays << 1;
-        if ( tmp.contains("2") )
-            ldays << 2;
-        if ( tmp.contains("3") )
-            ldays << 3;
-        if ( tmp.contains("4") )
-            ldays << 4;
-        if ( tmp.contains("5") )
-            ldays << 5;
-        if ( tmp.contains("6") )
-            ldays << 6;
-        if ( tmp.contains("7") )
-            ldays << 7;
-    }
+
     // Acknowledge action
     act = alarm_event_add_actions(event, 1);
     alarm_action_set_label(act, STOP_BUTTON_KEY);
-    if(ldays.first() == 0) {
+
+    if(!wday)
+    {
        act->flags |= ALARM_ACTION_WHEN_RESPONDED;
        act->flags |= ALARM_ACTION_TYPE_DISABLE;
     } else {
@@ -824,29 +606,30 @@ void NewAlarm::addAlarm()
     if ( tmpx.contains(localAMtxt) && hourval==12 )
         hourval = 0;
 
-    QDateTime currDate;
-    currDate.setTime(QTime( hourval, minuteval ));
+    QDateTime alarmDate;
+    alarmDate.setTime(QTime( hourval, minuteval ));
 
-    if ( ! ui->date_pushButton->isHidden() && (dateChoosen || days.contains(dateSep)) )
+    if ( ! ui->date_pushButton->isHidden() && (dateChoosen || !wday) )
     {
         QString dateDisplayed = ui->date_pushButton->valueText();
         QStringList sl = dateDisplayed.remove(QRegExp("(\\,|\\.|^\\w+|\\D+$)")).split(' ', QString::SkipEmptyParts);
-	int DayPicked = 1;
-	QString MonthPicked;
-	int YearPicked = 1900;
-	for (int i=0; i<sl.size(); ++i)
-	{
-		// search through button text (minus weekdayname) for match
-		QRegExp rx_year("\\d{4}");
-		if ( rx_year.exactMatch(sl.at(i)) )
-			YearPicked = sl.at(i).toInt();
-		QRegExp rx_month("\\D+");
-		if ( rx_month.exactMatch(sl.at(i)) )
-			MonthPicked = sl.at(i);
-		QRegExp rx_day("\\d{1,2}");
-		if ( rx_day.exactMatch(sl.at(i)) )
-			DayPicked = sl.at(i).toInt();
-	}
+        int DayPicked = 1;
+        QString MonthPicked;
+        int YearPicked = 1900;
+
+        for (int i=0; i<sl.size(); ++i)
+        {
+            // search through button text (minus weekdayname) for match
+            QRegExp rx_year("\\d{4}");
+            if ( rx_year.exactMatch(sl.at(i)) )
+                YearPicked = sl.at(i).toInt();
+            QRegExp rx_month("\\D+");
+            if ( rx_month.exactMatch(sl.at(i)) )
+                MonthPicked = sl.at(i);
+            QRegExp rx_day("\\d{1,2}");
+            if ( rx_day.exactMatch(sl.at(i)) )
+                DayPicked = sl.at(i).toInt();
+        }
 
         int monthPos=1;
         for (int i=1; i<13; ++i)
@@ -862,21 +645,23 @@ void NewAlarm::addAlarm()
                monthPos = i ;
         }
 
-        currDate.setDate(QDate(YearPicked,monthPos,DayPicked) );
-        event->alarm_time = currDate.toTime_t();
+        alarmDate.setDate(QDate(YearPicked,monthPos,DayPicked) );
+        event->alarm_time = alarmDate.toTime_t();
         event->alarm_tm.tm_hour = -1;
         event->alarm_tm.tm_min = -1;
     }
 
-    event->alarm_time = currDate.toTime_t(); //needed? looks like it...
+    event->alarm_time = alarmDate.toTime_t(); //needed? looks like it...
 
-      if( ldays.first() == 0 ) {
-	if (! dateChoosen && !days.contains(dateSep)) {
+    if( !wday ) {
+        if (! dateChoosen) {
             event->alarm_time = -1;
-            event->alarm_tm.tm_hour = currDate.time().hour();
-            event->alarm_tm.tm_min = currDate.time().minute();
-	}
-      } else {
+            event->alarm_tm.tm_hour = alarmDate.time().hour();
+            event->alarm_tm.tm_min = alarmDate.time().minute();
+        }
+    }
+    else
+    {
         //qDebug("Using the new recurrence API");
         event->recur_count = -1;
         event->recur_secs = 0; // We re not using this way for recurrence
@@ -885,83 +670,12 @@ void NewAlarm::addAlarm()
         recur->special = ALARM_RECUR_SPECIAL_NONE;
         recur->mask_mon = ALARM_RECUR_MON_ALL;
         recur->mask_mday = ALARM_RECUR_MDAY_ALL;
-        recur->mask_hour = (1ul << currDate.time().hour());
-        recur->mask_min = (1ull << currDate.time().minute());
+        recur->mask_hour = (1ul << alarmDate.time().hour());
+        recur->mask_min = (1ull << alarmDate.time().minute());
 
         //qDebug() << "DIAS: " << ldays;
-        recur->mask_wday = daysToMask(ldays);
+        recur->mask_wday = wday;
         Q_ASSERT(event->recurrence_cnt == 1);
-      }
-
-    /* Send notification on banner */
-    QDateTime now = QDateTime::currentDateTime();
-
-    QDateTime alarmTime = QDateTime( now.date(), QTime(currDate.time().hour(),currDate.time().minute(),0) );
-    QString AlarmText = _("cloc_notify_alarm_set");
-    if(((ldays.first() == 0) || (ldays.first() == 8)) || (( alarmTime > now ) && \
-    (ldays.contains(QDate::currentDate().dayOfWeek()))) ||
-    ((ldays.contains(QDate::currentDate().addDays(1).dayOfWeek())) && ( alarmTime < now )))
-    {
-         int secsDiff = now.secsTo(alarmTime);
-         QDate nullDate(2012, 1, 1);
-         QDateTime nullTime = QDateTime(nullDate);
-         QDateTime upTime = nullTime.addSecs(secsDiff);
-         QVariant days = nullTime.daysTo(upTime);
-         QTime timeTime = upTime.time();
-         int hours = timeTime.hour();
-         int minutes = timeTime.minute();
-         int seconds = timeTime.second();
-         if ( seconds > 30 ) 
-            minutes = minutes + 1; 
-         QString hhmm = QString("%1:%2").arg(QString().sprintf("%02d",hours)).arg(QString().sprintf("%02d",minutes));
-         // can happen is alarm is set within 30 secs
-         hhmm.replace("23:60","24:00");
-         hhmm.replace("00:60","01:00");
-         AlarmText.replace("%s",hhmm);
-    	 if ( event->alarm_time != -1 )
-         {
-		// specific alarms
-         	int i = now.daysTo(currDate);
-		if ( (currDate.toTime_t() - now.toTime_t()) > 86399 )
-                {
-			// difference more then one day (86400 seconds)
-			AlarmText = _("cloc_notify_alarm_set_days");
-			AlarmText.replace("%s" ,"");
-			AlarmText = AlarmText + QString::fromUtf8(ngettext("cloc_va_amount_day", "cloc_va_amount_days", i));
-			AlarmText.replace("%d",QString().sprintf("%1d",i));
-		}
-         }
-    } else {
-         AlarmText = _("cloc_notify_alarm_set_days");
-         AlarmText.replace("%s" ,"");
-         int curDayOfWeek = QDate::currentDate().dayOfWeek();
-         int i;
-         int nextDayOfWeek = curDayOfWeek;
-         for(i= 1; i < 8; i++)
-         {
-            if ( nextDayOfWeek == 7 )
-                nextDayOfWeek = 1;
-            else
-		nextDayOfWeek++;
-            if ( tmp.contains(QString().sprintf("%1d",nextDayOfWeek) )) {
-                if (i == 1 ) {
- 	           AlarmText = AlarmText + _("cloc_va_amount_day");
-                   AlarmText.replace("%d",QString().sprintf("%1d",i));
-                   break;
-                } else {
-                   AlarmText = AlarmText + QString::fromUtf8(ngettext("cloc_va_amount_day", "cloc_va_amount_days", i));
-                   AlarmText.replace("%d",QString().sprintf("%1d",i));
-                   break;
-                }
-            }
-         }
-    }
-	
-    if ( enabled ) {
-       QString notificationDuration = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
-                        /org/freedesktop/Notifications org.freedesktop.Notifications.SystemNoteInfoprint \
-                        string:\"" + AlarmText + "\"";
-       QProcess::startDetached(notificationDuration);
     }
 
     // set the alarm signal
@@ -977,6 +691,13 @@ void NewAlarm::addAlarm()
     alarm_event_set_sound(event, mySndFile);
     realcookie = alarmd_event_add(event); // add alarm
     // cleanup
+    alarm_event_delete(event);
+
+    event = alarmd_event_get(realcookie);
+    if ( enabled ) {
+        /* OMG !!! FIXME */
+        showAlarmTimeBanner(event->trigger);
+    }
     alarm_event_delete(event);
 
     dateChoosen = false;

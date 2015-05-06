@@ -14,7 +14,7 @@ class Dialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Dialog(QWidget *parent = 0, QString name = "", QString list = "");
+    explicit Dialog(QWidget *parent = 0, QString name = "", uint32_t wday = 0);
     ~Dialog();
     QString name;
     QStringList lista;

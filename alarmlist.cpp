@@ -2,92 +2,75 @@
 #include "ui_alarmlist.h"
 #include "filedelegate.h"
 #include "newalarm.h"
-#include "gconfitem.h"
 #include "osso-intl.h"
 #include <QDebug>
 #include <QMaemo5Style>
 #include <QSettings>
 #include <QDesktopWidget>
-// for strftime
-#include <time.h>
+#include <QModelIndex>
+
+#include "utils.h"
+
 // for setlocale
 #include <locale.h>
 
-static const char *getHildonTranslation(const char *string)
-{
-     setlocale (LC_ALL, "");
-     const char *translation = ::dgettext("hildon-libs", string);
-     if (qstrcmp(string, translation) == 0)
-         return 0;
-     return translation;
-}
-
-const char *hildonDayOfWeek = getHildonTranslation("wdgt_va_week");
-const char *hildonAMformat = getHildonTranslation("wdgt_va_12h_time_am");
-const char *hildonPMformat = getHildonTranslation("wdgt_va_12h_time_pm");
-const char *hildon24format = getHildonTranslation("wdgt_va_24h_time");
-const char *hildonHHformat = getHildonTranslation("wdgt_va_24h_hours");
-
-
-static QString formatHildonDate(const QDateTime &dt, const char *format)
-{
-     if (!format)
-         return QString();
-
-     char buf[255];
-     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-     if (!dt.date().isNull()) {
-         tm.tm_wday = dt.date().dayOfWeek() % 7;
-         tm.tm_mday = dt.date().day();
-         tm.tm_mon = dt.date().month() - 1;
-         tm.tm_year = dt.date().year() - 1900;
-     }
-     if (!dt.time().isNull()) {
-         tm.tm_sec = dt.time().second();
-         tm.tm_min = dt.time().minute();
-         tm.tm_hour = dt.time().hour();
-     }
-
-     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
-     if (!resultSize)
-         return QString();
-
-     return QString::fromUtf8(buf, resultSize);
-}
+enum {
+    AlarmEnabledRole = Qt::UserRole + 1,
+    AlarmCookieRole,
+    AlarmWdayRole
+};
 
 AlarmList::AlarmList(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::AlarmList)
+    ui(new Ui::AlarmList),
+    iconAlarmOn(QIcon::fromTheme("clock_alarm_on").pixmap(48, 48)),
+    iconAlarmOff(QIcon::fromTheme("clock_alarm_off").pixmap(48, 48)),
+    secondaryColor(QMaemo5Style::standardColor("SecondaryTextColor"))
+
 {
     ui->setupUi(this);
-    this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
+    setAttribute(Qt::WA_Maemo5AutoOrientation, true);
 
-    this->setWindowTitle(_("cloc_ti_alarms"));
+    setWindowTitle(_("cloc_ti_alarms"));
 
-    this->setAttribute(Qt::WA_Maemo5StackedWindow);
-    this->setWindowFlags(Qt::Window);
+    setAttribute(Qt::WA_Maemo5StackedWindow);
+    setWindowFlags(Qt::Window);
 
-    ui->treeWidget->hideColumn(4);
+    alarmModel = new QStandardItemModel(0, 4);
+    alarmModel->setSortRole(AlarmEnabledRole);
 
-    loadAlarms();
-
-    FileDelegate *pluginDelegate = new FileDelegate(ui->treeWidget);
-    ui->treeWidget->setItemDelegate(pluginDelegate);
+    ui->alarmTreeView->setModel(alarmModel);
+    ui->alarmTreeView->setColumnWidth(0, 64);
+    ui->alarmTreeView->setColumnWidth(1, 96);
 
     ui->newAlarm->setIcon(QIcon::fromTheme("general_add"));
     ui->newAlarm->setText(_("clock_ti_new_alarm"));
 
-    connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
-    this->orientationChanged();
+    /* No alarms stuff */
+    /* fixme - don't do that pallette stuff every time, just subclass */
+    QPalette pal(palette());
+    pal.setColor(QPalette::WindowText,
+                 QMaemo5Style::standardColor("SecondaryTextColor"));
 
-    // refresh the current alarmlist as soon as an alarm event occurs
-    QDBusConnection::systemBus().connect(QString(),
-                                 "/com/nokia/alarmd",
-				 "com.nokia.alarmd",
-				 "queue_status_ind",
-	                         this, SLOT(loadAlarms()));
+    ui->label->setPalette(pal);
 
+    QFont fontNoAlarm;
+    fontNoAlarm.setPointSize(24);
+    ui->label->setFont(fontNoAlarm);
+    ui->label->setAlignment(Qt::AlignCenter);
+    ui->label->setText(_("cloc_ti_start_no"));
+
+    bigFont.setPointSize(QStandardItem().font().pointSize() + 8);
+    smallFont.setPointSize(bigFont.pointSize() - 12);
+
+    addAlarms();
+
+    /* refresh the current alarmlist as soon as an alarm event occurs */
+    QDBusConnection::systemBus().connect(QString(), "/com/nokia/alarmd",
+                                         "com.nokia.alarmd", "queue_status_ind",
+                                         this, SLOT(addAlarms()));
+    connect(ui->alarmTreeView, SIGNAL(clicked(const QModelIndex &)),
+            this, SLOT(treeViewSelectedRow(const QModelIndex &)));
 }
 
 AlarmList::~AlarmList()
@@ -95,46 +78,172 @@ AlarmList::~AlarmList()
     delete ui;
 }
 
-QString AlarmList::longdate(QString data)
+QStandardItem *AlarmList::alarmCheckboxItem(cookie_t cookie,
+                                             const alarm_event_t *ae)
 {
+    QStandardItem *item = new QStandardItem();
+    item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    QString localPMtxt = QLocale::system().pmText();
-    QString localAMtxt = QLocale::system().amText();
-    if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
-        return localAMtxt;
+    /* enable/disable check box */
+    if (!(ae->flags & ALARM_EVENT_DISABLED))
+    {
+        item->setIcon(iconAlarmOn);
+        item->setData(1, AlarmEnabledRole);
+    }
     else
-        return "no";
-
-}
-
-void AlarmList::orientationChanged()
-{
-    int len = 0;
-    if ( ui->treeWidget->topLevelItemCount() > 0 )
     {
-        if ( longdate(ui->treeWidget->topLevelItem(0)->text(1)) != "no" )
-            len = 26;
+        item->setIcon(iconAlarmOff);
+        item->setData(0, AlarmEnabledRole);
     }
 
-    if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
-    {
-        ui->treeWidget->header()->resizeSection(0,54);
-        ui->treeWidget->header()->resizeSection(1,110+len);
-        ui->treeWidget->header()->resizeSection(2,138-len);
-        ui->treeWidget->header()->resizeSection(3,130);
-    } else {
-        ui->treeWidget->header()->resizeSection(0,54);
-        ui->treeWidget->header()->resizeSection(1,110+len);
-        ui->treeWidget->header()->resizeSection(2,458-len);
-        ui->treeWidget->header()->resizeSection(3,130);
-    }
-    ui->treeWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    item->setData((qlonglong)cookie, AlarmCookieRole);
 
+    return item;
 }
 
-void AlarmList::loadAlarms()
+QStandardItem *AlarmList::alarmTimeItem(const alarm_event_t *ae)
 {
-    ui->treeWidget->clear();
+    QStandardItem *item = new QStandardItem();
+    time_t tick = ae->snooze_total;
+
+    if (!tick)
+        tick = ae->trigger;
+
+    item->setText(formatDateTime(tick, Time));
+    item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    item->setFont(bigFont);
+
+    if (ae->flags & ALARM_EVENT_DISABLED)
+        item->setData(secondaryColor, Qt::ForegroundRole);
+
+    /* needed so sorting to work */
+    item->setData(item->text());
+
+    return item;
+}
+
+QStandardItem *AlarmList::alarmTitleItem(const alarm_event_t *ae)
+{
+    const char *s = alarm_event_get_message(ae);
+
+    if(!s)
+        s = alarm_event_get_title(ae);
+
+    QStandardItem *item = new QStandardItem(s);
+
+    item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    if (ae->flags & ALARM_EVENT_DISABLED)
+        item->setData(secondaryColor, Qt::ForegroundRole);
+
+    return item;
+}
+
+QStandardItem *AlarmList::alarmDaysItem(const alarm_event_t *ae)
+{
+    QStandardItem *item = new QStandardItem();
+    item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    uint32_t wday = 0;
+    QString days = _("cloc_va_never");
+
+    if (ae->recurrence_tab)
+    {
+        QStringList l = daysFromWday(wday = ae->recurrence_tab->mask_wday);
+
+        if (l.count() > 3)
+            days = QStringList(l.mid(0, 3)).join(", ") + "\n" +
+                    QStringList(l.mid(3)).join(", ");
+        else
+            days = l.join(", ");
+    }
+
+    item->setData(wday, AlarmWdayRole);
+    item->setText(days);
+    item->setFont(smallFont);
+
+    if (ae->flags & ALARM_EVENT_DISABLED)
+        item->setData(secondaryColor, Qt::ForegroundRole);
+
+    return item;
+}
+
+/* return alarm trigger time */
+time_t AlarmList::addAlarm(cookie_t cookie)
+{
+    QList<QStandardItem *> row;
+    alarm_event_t *ae = alarmd_event_get(cookie);
+    time_t tick = (ae->flags & ALARM_EVENT_DISABLED) ? -1 : ae->trigger;
+
+    row << alarmCheckboxItem(cookie, ae)
+        << alarmTimeItem(ae)
+        << alarmTitleItem(ae)
+        << alarmDaysItem(ae);
+
+    alarm_event_delete(ae);
+
+    alarmModel->appendRow(row);
+
+    return tick;
+}
+
+void AlarmList::addAlarms()
+{
+    cookie_t *list, *iter;
+    time_t next = -1;
+
+    alarmModel->removeRows(0, alarmModel->rowCount());
+    /* get them */
+    list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
+    if (*list)
+    {
+      ui->label->hide();
+      ui->alarmTreeView->show();
+    }
+    else
+    {
+        ui->alarmTreeView->hide();
+        ui->label->show();
+    }
+
+    for (iter = list; *iter != (cookie_t) 0; iter ++)
+    {
+        time_t t = addAlarm(*iter);
+
+        if (t != -1 && (t < next || next == -1))
+            next = t;
+    }
+
+    free(list);
+
+    /* need to sort in reverse order :) */
+    alarmModel->sort(1);
+    alarmModel->sort(0, Qt::DescendingOrder);
+
+    if (next != -1)
+    {
+        line1 = _("cloc_ti_next") + " " + formatDateTime(next, Time);
+        int days =
+            QDateTime::currentDateTime().daysTo(QDateTime::fromTime_t(next));
+
+        if (!days)
+                line2 = "";
+        else if (days == 1)
+            line2 = _("cloc_ti_start_tomorrow");
+        else if (days < 8)
+        {
+            line2 = QString(_("cloc_ti_start_day")).
+                                replace("%s", formatDateTime(next, DayOfWeek));
+        }
+        else
+            line2 = formatDateTime(next, Date);
+    }
+    else
+    {
+        line1 = _("cloc_ti_start_no");
+        line2 = "";
+    }
+#if 0
+    ui->alarmListView->clear();
 
     int activeAlarms = 0;
     // bool exactDate = false;
@@ -151,7 +260,7 @@ void AlarmList::loadAlarms()
 
     if (list[0] != (cookie_t) 0) {
 	    ui->label->hide();
-    	    ui->treeWidget->show();
+            ui->alarmListView->show();
         // iterate through alarm list
         for (iter = list; *iter != (cookie_t) 0; iter++)
         {
@@ -369,7 +478,7 @@ void AlarmList::loadAlarms()
             pepe->setWhatsThis(3, "days");
             pepe->setStatusTip(0, QString::number(cook1) );
 
-            ui->treeWidget->addTopLevelItem(pepe);
+            ui->alarmListView->addTopLevelItem(pepe);
 
             // free alarm event structure
             alarm_event_delete(aevent);
@@ -386,41 +495,41 @@ void AlarmList::loadAlarms()
         fontNoAlarm.setPointSize(24);
 	ui->label->setFont(fontNoAlarm);
 	ui->label->setAlignment(Qt::AlignCenter);
-	ui->label->setText(_("cloc_ti_start_no"));
-        ui->treeWidget->hide();
+    ui->label->setText(_("cloc_ti_start_no"));
+        ui->alarmListView->hide();
         ui->label->show();
     }
     free(list);
 
-    ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
-    ui->treeWidget->sortByColumn(4, Qt::AscendingOrder);
-    ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);
+    ui->alarmListView->sortByColumn(1, Qt::AscendingOrder);
+    ui->alarmListView->sortByColumn(4, Qt::AscendingOrder);
+    ui->alarmListView->sortByColumn(0, Qt::AscendingOrder);
     orientationChanged();
 
-    if ( (ui->treeWidget->topLevelItemCount()>0) && (activeAlarms>0) )
+    if ( (ui->alarmListView->topLevelItemCount()>0) && (activeAlarms>0) )
     {
-        line1 = _("cloc_ti_next") + " " + ui->treeWidget->topLevelItem(0)->text(5);
-        line2 = "";
-        QDateTime qdtm = QDateTime::fromTime_t( ui->treeWidget->topLevelItem(0)->text(4).toInt() );
-        QDateTime currDate;
-        currDate = QDateTime::currentDateTime();
-        int ds = currDate.daysTo(qdtm);
-        if ( ds == 1 )
-            line2 = _("cloc_ti_start_tomorrow");
-        else if ( ds > 1 && ds < 8 )
-        {
-            QString tmp = ui->treeWidget->topLevelItem(0)->text(3);
-            int j = tmp.indexOf(",");
-            if ( j>0 )
-                tmp.remove(j, tmp.length()-j);
-            line2 = _("cloc_ti_start_day");
-            line2.replace("%s", formatHildonDate(qdtm, hildonDayOfWeek));
-        }
-        else if ( ds > 7 )
-	{
-			// show date
-            line2 = ui->treeWidget->topLevelItem(0)->text(3);
-	}
+            line1 = _("cloc_ti_next") + " " + ui->alarmListView->topLevelItem(0)->text(5);
+            line2 = "";
+            QDateTime qdtm = QDateTime::fromTime_t( ui->alarmListView->topLevelItem(0)->text(4).toInt() );
+            QDateTime currDate;
+            currDate = QDateTime::currentDateTime();
+            int ds = currDate.daysTo(qdtm);
+            if ( ds == 1 )
+                line2 = _("cloc_ti_start_tomorrow");
+            else if ( ds > 1 && ds < 8 )
+            {
+                QString tmp = ui->alarmListView->topLevelItem(0)->text(3);
+                int j = tmp.indexOf(",");
+                if ( j>0 )
+                    tmp.remove(j, tmp.length()-j);
+                line2 = _("cloc_ti_start_day");
+                line2.replace("%s", formatHildonDate(qdtm, hildonDayOfWeek));
+            }
+            else if ( ds > 7 )
+            {
+                // show date
+                line2 = ui->alarmListView->topLevelItem(0)->text(3);
+            }
 
     }
     else
@@ -429,70 +538,40 @@ void AlarmList::loadAlarms()
         line2 = "";
     }
 
-
+#endif
 }
 
 void AlarmList::on_newAlarm_clicked()
 {
-    NewAlarm *al = new NewAlarm(this,false,"","","0",true,0);
-    al->exec();
-    delete al;
-    loadAlarms();
-    ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
-    ui->treeWidget->sortByColumn(4, Qt::AscendingOrder);
-    ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);
-    ui->treeWidget->clearSelection();
-
+    NewAlarm(this,false,"","",0,true,0).exec();
+    addAlarms();
 }
 
-
-void AlarmList::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
+void AlarmList::treeViewSelectedRow(const QModelIndex &modelIndex)
 {
-    bool checked = false;
-    if ( item->text(0) == "active" )
-        checked = true;
+    int row = modelIndex.row();
+    bool disabled = alarmModel->item(row, 0)->data(AlarmEnabledRole).toBool();
+    QString time = alarmModel->item(row, 1)->text();
+    uint32_t wday = alarmModel->item(row, 3)->data(AlarmWdayRole).toUInt();
+    QString text = alarmModel->item(row, 2)->text();
+    cookie_t cookie =
+            alarmModel->item(row, 0)->data(AlarmCookieRole).toLongLong();
 
-    /* column=0: pressed on clock icon: toggle alarm active/inactive
-       column=1: pressed on time
-       column=2: pressed on text
-       column=3: pressed on repeat field
-       text(1): time
-       text(2): title
-       text(3): date/repeat */
-    if ( column != 0 )
+    if (modelIndex.column() == 0)
     {
-        NewAlarm *al = new NewAlarm(this, true, item->text(2),                        //alarmtext
-                                        item->text(1), item->text(3).replace(" ",""), //1=time 3=date
-                                        checked, item->statusTip(0).toLong() );       //cookie-nbr
-        al->exec();
-        delete al;
-        loadAlarms();
+        /* toggle enabled state */
+        alarm_event_t *ae = alarmd_event_get(cookie);
+        ae->flags &= ~ALARM_EVENT_DISABLED;
+        ae->flags |= disabled ? ALARM_EVENT_DISABLED : 0;
+        alarmd_event_update(ae);
+
+        if (!disabled)
+            showAlarmTimeBanner(ae->trigger);
+
+        alarm_event_delete(ae);
     }
     else
-    {
-	//get date&time of alarm
-	alarm_event_t *eve = 0;
-	eve = alarmd_event_get(item->statusTip(0).toLong());
-	if ( eve->alarm_time == -1 || eve->alarm_time > QDateTime::currentDateTime().toTime_t())
-	{
-		// it is no specific date&time alarm, or original alarm date&time are in the future
-		// toggle active/inactive
-		NewAlarm *al = new NewAlarm(this, true, item->text(2),
-						item->text(1), item->text(3),
-						!checked, item->statusTip(0).toLong() );
-		// remove current alarm
-		al->removeAlarm(item->statusTip(0).toLong());
-		// add toggled on
-		al->addAlarm();
-		delete al;
-		loadAlarms();
-	}
-	// cleanup memory
-	alarm_event_delete(eve);
-    }
-    ui->treeWidget->sortByColumn(1, Qt::AscendingOrder);
-    ui->treeWidget->sortByColumn(4, Qt::AscendingOrder);
-    ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);
-    ui->treeWidget->clearSelection();
+        NewAlarm(this, true, text, time, wday, disabled, cookie).exec();
 
+    addAlarms();
 }

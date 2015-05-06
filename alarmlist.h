@@ -9,6 +9,7 @@
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
 #include <QtDBus/QDBusInterface>
+#include <QStandardItemModel>
 
 namespace Ui {
     class AlarmList;
@@ -22,19 +23,28 @@ public:
     explicit AlarmList(QWidget *parent = 0);
     ~AlarmList();
     QString line1, line2;
-    QString longdate(QString data);
 
 public slots:
-    void loadAlarms();
+    void addAlarms();
 
 private:
     Ui::AlarmList *ui;
+    QStandardItemModel *alarmModel;
+    QIcon iconAlarmOn;
+    QIcon iconAlarmOff;
+    QBrush secondaryColor;
+    QFont bigFont;
+    QFont smallFont;
+
+    time_t addAlarm(cookie_t cookie);
+    QStandardItem *alarmCheckboxItem(cookie_t cookie, const alarm_event_t *ae);
+    QStandardItem *alarmTimeItem(const alarm_event_t *ae);
+    QStandardItem *alarmTitleItem(const alarm_event_t *ae);
+    QStandardItem *alarmDaysItem(const alarm_event_t *ae);
 
 private slots:
-    void on_treeWidget_itemActivated(QTreeWidgetItem* item, int column);
-    void orientationChanged();
-    //void on_listWidget_itemActivated(QListWidgetItem* item);
     void on_newAlarm_clicked();
+    void treeViewSelectedRow(const QModelIndex & modelIndex);
 };
 
 #endif // ALARMLIST_H
