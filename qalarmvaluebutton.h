@@ -11,6 +11,10 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *e);
+    virtual QString valueText() const
+    {
+        return QMaemo5ValueButton::valueText();
+    }
 
 Q_SIGNALS:
 

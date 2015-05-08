@@ -140,7 +140,7 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     else
         nextDate = QDateTime::currentDateTime().addDays(1).toTime_t();
 
-    ui->date_pushButton->setValueText(formatDateTime(nextDate, FullDateShort));
+    ui->date_pushButton->setCurrentDate(nextDate);
 
     if (wday)
     {
@@ -206,45 +206,12 @@ void NewAlarm::on_alarmTimeButton_selected(const QTime &time)
         else
             date = QDateTime::currentDateTime().addDays(1).toTime_t();
 
-        ui->date_pushButton->setValueText(formatDateTime(date, FullDateShort));
+        ui->date_pushButton->setCurrentDate(date);
     }
     else
     {
-        // enable accept button if new settings in future
-        QString dateDisplayed = ui->date_pushButton->valueText();
-        QStringList sl = dateDisplayed.remove(QRegExp("(\\,|\\.|^\\w+|\\D+$)")).split(' ', QString::SkipEmptyParts);
-        int DayPicked = 1;
-        QString MonthPicked;
-        int YearPicked = 1900;
-        for (int i=0; i<sl.size(); ++i)
-        {
-           // search through button text (minus weekdayname) for match
-           QRegExp rx_year("\\d{4}");
-           if ( rx_year.exactMatch(sl.at(i)) )
-                YearPicked = sl.at(i).toInt();
-           QRegExp rx_month("\\D+");
-           if ( rx_month.exactMatch(sl.at(i)) )
-                MonthPicked = sl.at(i);
-           QRegExp rx_day("\\d{1,2}");
-           if ( rx_day.exactMatch(sl.at(i)) )
-                DayPicked = sl.at(i).toInt();
-        }
-        int monthPos=1;
-        for (int i=1; i<13; ++i)
-        {
-             QString num = QString::number(i);
-             QString monthName = QDateTime::fromString(num,"M").toString(Qt::DefaultLocaleLongDate);
-             // remove "de" in spanish and "den" and ":e" in swedish
-             monthName.replace(QRegExp("\\sde[n]?\\s")," ");
-             monthName.remove(QRegExp(":e"));
-             QStringList sl = monthName.remove(QRegExp("(\\,|\\.|\\d+)")).split(' ', QString::SkipEmptyParts);
-             monthName = sl.at(1);
-             if ( monthName == MonthPicked )
-                monthPos = i ;
-        }
-
         QDateTime pickedDate;
-        pickedDate.setDate(QDate(YearPicked,monthPos,DayPicked) );
+        pickedDate.setDate(ui->date_pushButton->currentDate());
         pickedDate.setTime(time);
         if (pickedDate < QDateTime::currentDateTime())
         {
@@ -262,79 +229,30 @@ void NewAlarm::on_alarmTimeButton_selected(const QTime &time)
     }
 }
 
-void NewAlarm::on_date_pushButton_pressed()
+void NewAlarm::on_date_pushButton_selected(const QDate &date)
 {
-    QString dateDisplayed = ui->date_pushButton->valueText();
-    QStringList sl = dateDisplayed.remove(QRegExp("(\\,|\\.|^\\w+|\\D+$)")).split(' ', QString::SkipEmptyParts);
-    QString DayPicked;
-    QString MonthPicked;
-    QString YearPicked;
-    for (int i=0; i<sl.size(); ++i)
+    dateChoosen = true;
+    ui->checkBox->setEnabled(true);
+    enabled = true;
+    ui->checkBox->setChecked(enabled);
+
+    QDateTime pickedDateTime;
+    pickedDateTime.setTime(ui->alarmTimeButton->currentTime());
+    pickedDateTime.setDate(date);
+    if (pickedDateTime < QDateTime::currentDateTime())
     {
-        // search through button text (minus weekdayname) for match
-	QRegExp rx_year("\\d{4}");
-	if ( rx_year.exactMatch(sl.at(i)) )
-		YearPicked = sl.at(i);
-	QRegExp rx_month("\\D+");
-	if ( rx_month.exactMatch(sl.at(i)) )
-		MonthPicked = sl.at(i);
-	QRegExp rx_day("\\d{1,2}");
-	if ( rx_day.exactMatch(sl.at(i)) )
-		DayPicked = sl.at(i);
+        // in the past
+        ui->checkBox->setEnabled(false);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
     }
-
-    
-    DialogDate* hw = new DialogDate(this, DayPicked, MonthPicked, YearPicked); 
-    int result = hw->exec();
-
-    if (result == QDialog::Accepted)
-    {
-        dateChoosen = true;
-        ui->checkBox->setEnabled(true);
-        int setDay = hw->dayres;
-        int setMonth = hw->monthres;
-        int setYear = hw->yearres;
-        // enable alarm after accepting date
-        enabled = true;
-        ui->checkBox->setChecked(enabled);
- 
-        QDateTime date(QDate(setYear, setMonth, setDay));
-        ui->date_pushButton->setValueText(formatDateTime(date.toTime_t(), FullDateShort));
-
-        QDateTime pickedDateTime;
-        pickedDateTime.setTime(ui->alarmTimeButton->currentTime());
-        pickedDateTime.setDate(QDate(setYear,setMonth,setDay) );
-        if (pickedDateTime < QDateTime::currentDateTime())
-        {
-            // in the past
-            ui->checkBox->setEnabled(false);
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
-        }
-        else
-        {
-            ui->checkBox->setEnabled(true);
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
-        }
-    }
-    delete hw;
-}
-
-QString NewAlarm::longdate(QString data)
-{
-
-    QString localPMtxt = QLocale::system().pmText();
-    // ade localPMtxt.remove(QRegExp("(\\,|\\.)"));
-    QString localAMtxt = QLocale::system().amText();
-    // ade localAMtxt.remove(QRegExp("(\\,|\\.)"));
-    if ( (data.contains(localAMtxt)) || (data.contains(localPMtxt)) )
-        return localAMtxt;
     else
-        return "no";
-
+    {
+        ui->checkBox->setEnabled(true);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
+    }
 }
-
 
 void NewAlarm::on_repeat_pushButton_pressed()
 {
@@ -530,41 +448,8 @@ void NewAlarm::addAlarm()
 
     if ( ! ui->date_pushButton->isHidden() && (dateChoosen || !wday) )
     {
-        QString dateDisplayed = ui->date_pushButton->valueText();
-        QStringList sl = dateDisplayed.remove(QRegExp("(\\,|\\.|^\\w+|\\D+$)")).split(' ', QString::SkipEmptyParts);
-        int DayPicked = 1;
-        QString MonthPicked;
-        int YearPicked = 1900;
 
-        for (int i=0; i<sl.size(); ++i)
-        {
-            // search through button text (minus weekdayname) for match
-            QRegExp rx_year("\\d{4}");
-            if ( rx_year.exactMatch(sl.at(i)) )
-                YearPicked = sl.at(i).toInt();
-            QRegExp rx_month("\\D+");
-            if ( rx_month.exactMatch(sl.at(i)) )
-                MonthPicked = sl.at(i);
-            QRegExp rx_day("\\d{1,2}");
-            if ( rx_day.exactMatch(sl.at(i)) )
-                DayPicked = sl.at(i).toInt();
-        }
-
-        int monthPos=1;
-        for (int i=1; i<13; ++i)
-        {
-            QString num = QString::number(i);
-	    QString monthName = QDateTime::fromString(num,"M").toString(Qt::DefaultLocaleLongDate);
-            // remove "de" in spanish and "den" and ":e" in swedish
-            monthName.replace(QRegExp("\\sde[n]?\\s")," ");
-            monthName.remove(QRegExp(":e"));
-            QStringList sl = monthName.remove(QRegExp("(\\,|\\.|\\d+)")).split(' ', QString::SkipEmptyParts);
-            monthName = sl.at(1);
-            if ( monthName == MonthPicked )
-               monthPos = i ;
-        }
-
-        alarmDate.setDate(QDate(YearPicked,monthPos,DayPicked) );
+        alarmDate.setDate(ui->date_pushButton->currentDate());
         event->alarm_time = alarmDate.toTime_t();
         event->alarm_tm.tm_hour = -1;
         event->alarm_tm.tm_min = -1;

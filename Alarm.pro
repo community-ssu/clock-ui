@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     utils.cpp \
     alarmlist.cpp \
     qalarmvaluebutton.cpp \
-    qalarmtimevaluebutton.cpp
+    qalarmtimevaluebutton.cpp \
+    qalarmdatevaluebutton.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
@@ -53,7 +54,8 @@ HEADERS  += mainwindow.h \
     utils.h \
     alarmlist.h \
     qalarmvaluebutton.h \
-    qalarmtimevaluebutton.h
+    qalarmtimevaluebutton.h \
+    qalarmdatevaluebutton.h
 
 FORMS    += mainwindow.ui \
     alarmlist.ui \

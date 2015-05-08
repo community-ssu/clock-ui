@@ -27,7 +27,6 @@ public:
     uint32_t wday;
     int deleted;
     bool showed;
-    QString longdate(QString data);
 
 private:
     Ui::NewAlarm *ui;
@@ -41,7 +40,7 @@ private slots:
     void orientationChanged();
     void on_buttonBox_clicked(QAbstractButton* button);
     void on_alarmTimeButton_selected(const QTime &time);
-    void on_date_pushButton_pressed();
+    void on_date_pushButton_selected(const QDate &date);
     void on_repeat_pushButton_pressed();
     void on_alsound_pushButton_pressed();
 };

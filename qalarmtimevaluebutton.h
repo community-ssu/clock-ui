@@ -16,9 +16,9 @@ public:
         selector->setCurrentTime(time);
     }
 
-signals:
+Q_SIGNALS:
     void selected(const QTime &time);
-public slots:
+public Q_SLOTS:
     void timeSelected(QString);
 protected:
     QMaemo5TimePickSelector *selector;

@@ -1,8 +1,6 @@
 #include "qalarmtimevaluebutton.h"
 #include "osso-intl.h"
 
-#include <QDebug>
-
 QAlarmTimeValueButton::QAlarmTimeValueButton(QWidget *parent) :
     QAlarmValueButton(parent),
     selector(new QMaemo5TimePickSelector(this))
@@ -13,9 +11,7 @@ QAlarmTimeValueButton::QAlarmTimeValueButton(QWidget *parent) :
             this, SLOT(timeSelected(QString)));
 }
 
-void QAlarmTimeValueButton::timeSelected(QString s)
+void QAlarmTimeValueButton::timeSelected(QString)
 {
-    Q_UNUSED(s);
-
     emit selected(currentTime());
 }

@@ -46,11 +46,7 @@
        <widget class="QAlarmTimeValueButton" name="alarmTimeButton"/>
       </item>
       <item>
-       <widget class="ValueButton" name="date_pushButton" native="true">
-        <property name="text" stdset="0">
-         <string/>
-        </property>
-       </widget>
+       <widget class="QAlarmDateValueButton" name="date_pushButton"/>
       </item>
       <item>
        <widget class="ValueButton" name="repeat_pushButton" native="true">
@@ -120,6 +116,11 @@
    <class>QAlarmTimeValueButton</class>
    <extends>QPushButton</extends>
    <header>qalarmtimevaluebutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QAlarmDateValueButton</class>
+   <extends>QPushButton</extends>
+   <header>qalarmdatevaluebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
