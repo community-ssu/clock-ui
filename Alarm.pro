@@ -16,7 +16,6 @@ SOURCES += main.cpp\
     dialog.cpp \
     checkdelegate.cpp \
     valuebutton.cpp \
-    dialog2.cpp \
     maintdelegate.cpp \
     world.cpp \
     dialog3.cpp \
@@ -28,7 +27,9 @@ SOURCES += main.cpp\
     dialogdate.cpp \
     citydetail.cpp \
     utils.cpp \
-    alarmlist.cpp
+    alarmlist.cpp \
+    qalarmvaluebutton.cpp \
+    qalarmtimevaluebutton.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
@@ -38,7 +39,6 @@ HEADERS  += mainwindow.h \
     dialog.h \
     checkdelegate.h \
     valuebutton.h \
-    dialog2.h \
     maintdelegate.h \
     world.h \
     dialog3.h \
@@ -51,13 +51,14 @@ HEADERS  += mainwindow.h \
     Metrics.h \
     citydetail.h \
     utils.h \
-    alarmlist.h
+    alarmlist.h \
+    qalarmvaluebutton.h \
+    qalarmtimevaluebutton.h
 
 FORMS    += mainwindow.ui \
     alarmlist.ui \
     newalarm.ui \
     dialog.ui \
-    dialog2.ui \
     world.ui \
     dialog3.ui \
     alsettings.ui \

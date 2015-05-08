@@ -17,7 +17,8 @@
 enum {
     AlarmEnabledRole = Qt::UserRole + 1,
     AlarmCookieRole,
-    AlarmWdayRole
+    AlarmWdayRole,
+    AlarmDateTimeRole
 };
 
 AlarmList::AlarmList(QWidget *parent) :
@@ -36,7 +37,7 @@ AlarmList::AlarmList(QWidget *parent) :
     setAttribute(Qt::WA_Maemo5StackedWindow);
     setWindowFlags(Qt::Window);
 
-    alarmModel = new QStandardItemModel(0, 4);
+    alarmModel = new QStandardItemModel(0, 4, this);
     alarmModel->setSortRole(AlarmEnabledRole);
 
     ui->alarmTreeView->setModel(alarmModel);
@@ -118,6 +119,7 @@ QStandardItem *AlarmList::alarmTimeItem(const alarm_event_t *ae)
 
     /* needed so sorting to work */
     item->setData(item->text());
+    item->setData((int)tick, AlarmDateTimeRole);
 
     return item;
 }
@@ -543,7 +545,7 @@ void AlarmList::addAlarms()
 
 void AlarmList::on_newAlarm_clicked()
 {
-    NewAlarm(this,false,"","",0,true,0).exec();
+    NewAlarm(this,false,"",QTime(),0,true,0).exec();
     addAlarms();
 }
 
@@ -551,7 +553,8 @@ void AlarmList::treeViewSelectedRow(const QModelIndex &modelIndex)
 {
     int row = modelIndex.row();
     bool disabled = alarmModel->item(row, 0)->data(AlarmEnabledRole).toBool();
-    QString time = alarmModel->item(row, 1)->text();
+    QDateTime dt =
+            QDateTime::fromTime_t(alarmModel->item(row, 1)->data(AlarmDateTimeRole).toInt());
     uint32_t wday = alarmModel->item(row, 3)->data(AlarmWdayRole).toUInt();
     QString text = alarmModel->item(row, 2)->text();
     cookie_t cookie =
@@ -571,7 +574,7 @@ void AlarmList::treeViewSelectedRow(const QModelIndex &modelIndex)
         alarm_event_delete(ae);
     }
     else
-        NewAlarm(this, true, text, time, wday, disabled, cookie).exec();
+        NewAlarm(this, true, text, dt.time(), wday, disabled, cookie).exec();
 
     addAlarms();
 }

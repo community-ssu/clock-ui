@@ -341,7 +341,7 @@ void MainWindow::on_nwAlarm_pushButton_released()
 void MainWindow::on_nwAlarm_pushButton_clicked()
 {
     ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
-    NewAlarm *al = new NewAlarm(this,false,"","",0,true,0);
+    NewAlarm *al = new NewAlarm(this, false,"",QTime(), 0,true,0);
     al->exec();
     delete al;
     sw->addAlarms();

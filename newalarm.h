@@ -15,14 +15,15 @@ class NewAlarm : public QDialog
 
 public:
     explicit NewAlarm(QWidget *parent = 0, bool edit = false,
-                      QString Aname = "", QString Atime = "",
+                      QString Aname = "", const QTime &time = QTime(),
                       uint32_t wday = 0,
                       bool Acheck = false, long Acook = 0, bool show = true);
     ~NewAlarm();
     bool isEditing;
     long realcookie;
     bool enabled;
-    QString name, time;
+    QString name;
+    QTime time;
     uint32_t wday;
     int deleted;
     bool showed;
@@ -39,7 +40,7 @@ private slots:
     void on_buttonBox_2_clicked(QAbstractButton* button);
     void orientationChanged();
     void on_buttonBox_clicked(QAbstractButton* button);
-    void on_time_pushButton_pressed();
+    void on_alarmTimeButton_selected(const QTime &time);
     void on_date_pushButton_pressed();
     void on_repeat_pushButton_pressed();
     void on_alsound_pushButton_pressed();
