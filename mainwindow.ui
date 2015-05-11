@@ -512,13 +512,6 @@ border: none;
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton:pressed
-{
-border-image: url(/etc/hildon/theme/mediaplayer/Button.png);
-border: none;
-}</string>
-         </property>
          <property name="text">
           <string>Time</string>
          </property>

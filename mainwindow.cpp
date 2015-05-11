@@ -13,47 +13,8 @@
 #include <QTextDocument>
 
 #include <dlfcn.h>
+#include "utils.h"
 
-static const char *getHildonTranslation(const char *string)
-{
-     setlocale (LC_ALL, "");
-     const char *translation = ::dgettext("hildon-libs", string);
-     if (qstrcmp(string, translation) == 0)
-         return 0;
-     return translation;
-}
-
-static QString formatHildonDate(const QDateTime &dt, const char *format)
-{
-     if (!format)
-         return QString();
-
-     char buf[255];
-     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-     if (!dt.date().isNull()) {
-         tm.tm_wday = dt.date().dayOfWeek() % 7;
-         tm.tm_mday = dt.date().day();
-         tm.tm_mon = dt.date().month() - 1;
-         tm.tm_year = dt.date().year() - 1900;
-     }
-     if (!dt.time().isNull()) {
-         tm.tm_sec = dt.time().second();
-         tm.tm_min = dt.time().minute();
-         tm.tm_hour = dt.time().hour();
-     }
-
-     size_t resultSize = ::strftime(buf, sizeof(buf), format, &tm);
-     if (!resultSize)
-         return QString();
-
-     return QString::fromUtf8(buf, resultSize);
-}
-
-const char *hildon24hFormat = getHildonTranslation("wdgt_va_24h_time");
-const char *hildon12hAMFormat = getHildonTranslation("wdgt_va_12h_time_am");
-const char *hildon12hPMFormat = getHildonTranslation("wdgt_va_12h_time_pm");
-const char *hildonHHFormat = getHildonTranslation("wdgt_va_24h_hours");
 bool dl_loaded = false;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -217,77 +178,70 @@ void MainWindow::getAMPM()
 
 void MainWindow::updateTime()
 {
-       QString CurrTime;
-       if (HH24true)
-          CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon24hFormat);
-       else
-       {
-          QString HH = formatHildonDate(QDateTime::currentDateTime(), hildonHHFormat);
-          if ( HH.toInt() > 11 )
-               CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon12hPMFormat);
-          else
-               CurrTime = formatHildonDate(QDateTime::currentDateTime(), hildon12hAMFormat);
-       }
-	
-	   CurrTime = CurrTime.trimmed();
-       ui->timeButton_landscape->setText("");
-       ui->timeButton_portrait->setText("");
-       QTextDocument Text;
-       // due to QTBUG-16136 12h/24h change is not updated in QLocale during application run
-       // so we look for ourselves for time-format at the proper moments, and change it accordingly
-       if ( SecondsAdded ) {
-          QString secs = QTime::currentTime().toString( ":ss" );
-          QRegExp TimeFormat12h( "\\D$" );
-          // Non-digit last character, should be 12hr clock 
-          if (TimeFormat12h.indexIn(CurrTime) != -1 ) {
-                    QRegExp TimeMinutes( "\\d{2}\\s" );
-                    TimeMinutes.indexIn(CurrTime);
-                    QString mins = TimeMinutes.cap(0).remove(QRegExp("\\s+$"));
-                    CurrTime.replace(TimeMinutes, mins + secs + "<span style=font-size:25px;> ");
-		    Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span></span>");
-		    QPixmap pixmap(Text.size().width(), Text.size().height());
-		    pixmap.fill( Qt::transparent );
-		    QPainter painter( &pixmap );
-		    Text.drawContents(&painter, pixmap.rect());
-		    QIcon ButtonIcon(pixmap);
-		    ui->timeButton_landscape->setIcon(ButtonIcon);
-		    ui->timeButton_landscape->setIconSize(pixmap.rect().size());
-          }
-          else
-	  {
-		    Text.setHtml("<span style=font-size:60px;>" + CurrTime + secs + "</span>");
-		    QPixmap pixmap(Text.size().width(), Text.size().height());
-		    pixmap.fill( Qt::transparent );
-		    QPainter painter( &pixmap );
-		    Text.drawContents(&painter, pixmap.rect());
-		    QIcon ButtonIcon(pixmap);
-		    ui->timeButton_landscape->setIcon(ButtonIcon);
-		    ui->timeButton_landscape->setIconSize(pixmap.rect().size());
-	  }
-       }
-       else
-       {
-		   // no seconds added
-            CurrTime.replace(" ", "<span style=font-size:25px;> ");
-	    Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span>");
-	    QPixmap pixmap(Text.size().width(), Text.size().height());
-	    pixmap.fill( Qt::transparent );
-	    QPainter painter( &pixmap );
-	    Text.drawContents(&painter, pixmap.rect());
-	    QIcon ButtonIcon(pixmap);
-	    ui->timeButton_landscape->setIcon(ButtonIcon);
-	    ui->timeButton_landscape->setIconSize(pixmap.rect().size());
-       }
-   
-       // copy it to the same portrait button
-       ui->timeButton_portrait->setIcon( ui->timeButton_landscape->icon() );
-       ui->timeButton_portrait->setIconSize(ui->timeButton_landscape->iconSize());
+    QString CurrTime = formatDateTime(QDateTime::currentDateTime().toTime_t(),
+                                      Time).trimmed();
 
-       QDate fecha = QDate::currentDate();
-       ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
-       ui->dateButton_portrait->setText( ui->date_landscape->text() );
-       // also update the worldclockscreen clocks
-       ww->updateClocks();
+    ui->timeButton_landscape->setText("");
+    ui->timeButton_portrait->setText("");
+    QTextDocument Text;
+
+    // due to QTBUG-16136 12h/24h change is not updated in QLocale during application run
+    // so we look for ourselves for time-format at the proper moments, and change it accordingly
+    if ( SecondsAdded )
+    {
+        QString secs = QTime::currentTime().toString( ":ss" );
+        QRegExp TimeFormat12h( "\\D$" );
+        // Non-digit last character, should be 12hr clock
+        if (TimeFormat12h.indexIn(CurrTime) != -1 )
+        {
+            QRegExp TimeMinutes( "\\d{2}\\s" );
+            TimeMinutes.indexIn(CurrTime);
+            QString mins = TimeMinutes.cap(0).remove(QRegExp("\\s+$"));
+            CurrTime.replace(TimeMinutes, mins + secs + "<span style=font-size:25px;> ");
+            Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span></span>");
+            QPixmap pixmap(Text.size().width(), Text.size().height());
+            pixmap.fill( Qt::transparent );
+            QPainter painter( &pixmap );
+            Text.drawContents(&painter, pixmap.rect());
+            QIcon ButtonIcon(pixmap);
+            ui->timeButton_landscape->setIcon(ButtonIcon);
+            ui->timeButton_landscape->setIconSize(pixmap.rect().size());
+        }
+        else
+        {
+            Text.setHtml("<span style=font-size:60px;>" + CurrTime + secs + "</span>");
+            QPixmap pixmap(Text.size().width(), Text.size().height());
+            pixmap.fill( Qt::transparent );
+            QPainter painter( &pixmap );
+            Text.drawContents(&painter, pixmap.rect());
+            QIcon ButtonIcon(pixmap);
+            ui->timeButton_landscape->setIcon(ButtonIcon);
+            ui->timeButton_landscape->setIconSize(pixmap.rect().size());
+        }
+    }
+    else
+    {
+        // no seconds added
+        CurrTime.replace(" ", "<span style=font-size:25px;> ");
+        Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span>");
+        QPixmap pixmap(Text.size().width(), Text.size().height());
+        pixmap.fill( Qt::transparent );
+        QPainter painter( &pixmap );
+        Text.drawContents(&painter, pixmap.rect());
+        QIcon ButtonIcon(pixmap);
+        ui->timeButton_landscape->setIcon(ButtonIcon);
+        ui->timeButton_landscape->setIconSize(pixmap.rect().size());
+    }
+
+    // copy it to the same portrait button
+    ui->timeButton_portrait->setIcon( ui->timeButton_landscape->icon() );
+    ui->timeButton_portrait->setIconSize(ui->timeButton_landscape->iconSize());
+
+    QDate fecha = QDate::currentDate();
+    ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
+    ui->dateButton_portrait->setText( ui->date_landscape->text() );
+    // also update the worldclockscreen clocks
+    ww->updateClocks();
 }
 
 void MainWindow::nextAlarmDateChanged(const QString &date)
