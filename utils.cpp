@@ -66,7 +66,9 @@ QStringList daysFromWday(uint32_t mask_wday)
     QStringList rv;
     QLocale locale;
 
-    if (mask_wday == ALARM_RECUR_WDAY_ALL)
+    if (!mask_wday)
+        rv << _("cloc_va_never");
+    else if (mask_wday == ALARM_RECUR_WDAY_ALL)
         rv << _("cloc_va_everyday");
     else
     {

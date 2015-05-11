@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>233</height>
+    <height>242</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -49,11 +49,7 @@
        <widget class="QAlarmDateValueButton" name="date_pushButton"/>
       </item>
       <item>
-       <widget class="ValueButton" name="repeat_pushButton" native="true">
-        <property name="text" stdset="0">
-         <string/>
-        </property>
-       </widget>
+       <widget class="QAlarmDaysValueButton" name="repeat_pushButton"/>
       </item>
       <item>
        <widget class="ValueButton" name="alsound_pushButton" native="true">
@@ -121,6 +117,11 @@
    <class>QAlarmDateValueButton</class>
    <extends>QPushButton</extends>
    <header>qalarmdatevaluebutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QAlarmDaysValueButton</class>
+   <extends>QPushButton</extends>
+   <header>qalarmdaysvaluebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

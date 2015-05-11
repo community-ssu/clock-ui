@@ -146,18 +146,18 @@ QStandardItem *AlarmList::alarmDaysItem(const alarm_event_t *ae)
     QStandardItem *item = new QStandardItem();
     item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
     uint32_t wday = 0;
-    QString days = _("cloc_va_never");
+    QString days;
 
     if (ae->recurrence_tab)
-    {
-        QStringList l = daysFromWday(wday = ae->recurrence_tab->mask_wday);
+        wday = ae->recurrence_tab->mask_wday;
 
-        if (l.count() > 3)
-            days = QStringList(l.mid(0, 3)).join(", ") + "\n" +
-                    QStringList(l.mid(3)).join(", ");
-        else
-            days = l.join(", ");
-    }
+    QStringList l = daysFromWday(wday);
+
+    if (l.count() > 3)
+        days = QStringList(l.mid(0, 3)).join(", ") + "\n" +
+                QStringList(l.mid(3)).join(", ");
+    else
+        days = l.join(", ");
 
     item->setData(wday, AlarmWdayRole);
     item->setText(days);

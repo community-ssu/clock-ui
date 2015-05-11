@@ -41,7 +41,7 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton* button);
     void on_alarmTimeButton_selected(const QTime &time);
     void on_date_pushButton_selected(const QDate &date);
-    void on_repeat_pushButton_pressed();
+    void on_repeat_pushButton_selected(uint32_t days);
     void on_alsound_pushButton_pressed();
 };
 
