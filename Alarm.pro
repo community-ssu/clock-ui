@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     tdialog.cpp \
     alarmsndpick.cpp \
     home.cpp \
-    dialogdate.cpp \
     citydetail.cpp \
     utils.cpp \
     alarmlist.cpp \
@@ -45,7 +44,6 @@ HEADERS  += mainwindow.h \
     tdialog.h \
     alarmsndpick.h \
     home.h \
-    dialogdate.h \
     Metrics.h \
     citydetail.h \
     utils.h \
@@ -65,7 +63,6 @@ FORMS    += mainwindow.ui \
     alarmsndpick.ui \
     tdialog.ui \
     home.ui \
-    dialogdate.ui \
     citydetail.ui
 
 CONFIG += mobility

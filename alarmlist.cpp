@@ -1,9 +1,7 @@
 #include "alarmlist.h"
 #include "ui_alarmlist.h"
-#include "filedelegate.h"
 #include "newalarm.h"
 #include "osso-intl.h"
-#include <QDebug>
 #include <QMaemo5Style>
 #include <QSettings>
 #include <QDesktopWidget>

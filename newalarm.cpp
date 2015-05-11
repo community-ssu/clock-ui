@@ -2,7 +2,6 @@
 #include "ui_newalarm.h"
 #include "osso-intl.h"
 #include "libalarm.h"
-#include "dialogdate.h"
 #include "gconfitem.h"
 #include <QDateTime>
 #include "valuebutton.h"
