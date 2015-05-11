@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "alarmlist.h"
+#include "qalarmdialog.h"
 #include "world.h"
 #include <time.h>
 #include <alarm_dbus.h>

@@ -1,4 +1,4 @@
-#include "alarmlist.h"
+#include "qalarmdialog.h"
 #include "newalarm.h"
 #include "osso-intl.h"
 

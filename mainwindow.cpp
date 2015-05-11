@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "alarmlist.h"
 #include "osso-intl.h"
 #include "newalarm.h"
 #include "maintdelegate.h"

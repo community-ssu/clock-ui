@@ -24,11 +24,11 @@ SOURCES += main.cpp\
     home.cpp \
     citydetail.cpp \
     utils.cpp \
-    alarmlist.cpp \
     qalarmvaluebutton.cpp \
     qalarmtimevaluebutton.cpp \
     qalarmdatevaluebutton.cpp \
-    qalarmdaysvaluebutton.cpp
+    qalarmdaysvaluebutton.cpp \
+    qalarmdialog.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
@@ -47,11 +47,11 @@ HEADERS  += mainwindow.h \
     Metrics.h \
     citydetail.h \
     utils.h \
-    alarmlist.h \
     qalarmvaluebutton.h \
     qalarmtimevaluebutton.h \
     qalarmdatevaluebutton.h \
-    qalarmdaysvaluebutton.h
+    qalarmdaysvaluebutton.h \
+    qalarmdialog.h
 
 FORMS    += mainwindow.ui \
     newalarm.ui \
