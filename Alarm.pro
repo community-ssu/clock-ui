@@ -54,7 +54,6 @@ HEADERS  += mainwindow.h \
     qalarmdaysvaluebutton.h
 
 FORMS    += mainwindow.ui \
-    alarmlist.ui \
     newalarm.ui \
     world.ui \
     dialog3.ui \

@@ -1,16 +1,15 @@
 #include "alarmlist.h"
-#include "ui_alarmlist.h"
 #include "newalarm.h"
 #include "osso-intl.h"
+
 #include <QMaemo5Style>
-#include <QSettings>
 #include <QDesktopWidget>
 #include <QModelIndex>
+#include <QVBoxLayout>
+#include <QDBusConnection>
+#include <QTimer>
 
 #include "utils.h"
-
-// for setlocale
-#include <locale.h>
 
 enum {
     AlarmEnabledRole = Qt::UserRole + 1,
@@ -19,79 +18,79 @@ enum {
     AlarmDateTimeRole
 };
 
-AlarmList::AlarmList(QWidget *parent) :
+QAlarmDialog::QAlarmDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::AlarmList),
-    iconAlarmOn(QIcon::fromTheme("clock_alarm_on").pixmap(48, 48)),
-    iconAlarmOff(QIcon::fromTheme("clock_alarm_off").pixmap(48, 48)),
-    secondaryColor(QMaemo5Style::standardColor("SecondaryTextColor"))
-
+    label(new QLabel),
+    button(new QPushButton()),
+    view(new QTreeView()),
+    model(new QStandardItemModel(0, 4, view))
 {
-    ui->setupUi(this);
-    setAttribute(Qt::WA_Maemo5AutoOrientation, true);
-
     setWindowTitle(_("cloc_ti_alarms"));
-
     setAttribute(Qt::WA_Maemo5StackedWindow);
     setWindowFlags(Qt::Window);
 
-    alarmModel = new QStandardItemModel(0, 4, this);
-    alarmModel->setSortRole(AlarmEnabledRole);
+    /* model/view */
+    model->setSortRole(AlarmEnabledRole);
 
-    ui->alarmTreeView->setModel(alarmModel);
-    ui->alarmTreeView->setColumnWidth(0, 64);
-    ui->alarmTreeView->setColumnWidth(1, 96);
+    view->setModel(model);
+    view->setColumnWidth(0, 64);
+    view->setColumnWidth(1, 96);
+    view->setSelectionMode(QAbstractItemView::NoSelection);
+    view->setSelectionBehavior(QAbstractItemView::SelectRows);
+    view->setIconSize(QSize(48, 48));
+    view->setIndentation(0);
+    view->setUniformRowHeights(true);
+    view->setHeaderHidden(true);
 
-    ui->newAlarm->setIcon(QIcon::fromTheme("general_add"));
-    ui->newAlarm->setText(_("clock_ti_new_alarm"));
+    /* button */
+    button->setIconSize(QSize(48, 48));
+    button->setIcon(QIcon::fromTheme("general_add"));
+    button->setText(_("clock_ti_new_alarm"));
 
-    /* No alarms stuff */
-    /* fixme - don't do that pallette stuff every time, just subclass */
+    /* label */
     QPalette pal(palette());
     pal.setColor(QPalette::WindowText,
                  QMaemo5Style::standardColor("SecondaryTextColor"));
+    label->setPalette(pal);
+    label->setFont(QMaemo5Style::standardFont("XX-LargeSystemFont"));
+    label->setAlignment(Qt::AlignCenter);
+    label->setText(_("cloc_ti_start_no"));
 
-    ui->label->setPalette(pal);
+    /* put them all together */
+    QVBoxLayout *layout = new QVBoxLayout(this);
 
-    QFont fontNoAlarm;
-    fontNoAlarm.setPointSize(24);
-    ui->label->setFont(fontNoAlarm);
-    ui->label->setAlignment(Qt::AlignCenter);
-    ui->label->setText(_("cloc_ti_start_no"));
+    layout->addWidget(button);
+    layout->addWidget(label);
+    layout->addWidget(view);
 
-    bigFont.setPointSize(QStandardItem().font().pointSize() + 8);
-    smallFont.setPointSize(bigFont.pointSize() - 12);
-
-    addAlarms();
+    /* if someone has connected to our changed signals to have the real data */
+    QTimer::singleShot(0, this, SLOT(addAlarms()));
 
     /* refresh the current alarmlist as soon as an alarm event occurs */
     QDBusConnection::systemBus().connect(QString(), "/com/nokia/alarmd",
                                          "com.nokia.alarmd", "queue_status_ind",
                                          this, SLOT(addAlarms()));
-    connect(ui->alarmTreeView, SIGNAL(clicked(const QModelIndex &)),
-            this, SLOT(treeViewSelectedRow(const QModelIndex &)));
+    connect(view, SIGNAL(clicked(const QModelIndex &)),
+            this, SLOT(viewClicked(const QModelIndex &)));
 }
 
-AlarmList::~AlarmList()
-{
-    delete ui;
-}
-
-QStandardItem *AlarmList::alarmCheckboxItem(cookie_t cookie,
+QStandardItem *QAlarmDialog::alarmCheckboxItem(cookie_t cookie,
                                              const alarm_event_t *ae)
 {
     QStandardItem *item = new QStandardItem();
+
     item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    item->setEditable(false);
 
     /* enable/disable check box */
     if (!(ae->flags & ALARM_EVENT_DISABLED))
     {
-        item->setIcon(iconAlarmOn);
+        item->setIcon(QIcon::fromTheme("clock_alarm_on").pixmap(48, 48));
         item->setData(1, AlarmEnabledRole);
     }
     else
     {
-        item->setIcon(iconAlarmOff);
+        item->setIcon(QIcon::fromTheme("clock_alarm_off").pixmap(48, 48));
         item->setData(0, AlarmEnabledRole);
     }
 
@@ -100,7 +99,7 @@ QStandardItem *AlarmList::alarmCheckboxItem(cookie_t cookie,
     return item;
 }
 
-QStandardItem *AlarmList::alarmTimeItem(const alarm_event_t *ae)
+QStandardItem *QAlarmDialog::alarmTimeItem(const alarm_event_t *ae)
 {
     QStandardItem *item = new QStandardItem();
     time_t tick = ae->snooze_total;
@@ -110,10 +109,11 @@ QStandardItem *AlarmList::alarmTimeItem(const alarm_event_t *ae)
 
     item->setText(formatDateTime(tick, Time));
     item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    item->setFont(bigFont);
+    item->setFont(QMaemo5Style::standardFont("LargeSystemFont"));
 
     if (ae->flags & ALARM_EVENT_DISABLED)
-        item->setData(secondaryColor, Qt::ForegroundRole);
+        item->setData(QMaemo5Style::standardColor("SecondaryTextColor"),
+                      Qt::ForegroundRole);
 
     /* needed so sorting to work */
     item->setData(item->text());
@@ -122,7 +122,7 @@ QStandardItem *AlarmList::alarmTimeItem(const alarm_event_t *ae)
     return item;
 }
 
-QStandardItem *AlarmList::alarmTitleItem(const alarm_event_t *ae)
+QStandardItem *QAlarmDialog::alarmTitleItem(const alarm_event_t *ae)
 {
     const char *s = alarm_event_get_message(ae);
 
@@ -134,12 +134,13 @@ QStandardItem *AlarmList::alarmTitleItem(const alarm_event_t *ae)
     item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     if (ae->flags & ALARM_EVENT_DISABLED)
-        item->setData(secondaryColor, Qt::ForegroundRole);
+        item->setData(QMaemo5Style::standardColor("SecondaryTextColor"),
+                      Qt::ForegroundRole);
 
     return item;
 }
 
-QStandardItem *AlarmList::alarmDaysItem(const alarm_event_t *ae)
+QStandardItem *QAlarmDialog::alarmDaysItem(const alarm_event_t *ae)
 {
     QStandardItem *item = new QStandardItem();
     item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -159,16 +160,17 @@ QStandardItem *AlarmList::alarmDaysItem(const alarm_event_t *ae)
 
     item->setData(wday, AlarmWdayRole);
     item->setText(days);
-    item->setFont(smallFont);
+    item->setFont(QMaemo5Style::standardFont("SmallSystemFont"));
 
     if (ae->flags & ALARM_EVENT_DISABLED)
-        item->setData(secondaryColor, Qt::ForegroundRole);
+        item->setData(QMaemo5Style::standardColor("SecondaryTextColor"),
+                      Qt::ForegroundRole);
 
     return item;
 }
 
 /* return alarm trigger time */
-time_t AlarmList::addAlarm(cookie_t cookie)
+time_t QAlarmDialog::addAlarm(cookie_t cookie)
 {
     QList<QStandardItem *> row;
     alarm_event_t *ae = alarmd_event_get(cookie);
@@ -181,28 +183,30 @@ time_t AlarmList::addAlarm(cookie_t cookie)
 
     alarm_event_delete(ae);
 
-    alarmModel->appendRow(row);
+    model->appendRow(row);
 
     return tick;
 }
 
-void AlarmList::addAlarms()
+void QAlarmDialog::addAlarms()
 {
     cookie_t *list, *iter;
     time_t next = -1;
+    QString nextAlarmDate;
+    QString nextAlarmDay;
 
-    alarmModel->removeRows(0, alarmModel->rowCount());
+    model->removeRows(0, model->rowCount());
     /* get them */
     list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
     if (*list)
     {
-      ui->label->hide();
-      ui->alarmTreeView->show();
+      label->hide();
+      view->show();
     }
     else
     {
-        ui->alarmTreeView->hide();
-        ui->label->show();
+        view->hide();
+        label->show();
     }
 
     for (iter = list; *iter != (cookie_t) 0; iter ++)
@@ -216,32 +220,27 @@ void AlarmList::addAlarms()
     free(list);
 
     /* need to sort in reverse order :) */
-    alarmModel->sort(1);
-    alarmModel->sort(0, Qt::DescendingOrder);
+    model->sort(1);
+    model->sort(0, Qt::DescendingOrder);
 
     if (next != -1)
     {
-        line1 = _("cloc_ti_next") + " " + formatDateTime(next, Time);
+        nextAlarmDate = _("cloc_ti_next") + " " + formatDateTime(next, Time);
         int days =
             QDateTime::currentDateTime().daysTo(QDateTime::fromTime_t(next));
 
-        if (!days)
-                line2 = "";
-        else if (days == 1)
-            line2 = _("cloc_ti_start_tomorrow");
+        if (days == 1)
+            nextAlarmDay = _("cloc_ti_start_tomorrow");
         else if (days < 8)
         {
-            line2 = QString(_("cloc_ti_start_day")).
-                                replace("%s", formatDateTime(next, DayOfWeek));
+            nextAlarmDay = QString(_("cloc_ti_start_day")).
+                    replace("%s", formatDateTime(next, DayOfWeek));
         }
         else
-            line2 = formatDateTime(next, Date);
+            nextAlarmDay = formatDateTime(next, Date);
     }
     else
-    {
-        line1 = _("cloc_ti_start_no");
-        line2 = "";
-    }
+        nextAlarmDate = _("cloc_ti_start_no");
 #if 0
     ui->alarmListView->clear();
 
@@ -539,24 +538,27 @@ void AlarmList::addAlarms()
     }
 
 #endif
+
+    emit nextAlarmDateChanged(nextAlarmDate);
+    emit nextAlarmDayChanged(nextAlarmDay);
 }
 
-void AlarmList::on_newAlarm_clicked()
+void QAlarmDialog::on_newAlarm_clicked()
 {
     NewAlarm(this,false,"",QTime(),0,true,0).exec();
     addAlarms();
 }
 
-void AlarmList::treeViewSelectedRow(const QModelIndex &modelIndex)
+void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
 {
     int row = modelIndex.row();
-    bool disabled = alarmModel->item(row, 0)->data(AlarmEnabledRole).toBool();
+    bool disabled = model->item(row, 0)->data(AlarmEnabledRole).toBool();
     QDateTime dt =
-            QDateTime::fromTime_t(alarmModel->item(row, 1)->data(AlarmDateTimeRole).toInt());
-    uint32_t wday = alarmModel->item(row, 3)->data(AlarmWdayRole).toUInt();
-    QString text = alarmModel->item(row, 2)->text();
+            QDateTime::fromTime_t(model->item(row, 1)->data(AlarmDateTimeRole).toInt());
+    uint32_t wday = model->item(row, 3)->data(AlarmWdayRole).toUInt();
+    QString text = model->item(row, 2)->text();
     cookie_t cookie =
-            alarmModel->item(row, 0)->data(AlarmCookieRole).toLongLong();
+            model->item(row, 0)->data(AlarmCookieRole).toLongLong();
 
     if (modelIndex.column() == 0)
     {

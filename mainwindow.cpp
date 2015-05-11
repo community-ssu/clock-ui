@@ -172,8 +172,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //    connect(ui->Alarm_pushButton, SIGNAL(clicked()), this, SLOT(Alarm_pushButton_picked()));
 
-    sw = new AlarmList(this);
-    loadAlarm();
+    alarmDialog = new QAlarmDialog(this);
+    connect(alarmDialog, SIGNAL(nextAlarmDateChanged(QString)),
+            this, SLOT(nextAlarmDateChanged(QString)));
+    connect(alarmDialog, SIGNAL(nextAlarmDayChanged(QString)),
+            this, SLOT(nextAlarmDayChanged(QString)));
+
     ww = new World(this);
     loadWorld();
 
@@ -287,6 +291,18 @@ void MainWindow::updateTime()
        ww->updateClocks();
 }
 
+void MainWindow::nextAlarmDateChanged(const QString &date)
+{
+    ui->listWidget->item(1)->setData(Qt::UserRole + 2, date);
+    ui->nextAlarm->setText(date);
+}
+
+void MainWindow::nextAlarmDayChanged(const QString &day)
+{
+    ui->listWidget->item(1)->setData(Qt::UserRole + 3, day);
+    ui->alarmDay->setText(day);
+}
+
 void MainWindow::on_Alarm_pushButton_pressed()
 {
     ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm_pressed"));
@@ -300,9 +316,8 @@ void MainWindow::on_Alarm_pushButton_released()
 void MainWindow::on_Alarm_pushButton_clicked()
 {
     ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
-    sw->exec();
-    sw->addAlarms();
-    loadAlarm();
+    alarmDialog->exec();
+    alarmDialog->addAlarms();
 }
 
 void MainWindow::on_wrldClk_pushButton_pressed()
@@ -323,8 +338,7 @@ void MainWindow::on_wrldClk_pushButton_clicked()
     // extra for refresh
     // get time_format
     getAMPM();
-    sw->addAlarms();
-    loadAlarm();
+    alarmDialog->addAlarms();
     ww->loadCurrent();
 }
 
@@ -344,10 +358,9 @@ void MainWindow::on_nwAlarm_pushButton_clicked()
     NewAlarm *al = new NewAlarm(this, false,"",QTime(), 0,true,0);
     al->exec();
     delete al;
-    sw->addAlarms();
+    alarmDialog->addAlarms();
     QApplication::processEvents();
-    sw->addAlarms();
-    loadAlarm();
+    alarmDialog->addAlarms();
 }
 
 void MainWindow::on_timeButton_landscape_clicked()
@@ -361,8 +374,7 @@ void MainWindow::on_timeButton_landscape_clicked()
 	    // refresh local time
 	    ww->loadCurrent();
 	    // refresh alarm
-	    loadAlarm();
-        sw->addAlarms();
+        alarmDialog->addAlarms();
 	    loadWorld();
 	    dl_loaded = false;
     }
@@ -392,14 +404,6 @@ void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
 
 }
 
-void MainWindow::loadAlarm()
-{
-    ui->nextAlarm->setText(sw->line1);
-    ui->alarmDay->setText(sw->line2);
-    ui->listWidget->item(1)->setData(Qt::UserRole+2, sw->line1);
-    ui->listWidget->item(1)->setData(Qt::UserRole+3, sw->line2);
-}
-
 void MainWindow::loadWorld()
 {
     QString text = _("cloc_ti_start_gmt");
@@ -422,8 +426,7 @@ void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
     // refresh current timezone
     loadWorld();
     // refresh alarm
-    sw->addAlarms();
-    loadAlarm();
+    alarmDialog->addAlarms();
 }
 
 void MainWindow::on_action_cloc_alarm_settings_title_triggered()

@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    AlarmList *sw;
+    QAlarmDialog *alarmDialog;
     World * ww;
     bool SecondsAdded;
     bool HH24true;
@@ -44,7 +44,8 @@ private slots:
     void on_action_sfil_va_number_of_objects_images_triggered();
     void on_action_disp_seconds_triggered();
     void updateTime();
-    void loadAlarm();
+    void nextAlarmDateChanged(const QString & date);
+    void nextAlarmDayChanged(const QString & day);
     void loadWorld();
     void on_listWidget_itemActivated(QListWidgetItem* item);
     void on_nwAlarm_pushButton_released();

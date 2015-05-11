@@ -4,7 +4,6 @@
 #include "libalarm.h"
 #include "gconfitem.h"
 #include <QDateTime>
-#include "valuebutton.h"
 #include "alarmsndpick.h"
 #include "utils.h"
 

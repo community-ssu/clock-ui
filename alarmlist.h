@@ -2,39 +2,31 @@
 #define ALARMLIST_H
 
 #include <QDialog>
-#include <time.h>
-#include <alarm_dbus.h>
-#include <libalarm.h>
-#include <QDateTime>
-#include <QListWidgetItem>
-#include <QTreeWidgetItem>
-#include <QtDBus/QDBusInterface>
+#include <QTreeView>
 #include <QStandardItemModel>
+#include <QLabel>
+#include <QPushButton>
 
-namespace Ui {
-    class AlarmList;
-}
+#include <libalarm.h>
 
-class AlarmList : public QDialog
+class QAlarmDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AlarmList(QWidget *parent = 0);
-    ~AlarmList();
-    QString line1, line2;
+    explicit QAlarmDialog(QWidget *parent = 0);
+//    QString line1, line2;
 
-public slots:
+public Q_SLOTS:
     void addAlarms();
-
+Q_SIGNALS:
+    void nextAlarmDateChanged(const QString &);
+    void nextAlarmDayChanged(const QString &);
 private:
-    Ui::AlarmList *ui;
-    QStandardItemModel *alarmModel;
-    QIcon iconAlarmOn;
-    QIcon iconAlarmOff;
-    QBrush secondaryColor;
-    QFont bigFont;
-    QFont smallFont;
+    QLabel *label;
+    QPushButton* button;
+    QTreeView* view;
+    QStandardItemModel *model;
 
     time_t addAlarm(cookie_t cookie);
     QStandardItem *alarmCheckboxItem(cookie_t cookie, const alarm_event_t *ae);
@@ -42,9 +34,9 @@ private:
     QStandardItem *alarmTitleItem(const alarm_event_t *ae);
     QStandardItem *alarmDaysItem(const alarm_event_t *ae);
 
-private slots:
+private Q_SLOTS:
     void on_newAlarm_clicked();
-    void treeViewSelectedRow(const QModelIndex & modelIndex);
+    void viewClicked(const QModelIndex & modelIndex);
 };
 
 #endif // ALARMLIST_H
