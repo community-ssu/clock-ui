@@ -2,15 +2,17 @@
 #include "ui_mainwindow.h"
 #include "osso-intl.h"
 #include "newalarm.h"
-#include "maintdelegate.h"
 #include "world.h"
 #include "alsettings.h"
 #include "gconfitem.h"
+
 #include <QDateTime>
 #include <QMaemo5Style>
 #include <QSettings>
 #include <QTimer>
 #include <QTextDocument>
+#include <QDesktopWidget>
+#include <QVBoxLayout>
 
 #include <dlfcn.h>
 #include "utils.h"
@@ -19,21 +21,51 @@ bool dl_loaded = false;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    buttonsLayout(0),
+    newAlarmButton(new QAlarmPushButton(_("clock_ti_new_alarm"))),
+    alarmsButton(new QAlarmPushButton(_("cloc_ti_alarms"))),
+    worldclocksButton(new QAlarmPushButton(_("cloc_ti_world_clocks"))),
+    backgroundImage("/etc/hildon/theme/backgrounds/clock.png")
 {
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     this->setAttribute(Qt::WA_Maemo5StackedWindow);
     ui->setupUi(this);
 
-    this->setWindowTitle(_("cloc_ap_name"));
+    setWindowTitle(_("cloc_ap_name"));
+
+    centralLayout = new QVBoxLayout(centralWidget());
+    centralLayout->setContentsMargins(0, 0, 0, 0);
+    centralLayout->setSpacing(0);
+
+    QHBoxLayout *hl = new QHBoxLayout;
+    timeDateLabel = new QPushLabel;
+    connect(timeDateLabel, SIGNAL(clicked()),
+            this, SLOT(timeDateLabelClicked()));
+    hl->addWidget(timeDateLabel);
+
+    centralLayout->addLayout(hl);
+    centralLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum,
+                                  QSizePolicy::Expanding));
+
+    newAlarmButton->setIcon("clock_starter_add_alarm");
+    alarmsButton->setIcon("clock_starter_alarm");
+    worldclocksButton->setIcon("clock_starter_worldclock");
+
+    connect(newAlarmButton, SIGNAL(clicked()),
+            this, SLOT(newAlarmButtonClicked()));
+    connect(alarmsButton, SIGNAL(clicked()),
+            this, SLOT(alarmsButtonClicked()));
+    connect(worldclocksButton, SIGNAL(clicked()),
+            this, SLOT(worldclocksButtonClicked()));
 
     // Read some variables
     // set background by default
     bool BackgroundImg = true;
     QSettings settings("worldclock", "worldclock");
     if (settings.contains("Background"))
-    	BackgroundImg = settings.value("Background").toBool();
-    SecondsAdded = settings.value("SecondsAdded").toBool();
+        BackgroundImg = settings.value("Background").toBool();
+    showSeconds = settings.value("SecondsAdded").toBool();
     // Compose image text
     intl("hildon-fm");
     QString ImageText = QString::fromUtf8(ngettext("sfil_va_number_of_objects_image", "sfil_va_number_of_objects_images", 1));
@@ -46,108 +78,31 @@ MainWindow::MainWindow(QWidget *parent) :
     SecondsText[0] = SecondsText[0].toUpper();
     intl("osso-clock");
 
-    if (BackgroundImg)
-    {
-        QFileInfo bg_fileInfo("/etc/hildon/theme/backgrounds/clock.png");
-        if (bg_fileInfo.exists())
-        {
-            QPalette pal(palette());
-            setAutoFillBackground(true);
-            pal.setBrush(QPalette::Window,
-                         QPixmap("/etc/hildon/theme/backgrounds/clock.png"));
-            setPalette(pal);
-        }
-    }
-
-    // set to secondary text color
-    {
-        QPalette pal(palette());
-        pal.setColor(QPalette::WindowText,
-                     QMaemo5Style::standardColor("SecondaryTextColor"));
-
-        ui->nextAlarm->setPalette(pal);
-        ui->alarmDay->setPalette(pal);
-        ui->timeZone->setPalette(pal);
-        ui->date_landscape->setPalette(pal);
-        ui->dateButton_portrait->setPalette(pal);
-    }
-
-    QPalette pal(palette());
-    pal.setColor(QPalette::Background, QMaemo5Style::standardColor("DefaultBackgroundColor"));
-    ui->widget_3->setAutoFillBackground(true);
-    ui->widget_3->setPalette(pal);
-
-    pal.setBrush(QPalette::Active, QPalette::WindowText, QMaemo5Style::standardColor("DefaultTextColor"));
-    ui->widget_3->setPalette(pal);
-    ui->newAlarm->setPalette(pal);
-    ui->Alarms->setPalette(pal);
-    ui->worldClocks->setPalette(pal);
-
-    ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
-    ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
-    ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
-
-    ui->listWidget->item(0)->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
-    ui->listWidget->item(1)->setIcon(QIcon::fromTheme("clock_starter_alarm"));
-    ui->listWidget->item(2)->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
-
     ui->action_dati_ia_adjust_date_and_time->setText(_("dati_ia_adjust_date_and_time"));
     ui->action_cloc_me_menu_settings_regional->setText(_("cloc_me_menu_settings_regional"));
     ui->action_cloc_alarm_settings_title->setText(_("cloc_alarm_settings_title"));
     ui->action_disp_seconds->setText(SecondsText);
-    if ( SecondsAdded )
-	ui->action_disp_seconds->setChecked(true);
 
-    MainDelegate *delegate = new MainDelegate(ui->listWidget);
-    ui->listWidget->setItemDelegate(delegate);
+    if (showSeconds)
+        ui->action_disp_seconds->setChecked(true);
 
-    QFont f;
-    f.setPointSize(48);
-    ui->timeButton_landscape->setFont(f);
-    f.setPointSize(18);
-    ui->date_landscape->setFont(f);
-    f.setPointSize(48);
-    ui->timeButton_portrait->setFont(f);
-    f.setPointSize(18);
-    ui->dateButton_portrait->setFont(f);
+    connect(QApplication::desktop(), SIGNAL(resized(int)),
+            this, SLOT(orientationChanged()));
 
-    f.setPointSize(13);
-    ui->newAlarm->setFont(f);
-    ui->Alarms->setFont(f);
-    ui->worldClocks->setFont(f);
-    ui->nextAlarm->setFont(f);
-    ui->alarmDay->setFont(f);
-    ui->timeZone->setFont(f);
-
-    ui->listWidget->item(0)->setData(Qt::UserRole, _("clock_ti_new_alarm"));
-    ui->listWidget->item(1)->setData(Qt::UserRole, _("cloc_ti_alarms"));
-    ui->listWidget->item(2)->setData(Qt::UserRole, _("cloc_ti_world_clocks"));
-
-    ui->newAlarm->setText(_("clock_ti_new_alarm"));
-    ui->Alarms->setText(_("cloc_ti_alarms"));
-    ui->worldClocks->setText(_("cloc_ti_world_clocks"));
-
-    connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
-    this->orientationChanged();
-
-//    connect(ui->Alarm_pushButton, SIGNAL(clicked()), this, SLOT(Alarm_pushButton_picked()));
+    orientationChanged();
 
     alarmDialog = new QAlarmDialog(this);
-    connect(alarmDialog, SIGNAL(nextAlarmDateChanged(QString)),
-            this, SLOT(nextAlarmDateChanged(QString)));
-    connect(alarmDialog, SIGNAL(nextAlarmDayChanged(QString)),
-            this, SLOT(nextAlarmDayChanged(QString)));
+    connect(alarmDialog, SIGNAL(nextAlarmChanged(const QStringList &)),
+            this, SLOT(nextAlarmChanged(const QStringList &)));
 
     ww = new World(this);
     loadWorld();
 
     // get current time format
-    getAMPM();
     updateTime();
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
     timer->start(1000);
-
 }
 
 MainWindow::~MainWindow()
@@ -157,157 +112,90 @@ MainWindow::~MainWindow()
 
 void MainWindow::orientationChanged()
 {
-    if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height())
-    {
-	// portrait
-        ui->widget->hide();
-        ui->widget_2->show();
-    } else {
-        ui->widget_2->hide();
-        ui->widget->show();
-    }
-}
+    QRect geom = QApplication::desktop()->screenGeometry();
 
-void MainWindow::getAMPM()
-{
-       // get the current time format
-       GConfItem *HH24 = new GConfItem("/apps/clock/time-format");
-       HH24true = HH24->value().toBool();
-       delete HH24;
+    setUpdatesEnabled(false);
+
+    if (buttonsLayout)
+    {
+        buttonsLayout->removeWidget(newAlarmButton);
+        buttonsLayout->removeWidget(alarmsButton);
+        buttonsLayout->removeWidget(worldclocksButton);
+        delete buttonsLayout;
+    }
+
+    if (geom.width() < geom.height())
+    {
+        /* portrait */
+        setPalette(QWidget().palette());
+
+        buttonsLayout = new QVBoxLayout;
+        buttonsLayout->setSpacing(0);
+        buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+        centralLayout->addLayout(buttonsLayout);
+
+        newAlarmButton->setLabelPosition(QAlarmPushButton::Right);
+        alarmsButton->setLabelPosition(QAlarmPushButton::Right);
+        worldclocksButton->setLabelPosition(QAlarmPushButton::Right);
+    }
+    else
+    {
+        buttonsLayout = new QHBoxLayout;
+        buttonsLayout->setSpacing(0);
+
+        buttonsLayout->setContentsMargins(54, 0, 54, 0);
+        newAlarmButton->setLabelPosition(QAlarmPushButton::Bottom);
+        alarmsButton->setLabelPosition(QAlarmPushButton::Bottom);
+        worldclocksButton->setLabelPosition(QAlarmPushButton::Bottom);
+
+        centralLayout->addLayout(buttonsLayout);
+
+        QPalette pal(palette());
+        pal.setBrush(QPalette::Window,
+                     backgroundImage);
+        setPalette(pal);
+
+    }
+
+    buttonsLayout->addWidget(newAlarmButton);
+    buttonsLayout->addWidget(alarmsButton);
+    buttonsLayout->addWidget(worldclocksButton);
+
+    setUpdatesEnabled(true);
 }
 
 void MainWindow::updateTime()
 {
-    QString CurrTime = formatDateTime(QDateTime::currentDateTime().toTime_t(),
-                                      Time).trimmed();
+    time_t now = QDateTime::currentDateTime().toTime_t();
+    QString markup = formatTimeDateMarkup(now);
 
-    ui->timeButton_landscape->setText("");
-    ui->timeButton_portrait->setText("");
-    QTextDocument Text;
+    timeDateLabel->setText(markup);
 
-    // due to QTBUG-16136 12h/24h change is not updated in QLocale during application run
-    // so we look for ourselves for time-format at the proper moments, and change it accordingly
-    if ( SecondsAdded )
-    {
-        QString secs = QTime::currentTime().toString( ":ss" );
-        QRegExp TimeFormat12h( "\\D$" );
-        // Non-digit last character, should be 12hr clock
-        if (TimeFormat12h.indexIn(CurrTime) != -1 )
-        {
-            QRegExp TimeMinutes( "\\d{2}\\s" );
-            TimeMinutes.indexIn(CurrTime);
-            QString mins = TimeMinutes.cap(0).remove(QRegExp("\\s+$"));
-            CurrTime.replace(TimeMinutes, mins + secs + "<span style=font-size:25px;> ");
-            Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span></span>");
-            QPixmap pixmap(Text.size().width(), Text.size().height());
-            pixmap.fill( Qt::transparent );
-            QPainter painter( &pixmap );
-            Text.drawContents(&painter, pixmap.rect());
-            QIcon ButtonIcon(pixmap);
-            ui->timeButton_landscape->setIcon(ButtonIcon);
-            ui->timeButton_landscape->setIconSize(pixmap.rect().size());
-        }
-        else
-        {
-            Text.setHtml("<span style=font-size:60px;>" + CurrTime + secs + "</span>");
-            QPixmap pixmap(Text.size().width(), Text.size().height());
-            pixmap.fill( Qt::transparent );
-            QPainter painter( &pixmap );
-            Text.drawContents(&painter, pixmap.rect());
-            QIcon ButtonIcon(pixmap);
-            ui->timeButton_landscape->setIcon(ButtonIcon);
-            ui->timeButton_landscape->setIconSize(pixmap.rect().size());
-        }
-    }
-    else
-    {
-        // no seconds added
-        CurrTime.replace(" ", "<span style=font-size:25px;> ");
-        Text.setHtml("<span style=font-size:60px;>" + CurrTime + "</span>");
-        QPixmap pixmap(Text.size().width(), Text.size().height());
-        pixmap.fill( Qt::transparent );
-        QPainter painter( &pixmap );
-        Text.drawContents(&painter, pixmap.rect());
-        QIcon ButtonIcon(pixmap);
-        ui->timeButton_landscape->setIcon(ButtonIcon);
-        ui->timeButton_landscape->setIconSize(pixmap.rect().size());
-    }
-
-    // copy it to the same portrait button
-    ui->timeButton_portrait->setIcon( ui->timeButton_landscape->icon() );
-    ui->timeButton_portrait->setIconSize(ui->timeButton_landscape->iconSize());
-
-    QDate fecha = QDate::currentDate();
-    ui->date_landscape->setText( fecha.toString(Qt::DefaultLocaleLongDate) );
-    ui->dateButton_portrait->setText( ui->date_landscape->text() );
-    // also update the worldclockscreen clocks
     ww->updateClocks();
 }
 
-void MainWindow::nextAlarmDateChanged(const QString &date)
+void MainWindow::nextAlarmChanged(const QStringList &date)
 {
-    ui->listWidget->item(1)->setData(Qt::UserRole + 2, date);
-    ui->nextAlarm->setText(date);
+    alarmsButton->setText(date);
 }
 
-void MainWindow::nextAlarmDayChanged(const QString &day)
+void MainWindow::alarmsButtonClicked()
 {
-    ui->listWidget->item(1)->setData(Qt::UserRole + 3, day);
-    ui->alarmDay->setText(day);
-}
-
-void MainWindow::on_Alarm_pushButton_pressed()
-{
-    ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm_pressed"));
-}
-
-void MainWindow::on_Alarm_pushButton_released()
-{
-    ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
-}
-
-void MainWindow::on_Alarm_pushButton_clicked()
-{
-    ui->Alarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_alarm"));
     alarmDialog->exec();
     alarmDialog->addAlarms();
 }
 
-void MainWindow::on_wrldClk_pushButton_pressed()
+void MainWindow::worldclocksButtonClicked()
 {
-    ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock_pressed"));
-}
-
-void MainWindow::on_wrldClk_pushButton_released()
-{
-    ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
-}
-
-void MainWindow::on_wrldClk_pushButton_clicked()
-{
-    ui->wrldClk_pushButton->setIcon(QIcon::fromTheme("clock_starter_worldclock"));
     ww->exec();
     loadWorld();
-    // extra for refresh
-    // get time_format
-    getAMPM();
     alarmDialog->addAlarms();
     ww->loadCurrent();
 }
 
-void MainWindow::on_nwAlarm_pushButton_pressed()
+void MainWindow::newAlarmButtonClicked()
 {
-    ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm_pressed"));
-}
-
-void MainWindow::on_nwAlarm_pushButton_released()
-{
-    ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
-}
-
-void MainWindow::on_nwAlarm_pushButton_clicked()
-{
-    ui->nwAlarm_pushButton->setIcon(QIcon::fromTheme("clock_starter_add_alarm"));
     NewAlarm *al = new NewAlarm(this, false,"",QTime(), 0,true,0);
     al->exec();
     delete al;
@@ -316,14 +204,12 @@ void MainWindow::on_nwAlarm_pushButton_clicked()
     alarmDialog->addAlarms();
 }
 
-void MainWindow::on_timeButton_landscape_clicked()
+void MainWindow::timeDateLabelClicked()
 {
     if (! dl_loaded ) // do not reload if already active
     {	    
 	    dl_loaded = true;
 	    openplugin("libcpdatetime");
-	    // get time_format
-	    getAMPM();
 	    // refresh local time
 	    ww->loadCurrent();
 	    // refresh alarm
@@ -333,35 +219,11 @@ void MainWindow::on_timeButton_landscape_clicked()
     }
 }
 
-void MainWindow::on_timeButton_portrait_clicked()
-{
-	on_timeButton_landscape_clicked();
-}
-
-void MainWindow::on_dateButton_portrait_clicked()
-{
-	on_timeButton_landscape_clicked();
-}
-
-void MainWindow::on_listWidget_itemActivated(QListWidgetItem*)
-{
-    int sel =  ui->listWidget->currentRow();
-    ui->listWidget->clearSelection();
-
-    if ( sel == 0 )
-        on_nwAlarm_pushButton_clicked();
-    else if ( sel == 1 )
-        on_Alarm_pushButton_clicked();
-    else if ( sel == 2 )
-        on_wrldClk_pushButton_clicked();
-
-}
 
 void MainWindow::loadWorld()
 {
     QString text = _("cloc_ti_start_gmt");
-    ui->timeZone->setText( text.remove("%s") + ww->line1);
-    ui->listWidget->item(2)->setData(Qt::UserRole+2, text.remove("%s") + ww->line1 );
+    worldclocksButton->setText( QStringList() << text.remove("%s") + ww->line1);
 }
 
 void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
@@ -372,8 +234,6 @@ void MainWindow::on_action_cloc_me_menu_settings_regional_triggered()
 void MainWindow::on_action_dati_ia_adjust_date_and_time_triggered()
 {
     openplugin("libcpdatetime");
-    // get time_format
-    getAMPM();
     // refresh local time
     ww->loadCurrent();
     // refresh current timezone
@@ -401,13 +261,15 @@ void MainWindow::on_action_sfil_va_number_of_objects_images_triggered()
 void MainWindow::on_action_disp_seconds_triggered()
 {
     QSettings settings("worldclock", "worldclock");
-    if ( ui->action_disp_seconds->isChecked() ) {
+    if ( ui->action_disp_seconds->isChecked() )
+    {
         settings.setValue("SecondsAdded", "true");
-	SecondsAdded = true;
+        showSeconds = true;
     }
-    else {
+    else
+    {
         settings.setValue("SecondsAdded", "false");
-	SecondsAdded = false;
+        showSeconds = false;
     }
     settings.sync();
 }
@@ -440,4 +302,64 @@ void MainWindow::openplugin(const QByteArray &plugin)
         }
         dlclose(handle);
     }
+}
+
+QString MainWindow::formatTimeDateMarkup(time_t tick) const
+{
+    QString markup;
+
+    if (GConfItem("/apps/clock/time-format").value().toBool())
+    {
+        QString time;
+
+        if (showSeconds)
+        {
+            char buf[256];
+            size_t len = 0;
+            const struct tm *t = localtime(&tick);
+
+            len = _strftime(buf, sizeof(buf), "wdgt_va_full_24h_time", t);
+            time = QString::fromUtf8(buf, len);
+        }
+        else
+            time = formatDateTime(tick, Time);
+
+        markup = "<p align=center style=font-size:70px;>" + time + "</p>";
+    }
+    else
+    {
+        char buf[256];
+        size_t len = 0;
+        const struct tm *t = localtime(&tick);
+        QString tmp;
+
+        len = _strftime(buf, sizeof(buf), "wdgt_va_12h_hours", t);
+        tmp = QString::fromUtf8(buf, len) + ":";
+
+        if (showSeconds)
+            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes_seconds", t);
+        else
+            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes", t);
+
+        tmp += QString::fromUtf8(buf, len);
+        markup = "<p align=center style=font-size:70px;>" + tmp;
+
+        if (t->tm_hour > 11)
+            len = _strftime(buf, sizeof(buf), "wdgt_va_pm", t);
+        else
+            len = _strftime(buf, sizeof(buf), "wdgt_va_am", t);
+
+        markup +=
+                "<span style=font-size:medium;> " +
+                QString::fromUtf8(buf, len);
+        markup += "</span></p>";
+    }
+
+     markup +=
+             "<p align=center style=font-size:medium;color:" +
+             QMaemo5Style::standardColor("SecondaryTextColor").name() + ";>" +
+             formatDateTime(tick, FullDateLong) +
+             "</p>";
+
+     return markup;
 }

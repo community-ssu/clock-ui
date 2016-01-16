@@ -14,7 +14,6 @@ SOURCES += main.cpp\
     filedelegate.cpp \
     newalarm.cpp \
     valuebutton.cpp \
-    maintdelegate.cpp \
     world.cpp \
     dialog3.cpp \
     alsettings.cpp \
@@ -28,15 +27,16 @@ SOURCES += main.cpp\
     qalarmtimevaluebutton.cpp \
     qalarmdatevaluebutton.cpp \
     qalarmdaysvaluebutton.cpp \
-    qalarmdialog.cpp
+    qalarmdialog.cpp \
+    qpushlabel.cpp \
+    qalarmpushbutton.cpp \
+    qalarmlabel.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
-    ListDelegate.h \
     newalarm.h \
     osso-intl.h \
     valuebutton.h \
-    maintdelegate.h \
     world.h \
     dialog3.h \
     alsettings.h \
@@ -51,7 +51,10 @@ HEADERS  += mainwindow.h \
     qalarmtimevaluebutton.h \
     qalarmdatevaluebutton.h \
     qalarmdaysvaluebutton.h \
-    qalarmdialog.h
+    qalarmdialog.h \
+    qpushlabel.h \
+    qalarmpushbutton.h \
+    qalarmlabel.h
 
 FORMS    += mainwindow.ui \
     newalarm.ui \

@@ -15,13 +15,13 @@ class QAlarmDialog : public QDialog
 
 public:
     explicit QAlarmDialog(QWidget *parent = 0);
-//    QString line1, line2;
 
 public Q_SLOTS:
     void addAlarms();
+
 Q_SIGNALS:
-    void nextAlarmDateChanged(const QString &);
-    void nextAlarmDayChanged(const QString &);
+    void nextAlarmChanged(const QStringList &);
+
 private:
     QLabel *label;
     QPushButton* button;

@@ -539,8 +539,7 @@ void QAlarmDialog::addAlarms()
 
 #endif
 
-    emit nextAlarmDateChanged(nextAlarmDate);
-    emit nextAlarmDayChanged(nextAlarmDay);
+    emit nextAlarmChanged(QStringList () << nextAlarmDate << nextAlarmDay);
 }
 
 void QAlarmDialog::on_newAlarm_clicked()

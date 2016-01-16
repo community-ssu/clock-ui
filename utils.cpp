@@ -1,5 +1,4 @@
 #include "utils.h"
-#include "osso-intl.h"
 #include <libalarm.h>
 #include "gconfitem.h"
 
@@ -8,12 +7,6 @@
 #include <QProcess>
 
 #include <glib.h>
-
-static inline size_t _strftime(char *s, size_t max, const char* format,
-                                     const struct tm * t)
-{
-    return strftime(s, max, dgettext("hildon-libs", format), t);
-}
 
 QString formatDateTime(const time_t tick, DateTime what)
 {
@@ -56,6 +49,9 @@ QString formatDateTime(const time_t tick, DateTime what)
 
             return rv;
         }
+        case FullDateLong:
+            len = _strftime(buf, sizeof(buf), "wdgt_va_date_long", t);
+            break;
     }
 
     return QString::fromUtf8(buf, len);
