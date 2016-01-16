@@ -43,7 +43,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QAlarmSoundValueButton" name="soundButton" native="true">
+       <widget class="QAlarmSoundValueButton" name="soundButton" >
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -53,15 +53,12 @@
        </widget>
       </item>
       <item>
-       <widget class="ValueButton" name="snooze_pushButton" native="true">
+       <widget class="QAlarmSnoozeValueButton" name="snooze_pushButton">
         <property name="minimumSize">
          <size>
           <width>0</width>
           <height>70</height>
          </size>
-        </property>
-        <property name="text" stdset="0">
-         <string/>
         </property>
        </widget>
       </item>

@@ -3,7 +3,6 @@
 #include "osso-intl.h"
 #include "gconfitem.h"
 #include "libalarm.h"
-#include "mdialog.h"
 #include "tdialog.h"
 
 QString musicFile;
@@ -17,28 +16,18 @@ AlSettings::AlSettings(QWidget *parent) :
 
     this->setWindowTitle(_("cloc_alarm_settings_title"));
 
-    ui->soundButton->setStatusTip(_("dati_fi_alarm_tone"));
-    ui->snooze_pushButton->setStatusTip(_("dati_fi_snooze_time"));
-
     GConfItem *item = new GConfItem("/apps/clock/alarm-tone");
 
     ui->soundButton->setSoundFile(item->value().toString());
 
-    if (ui->soundButton->isStandardSound())
+    if (!ui->soundButton->isStandardSound())
         musicFile = item->value().toString();
 
     // get default snooze value
     int val = alarmd_get_default_snooze();
 
-    ui->snooze_pushButton->setWhatsThis(QString::number(val));
-    val = val/60;
-
-    QString tmp = _("cloc_va_diff_hours_mins");
-    tmp.replace("%s %d", QString::number(val));
-    ui->snooze_pushButton->setValueText(tmp);
-
-    ui->soundButton->setWhatsThis("alarm");
-    ui->snooze_pushButton->setWhatsThis("alarm");
+    val = val / 60;
+    ui->snooze_pushButton->setSnooze(val);
 
     intl("osso-connectivity-ui");
     ui->buttonBox->button(QDialogButtonBox::Save)->setText(_("conn_bd_receive_ok"));
@@ -48,7 +37,6 @@ AlSettings::AlSettings(QWidget *parent) :
 
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
     this->orientationChanged();
-
 }
 
 AlSettings::~AlSettings()
@@ -73,22 +61,6 @@ void AlSettings::orientationChanged()
     }
 }
 
-void AlSettings::on_snooze_pushButton_pressed()
-{
-    MDialog *hw = new MDialog(this);
-    hw->exec();
-    if ( hw->selected > -1 )
-    {
-	// convert snooze seconds to minutes
-	int val = hw->selected/60;
-        QString tmp = _("cloc_va_diff_hours_mins");
-        tmp.replace("%s %d", QString::number(val));
-        ui->snooze_pushButton->setValueText(tmp);
-    }
-    delete hw;
-
-}
-
 void AlSettings::on_soundButton_pressed()
 {
     TDialog *hw = new TDialog(this);
@@ -103,10 +75,7 @@ void AlSettings::on_soundButton_pressed()
 
 void AlSettings::on_buttonBox_clicked(QAbstractButton*)
 {
-    int val = ui->snooze_pushButton->valueText().remove(QRegExp(" \\D+")).toInt();
-
-    val = val*60;
-    alarmd_set_default_snooze(val);
+    alarmd_set_default_snooze(ui->snooze_pushButton->getSnooze() * 60);
 
     QString text;
     if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone1") )

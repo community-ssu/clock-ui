@@ -12,11 +12,9 @@ TEMPLATE = app
 SOURCES += main.cpp\
     mainwindow.cpp \
     filedelegate.cpp \
-    valuebutton.cpp \
     world.cpp \
     dialog3.cpp \
     alsettings.cpp \
-    mdialog.cpp \
     tdialog.cpp \
     alarmsndpick.cpp \
     home.cpp \
@@ -31,16 +29,15 @@ SOURCES += main.cpp\
     qalarmpushbutton.cpp \
     qalarmlabel.cpp \
     qnewalarmdialog.cpp \
-    qalarmsoundvaluebutton.cpp
+    qalarmsoundvaluebutton.cpp \
+    qalarmsnoozevaluebutton.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
     osso-intl.h \
-    valuebutton.h \
     world.h \
     dialog3.h \
     alsettings.h \
-    mdialog.h \
     tdialog.h \
     alarmsndpick.h \
     home.h \
@@ -56,7 +53,8 @@ HEADERS  += mainwindow.h \
     qalarmpushbutton.h \
     qalarmlabel.h \
     qnewalarmdialog.h \
-    qalarmsoundvaluebutton.h
+    qalarmsoundvaluebutton.h \
+    qalarmsnoozevaluebutton.h
 
 FORMS    += mainwindow.ui \
     world.ui \

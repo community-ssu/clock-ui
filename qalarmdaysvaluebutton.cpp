@@ -162,6 +162,7 @@ void QMaemo5DaysPickSelector::viewClicked(const QModelIndex &index)
 QWidget *QMaemo5DaysPickSelector::widget(QWidget *parent)
 {
     QWidget *dialog = new DaysPickerDialog(this, parent);
+
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     if (QAbstractButton *pb = qobject_cast<QAbstractButton *>(parent))
             dialog->setWindowTitle(pb->text());
@@ -175,7 +176,6 @@ QAlarmDaysValueButton::QAlarmDaysValueButton(QWidget *parent) :
 {
     setText(_("cloc_fi_repeat"));
     setPickSelector(selector);
-
     connect(selector, SIGNAL(selected(QString)),
             this, SLOT(daysSelected(QString)));
 }
@@ -195,7 +195,6 @@ DaysPickerDialog::~DaysPickerDialog()
 void DaysPickerDialog::paintEvent(QPaintEvent *e)
 {
     QDialog::paintEvent(e);
-
     int sh = p->view->sizeHintForRow(0);
 
     if (sh > 0)

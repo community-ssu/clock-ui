@@ -8,7 +8,8 @@ QAlarmSoundValueButton::QAlarmSoundValueButton(QWidget *parent) :
     QAlarmValueButton(parent),
     standart(false)
 {
-    setText(_("cloc_ti_alarm_notification_title"));
+    /* setText(_("cloc_ti_alarm_notification_title")); */
+    setText(_("dati_fi_alarm_tone"));
 }
 
 void QAlarmSoundValueButton::setSoundFile(const QString &file)
@@ -31,9 +32,3 @@ QString QAlarmSoundValueButton::getSoundFile() const
 {
     return valueText();
 }
-
-void QAlarmSoundValueButton::setValueText(const QString &text)
-{
-    QAlarmValueButton::setValueText(text);
-}
-

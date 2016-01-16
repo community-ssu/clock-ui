@@ -17,7 +17,6 @@ public Q_SLOTS:
     void setSoundFile(const QString &file);
     QString getSoundFile() const;
 protected:
-    void setValueText(const QString &text);
     bool standart;
 };
 
