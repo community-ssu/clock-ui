@@ -1,3 +1,10 @@
+clock-ui (0.7-0+0cssu3) unstable; urgency=low
+
+  * fix alarm tone unable to be set.
+  * highlight the selected alarm in alarms dialog
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 20:59:53 +0200
+
 clock-ui (0.7-0+0cssu2) unstable; urgency=low
 
   * fix wdgt_va_24h_time displayed instead of remaning time
