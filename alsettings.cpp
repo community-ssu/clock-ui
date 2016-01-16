@@ -1,3 +1,5 @@
+#include <QDesktopWidget>
+
 #include "alsettings.h"
 #include "ui_alsettings.h"
 #include "osso-intl.h"

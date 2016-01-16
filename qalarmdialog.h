@@ -35,7 +35,7 @@ private:
     QStandardItem *alarmDaysItem(const alarm_event_t *ae);
 
 private Q_SLOTS:
-    void on_newAlarm_clicked();
+    void buttonClicked();
     void viewClicked(const QModelIndex & modelIndex);
 };
 

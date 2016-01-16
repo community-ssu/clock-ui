@@ -1,8 +1,10 @@
+#include <QDesktopWidget>
+#include <QFileInfo>
+
 #include "tdialog.h"
 #include "ui_tdialog.h"
 #include "osso-intl.h"
 #include <QDialogButtonBox>
-#include "valuebutton.h"
 #include "gconfitem.h"
 #include "home.h"
 

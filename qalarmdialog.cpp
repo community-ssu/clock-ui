@@ -72,6 +72,8 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
                                          this, SLOT(addAlarms()));
     connect(view, SIGNAL(clicked(const QModelIndex &)),
             this, SLOT(viewClicked(const QModelIndex &)));
+
+    connect(button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 }
 
 QStandardItem *QAlarmDialog::alarmCheckboxItem(cookie_t cookie,
@@ -542,9 +544,10 @@ void QAlarmDialog::addAlarms()
     emit nextAlarmChanged(QStringList () << nextAlarmDate << nextAlarmDay);
 }
 
-void QAlarmDialog::on_newAlarm_clicked()
+void QAlarmDialog::buttonClicked()
 {
     QNewAlarmDialog(this,false,"",QTime(),0,true,0).exec();
+
     addAlarms();
 }
 

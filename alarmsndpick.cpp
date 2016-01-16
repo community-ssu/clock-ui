@@ -1,8 +1,10 @@
+#include <QDesktopWidget>
+#include <QFileInfo>
+
 #include "alarmsndpick.h"
 #include "ui_alarmsndpick.h"
 #include "osso-intl.h"
 #include <QDialogButtonBox>
-#include "valuebutton.h"
 #include "gconfitem.h"
 #include "home.h"
 
