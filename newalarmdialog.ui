@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NewAlarm</class>
- <widget class="QDialog" name="NewAlarm">
+ <class>QNewAlarmDialog</class>
+ <widget class="QDialog" name="QNewAlarmDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

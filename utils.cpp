@@ -92,6 +92,7 @@ static QString formatAlarmTimeBanner(time_t tick)
     char buf[256];
     gchar *d, *h, *s;
     QString rv;
+    const char *cloc_notify_alarm_set = "cloc_notify_alarm_set";
 
     intl("osso-clock");
     memset(&t, 0, sizeof(t));
@@ -130,8 +131,8 @@ static QString formatAlarmTimeBanner(time_t tick)
         }
     }
 
-    _strftime(buf, sizeof(buf), "wdgt_va_24h_time", &t);
-    s = g_strdup_printf(dgettext(NULL, "cloc_notify_alarm_set"), buf);
+    strftime(buf, sizeof(buf), "wdgt_va_24h_time", &t);
+    s = g_strdup_printf(dgettext(NULL, cloc_notify_alarm_set), buf);
     rv = QString::fromUtf8(s);
     g_free(s);
 

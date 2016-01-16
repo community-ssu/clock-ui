@@ -12,7 +12,6 @@ TEMPLATE = app
 SOURCES += main.cpp\
     mainwindow.cpp \
     filedelegate.cpp \
-    newalarm.cpp \
     valuebutton.cpp \
     world.cpp \
     dialog3.cpp \
@@ -30,11 +29,11 @@ SOURCES += main.cpp\
     qalarmdialog.cpp \
     qpushlabel.cpp \
     qalarmpushbutton.cpp \
-    qalarmlabel.cpp
+    qalarmlabel.cpp \
+    qnewalarmdialog.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
-    newalarm.h \
     osso-intl.h \
     valuebutton.h \
     world.h \
@@ -54,10 +53,10 @@ HEADERS  += mainwindow.h \
     qalarmdialog.h \
     qpushlabel.h \
     qalarmpushbutton.h \
-    qalarmlabel.h
+    qalarmlabel.h \
+    qnewalarmdialog.h
 
 FORMS    += mainwindow.ui \
-    newalarm.ui \
     world.ui \
     dialog3.ui \
     alsettings.ui \
@@ -65,7 +64,8 @@ FORMS    += mainwindow.ui \
     alarmsndpick.ui \
     tdialog.ui \
     home.ui \
-    citydetail.ui
+    citydetail.ui \
+    newalarmdialog.ui
 
 CONFIG += mobility
 MOBILITY = 

@@ -1,5 +1,5 @@
 #include "qalarmdialog.h"
-#include "newalarm.h"
+#include "qnewalarmdialog.h"
 #include "osso-intl.h"
 
 #include <QMaemo5Style>
@@ -544,7 +544,7 @@ void QAlarmDialog::addAlarms()
 
 void QAlarmDialog::on_newAlarm_clicked()
 {
-    NewAlarm(this,false,"",QTime(),0,true,0).exec();
+    QNewAlarmDialog(this,false,"",QTime(),0,true,0).exec();
     addAlarms();
 }
 
@@ -573,7 +573,7 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
         alarm_event_delete(ae);
     }
     else
-        NewAlarm(this, true, text, dt.time(), wday, disabled, cookie).exec();
+        QNewAlarmDialog(this, true, text, dt.time(), wday, disabled, cookie).exec();
 
     addAlarms();
 }

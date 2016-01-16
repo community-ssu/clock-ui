@@ -1,24 +1,24 @@
-#ifndef NEWALARM_H
-#define NEWALARM_H
+#ifndef QNEWALARMDIALOG_H
+#define QNEWALARMDIALOG_H
 
 #include <QDialog>
 #include <QDateTime>
 #include <QAbstractButton>
 
 namespace Ui {
-    class NewAlarm;
+    class QNewAlarmDialog;
 }
 
-class NewAlarm : public QDialog
+class QNewAlarmDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit NewAlarm(QWidget *parent = 0, bool edit = false,
+    explicit QNewAlarmDialog(QWidget *parent = 0, bool edit = false,
                       QString Aname = "", const QTime &time = QTime(),
                       uint32_t wday = 0,
                       bool Acheck = false, long Acook = 0, bool show = true);
-    ~NewAlarm();
+    ~QNewAlarmDialog();
     bool isEditing;
     long realcookie;
     bool enabled;
@@ -29,7 +29,7 @@ public:
     bool showed;
 
 private:
-    Ui::NewAlarm *ui;
+    Ui::QNewAlarmDialog *ui;
 
 public slots:
     void removeAlarm(long cookie);
@@ -45,4 +45,4 @@ private slots:
     void on_alsound_pushButton_pressed();
 };
 
-#endif // NEWALARM_H
+#endif // QNEWALARMDIALOG_H

@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "osso-intl.h"
-#include "newalarm.h"
+#include "qnewalarmdialog.h"
 #include "world.h"
 #include "alsettings.h"
 #include "gconfitem.h"
@@ -196,7 +196,7 @@ void MainWindow::worldclocksButtonClicked()
 
 void MainWindow::newAlarmButtonClicked()
 {
-    NewAlarm *al = new NewAlarm(this, false,"",QTime(), 0,true,0);
+    QNewAlarmDialog *al = new QNewAlarmDialog(this, false,"",QTime(), 0,true,0);
     al->exec();
     delete al;
     alarmDialog->addAlarms();

@@ -1,4 +1,4 @@
-#include "newalarm.h"
+#include "qnewalarmdialog.h"
 #include "ui_newalarm.h"
 #include "osso-intl.h"
 #include "libalarm.h"
@@ -16,11 +16,11 @@ QString sndFile;
 bool dateChoosen = false;
 bool fromEdit = false;
 
-NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
+QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
                    const QTime &time, uint32_t wday, bool Acheck, long Acook, bool show):
 
     QDialog(parent),
-    ui(new Ui::NewAlarm)
+    ui(new Ui::QNewAlarmDialog)
 {
     this->setAttribute(Qt::WA_Maemo5AutoOrientation, true);
     ui->setupUi(this);
@@ -148,12 +148,12 @@ NewAlarm::NewAlarm(QWidget *parent, bool edit, QString Aname,
     orientationChanged();
 }
 
-NewAlarm::~NewAlarm()
+QNewAlarmDialog::~QNewAlarmDialog()
 {
     delete ui;
 }
 
-void NewAlarm::orientationChanged()
+void QNewAlarmDialog::orientationChanged()
 {
     int space = 0;
     if ( isEditing )
@@ -185,7 +185,7 @@ void NewAlarm::orientationChanged()
 
 }
 
-void NewAlarm::on_alarmTimeButton_selected(const QTime &time)
+void QNewAlarmDialog::on_alarmTimeButton_selected(const QTime &time)
 {
     // The long date string
     if (!dateChoosen && wday)
@@ -223,7 +223,7 @@ void NewAlarm::on_alarmTimeButton_selected(const QTime &time)
     }
 }
 
-void NewAlarm::on_date_pushButton_selected(const QDate &date)
+void QNewAlarmDialog::on_date_pushButton_selected(const QDate &date)
 {
     dateChoosen = true;
     ui->checkBox->setEnabled(true);
@@ -248,7 +248,7 @@ void NewAlarm::on_date_pushButton_selected(const QDate &date)
     }
 }
 
-void NewAlarm::on_repeat_pushButton_selected(uint32_t days)
+void QNewAlarmDialog::on_repeat_pushButton_selected(uint32_t days)
 {
     wday = days;
 
@@ -279,7 +279,7 @@ void NewAlarm::on_repeat_pushButton_selected(uint32_t days)
     ui->checkBox->setChecked(true);
 }
 
-void NewAlarm::on_alsound_pushButton_pressed()
+void QNewAlarmDialog::on_alsound_pushButton_pressed()
 {
     AlarmSndPick *hw = new AlarmSndPick(this);
     hw->exec();
@@ -301,7 +301,7 @@ void NewAlarm::on_alsound_pushButton_pressed()
     delete hw;
 }
 
-void NewAlarm::on_buttonBox_clicked(QAbstractButton* button)
+void QNewAlarmDialog::on_buttonBox_clicked(QAbstractButton* button)
 {
     intl("osso-connectivity-ui");
 
@@ -326,17 +326,17 @@ void NewAlarm::on_buttonBox_clicked(QAbstractButton* button)
 
 }
 
-void NewAlarm::on_buttonBox_2_clicked(QAbstractButton* button)
+void QNewAlarmDialog::on_buttonBox_2_clicked(QAbstractButton* button)
 {
     on_buttonBox_clicked(button);
 }
 
-void NewAlarm::removeAlarm(long cookie)
+void QNewAlarmDialog::removeAlarm(long cookie)
 {
     alarmd_event_del(cookie);
 }
 
-void NewAlarm::addAlarm()
+void QNewAlarmDialog::addAlarm()
 {
 
     intl("osso-clock");
