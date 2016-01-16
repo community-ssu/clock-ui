@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu1) unstable; urgency=low
+
+  * Major code refactoring and optimization
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 19:27:03 +0200
+
 clock-ui (0.6-1+0cssu7) unstable; urgency=low
 
   * add maemo-launcher support
