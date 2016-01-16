@@ -9,6 +9,28 @@
 
 #include <libalarm.h>
 
+class QAlarmTreeView : public QTreeView
+{
+    Q_OBJECT
+public:
+    explicit QAlarmTreeView(QWidget *parent = 0) :
+        QTreeView(parent),
+        valid(false)
+    {
+    }
+    bool itemValid()
+    {
+        return valid;
+    }
+
+protected:
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    QPoint pressPos;
+    bool valid;
+};
+
 class QAlarmDialog : public QDialog
 {
     Q_OBJECT
@@ -25,7 +47,7 @@ Q_SIGNALS:
 private:
     QLabel *label;
     QPushButton* button;
-    QTreeView* view;
+    QAlarmTreeView* view;
     QStandardItemModel *model;
 
     time_t addAlarm(cookie_t cookie);
