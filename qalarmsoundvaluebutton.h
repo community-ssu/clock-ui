@@ -10,14 +10,15 @@ public:
     explicit QAlarmSoundValueButton(QWidget *parent = 0);
     bool isStandardSound()
     {
-        return standart;
+        return standard;
     }
 
 public Q_SLOTS:
     void setSoundFile(const QString &file);
     QString getSoundFile() const;
 protected:
-    bool standart;
+    bool standard;
+    QString soundFile;
 };
 
 #endif // QALARMSOUNDVALUEBUTTON_H

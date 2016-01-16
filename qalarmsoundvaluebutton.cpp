@@ -6,7 +6,7 @@
 
 QAlarmSoundValueButton::QAlarmSoundValueButton(QWidget *parent) :
     QAlarmValueButton(parent),
-    standart(false)
+    standard(false)
 {
     /* setText(_("cloc_ti_alarm_notification_title")); */
     setText(_("dati_fi_alarm_tone"));
@@ -14,7 +14,9 @@ QAlarmSoundValueButton::QAlarmSoundValueButton(QWidget *parent) :
 
 void QAlarmSoundValueButton::setSoundFile(const QString &file)
 {
-    standart = true;
+    standard = true;
+    soundFile = file;
+
     if (file == "/usr/share/sounds/ui-clock_alarm_default.aac")
         setValueText(_("cloc_fi_set_alarm_tone1"));
     else if (file == "/usr/share/sounds/ui-clock_alarm_2.aac")
@@ -24,11 +26,11 @@ void QAlarmSoundValueButton::setSoundFile(const QString &file)
     else
     {
         setValueText(QFileInfo(file).baseName());
-        standart = false;
+        standard = false;
     }
 }
 
 QString QAlarmSoundValueButton::getSoundFile() const
 {
-    return valueText();
+    return soundFile;
 }

@@ -36,9 +36,8 @@ AlSettings::AlSettings(QWidget *parent) :
     ui->buttonBox_2->button(QDialogButtonBox::Save)->setText(_("conn_bd_receive_ok"));
     intl("osso-clock");
 
-
     connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(orientationChanged()));
-    this->orientationChanged();
+    orientationChanged();
 }
 
 AlSettings::~AlSettings()
@@ -79,29 +78,20 @@ void AlSettings::on_buttonBox_clicked(QAbstractButton*)
 {
     alarmd_set_default_snooze(ui->snooze_pushButton->getSnooze() * 60);
 
-    QString text;
-    if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone1") )
-        text = "/usr/share/sounds/ui-clock_alarm_default.aac";
-    else if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone2") )
-        text = "/usr/share/sounds/ui-clock_alarm_2.aac";
-    else if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone3") )
-        text = "/usr/share/sounds/ui-clock_alarm_3.aac";
-    else
-    {
-        text = ui->soundButton->getSoundFile();
-        // GConfItem changes the gconf value, but doesn't update!
-        //GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
-        //item->set(text);
-        setConf("/apps/clock/alarm-custom",text,"string");
+    QString file = ui->soundButton->getSoundFile();
 
-    }
+    // GConfItem changes the gconf value, but doesn't update!
+    //GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
+    //item->set(text);
+    if (!ui->soundButton->isStandardSound())
+        setConf("/apps/clock/alarm-custom", file, "string");
 
     // GConfItem changes the gconf value, but doesn't update!
     //GConfItem *item2 = new GConfItem("/apps/clock/alarm-tone");
     //item2->set(text);
-    setConf("/apps/clock/alarm-tone",text,"string");
+    setConf("/apps/clock/alarm-tone", file, "string");
 
-    this->accept();
+    accept();
 }
 
 void AlSettings::on_buttonBox_2_clicked(QAbstractButton* item)

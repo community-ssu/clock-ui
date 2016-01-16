@@ -35,7 +35,7 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
     view->setModel(model);
     view->setColumnWidth(0, 64);
     view->setColumnWidth(1, 96);
-    view->setSelectionMode(QAbstractItemView::NoSelection);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setIconSize(QSize(48, 48));
     view->setIndentation(0);
@@ -555,12 +555,11 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
 {
     int row = modelIndex.row();
     bool disabled = model->item(row, 0)->data(AlarmEnabledRole).toBool();
-    QDateTime dt =
-            QDateTime::fromTime_t(model->item(row, 1)->data(AlarmDateTimeRole).toInt());
+    uint seconds = model->item(row, 1)->data(AlarmDateTimeRole).toInt();
+    QDateTime dt = QDateTime::fromTime_t(seconds);
     uint32_t wday = model->item(row, 3)->data(AlarmWdayRole).toUInt();
     QString text = model->item(row, 2)->text();
-    cookie_t cookie =
-            model->item(row, 0)->data(AlarmCookieRole).toLongLong();
+    cookie_t cookie = model->item(row, 0)->data(AlarmCookieRole).toLongLong();
 
     if (modelIndex.column() == 0)
     {
