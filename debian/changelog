@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu1+thumb0) unstable; urgency=low
+
+  * Thumb2 compile
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 19:33:12 +0200
+
 clock-ui (0.7-0+0cssu1) unstable; urgency=low
 
   * Major code refactoring and optimization
