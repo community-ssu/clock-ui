@@ -96,13 +96,7 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ValueButton</class>
-   <extends>QWidget</extends>
-   <header>valuebutton.h</header>
-  </customwidget>
- </customwidgets>
+ <customwidgets/>
  <resources/>
  <connections/>
 </ui>
