@@ -36,13 +36,13 @@ public slots:
     void addAlarm();
 
 private slots:
-    void on_buttonBox_2_clicked(QAbstractButton* button);
+    void on_portraitButtonBox_clicked(QAbstractButton* button);
     void orientationChanged();
-    void on_buttonBox_clicked(QAbstractButton* button);
-    void on_alarmTimeButton_selected(const QTime &time);
-    void on_date_pushButton_selected(const QDate &date);
-    void on_repeat_pushButton_selected(uint32_t days);
-    void on_alsound_pushButton_pressed();
+    void on_landscapeButtonBox_clicked(QAbstractButton* button);
+    void on_timeButton_selected(const QTime &time);
+    void on_dateButton_selected(const QDate &date);
+    void on_daysButton_selected(uint32_t days);
+    void on_soundButton_pressed();
 };
 
 #endif // QNEWALARMDIALOG_H

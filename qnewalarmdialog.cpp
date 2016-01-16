@@ -1,9 +1,13 @@
-#include "qnewalarmdialog.h"
-#include "ui_newalarm.h"
-#include "osso-intl.h"
-#include "libalarm.h"
-#include "gconfitem.h"
 #include <QDateTime>
+#include <QFileInfo>
+#include <QDesktopWidget>
+
+#include <osso-intl.h>
+#include <libalarm.h>
+#include <gconfitem.h>
+
+#include "qnewalarmdialog.h"
+#include "ui_newalarmdialog.h"
 #include "alarmsndpick.h"
 #include "utils.h"
 
@@ -29,16 +33,8 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
     GConfItem *item = new GConfItem("/apps/clock/alarm-tone");
 
     sndFile = item->value().toString();
-    ui->alsound_pushButton->setEnabled(false);  // <- remove once custom sounds work!
-
-    if (sndFile == "/usr/share/sounds/ui-clock_alarm_default.aac")
-        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-    else if (sndFile == "/usr/share/sounds/ui-clock_alarm_2.aac")
-        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-    else if (sndFile == "/usr/share/sounds/ui-clock_alarm_3.aac")
-        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
-    else
-        ui->alsound_pushButton->setValueText(QFileInfo(sndFile).baseName());
+    ui->soundButton->setEnabled(false);  // <- remove once custom sounds work!
+    ui->soundButton->setSoundFile(sndFile);
 
     isEditing = edit;
     deleted = 1;
@@ -50,7 +46,7 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
     enabled = Acheck;
     showed = show;
 
-    if ( edit )
+    if (edit)
     {
         this->setWindowTitle(_("cloc_ti_edit_alarm_title"));
         // we need to find it's current alarm tone
@@ -62,19 +58,14 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
 
         if (!aSnd.isEmpty()) // a tone is set
         {
-            if ( aSnd == "/usr/share/sounds/ui-clock_alarm_default.aac" )
-                ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-            else if ( aSnd == "/usr/share/sounds/ui-clock_alarm_2.aac" )
-                ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-            else if ( aSnd == "/usr/share/sounds/ui-clock_alarm_3.aac" )
-                ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
-            else
-            {
-                sndFile = aSnd;
-                ui->alsound_pushButton->setValueText( QFileInfo(aSnd.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
-                aSnd = sndFile;
-            }
+            sndFile = aSnd;
+
+            /* why do we need that ? */
+            aSnd.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$"));
+            aSnd = sndFile;
+            ui->soundButton->setSoundFile(sndFile);
         }
+
         // cleanup memory
         alarm_event_delete(eve);
         sndFile = aSnd;
@@ -82,29 +73,25 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
     else
         this->setWindowTitle(_("clock_ti_new_alarm"));
 
-    ui->lineEdit->setPlaceholderText(_("cloc_va_placeholder_title"));
-    ui->date_pushButton->setStatusTip(_("dati_fi_pr_date"));
-    ui->repeat_pushButton->setStatusTip(_("cloc_fi_repeat"));
-    ui->repeat_pushButton->setDays(wday);
-    ui->alsound_pushButton->setStatusTip(_("cloc_ti_alarm_notification_title"));
-    ui->repeat_pushButton->setWhatsThis("date");
+    ui->titleEdit->setPlaceholderText(_("cloc_va_placeholder_title"));
+    ui->daysButton->setDays(wday);
     ui->checkBox->setText(_("cloc_fi_active"));
 
     intl("osso-connectivity-ui");
-    ui->buttonBox->button(QDialogButtonBox::Retry)->setText(_("conn_bd_devices_delete"));
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setText(_("conn_bd_receive_ok"));
-    ui->buttonBox_2->button(QDialogButtonBox::Retry)->setText(_("conn_bd_devices_delete"));
-    ui->buttonBox_2->button(QDialogButtonBox::Apply)->setText(_("conn_bd_receive_ok"));
+    ui->landscapeButtonBox->button(QDialogButtonBox::Retry)->setText(_("conn_bd_devices_delete"));
+    ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setText(_("conn_bd_receive_ok"));
+    ui->portraitButtonBox->button(QDialogButtonBox::Retry)->setText(_("conn_bd_devices_delete"));
+    ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setText(_("conn_bd_receive_ok"));
     intl("osso-clock");
-    ui->buttonBox->button(QDialogButtonBox::Retry)->setVisible(edit);
-    ui->buttonBox_2->button(QDialogButtonBox::Retry)->setVisible(edit);
+    ui->landscapeButtonBox->button(QDialogButtonBox::Retry)->setVisible(edit);
+    ui->portraitButtonBox->button(QDialogButtonBox::Retry)->setVisible(edit);
 
     // set alarmname
     if (!name.isEmpty())
-        ui->lineEdit->setText(name);
+        ui->titleEdit->setText(name);
 
     // set time
-    ui->alarmTimeButton->setCurrentTime(time);
+    ui->timeButton->setCurrentTime(time);
 
     time_t nextDate;
     if (realcookie && !wday)
@@ -125,8 +112,8 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
         {
             /* we can't enable an alarm that is in the past */
             ui->checkBox->setEnabled(false);
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
+            ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+            ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         }
 
         alarm_event_delete(ae);
@@ -134,11 +121,11 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
     else
         nextDate = QDateTime::currentDateTime().addDays(1).toTime_t();
 
-    ui->date_pushButton->setCurrentDate(nextDate);
-    ui->repeat_pushButton->setDays(wday);
+    ui->dateButton->setCurrentDate(nextDate);
+    ui->daysButton->setDays(wday);
 
     if (wday)
-        ui->date_pushButton->hide();
+        ui->dateButton->hide();
 
     if ( !isEditing )
         ui->checkBox->hide();
@@ -161,7 +148,7 @@ void QNewAlarmDialog::orientationChanged()
 
     int startspace_portrait = 460;
     int startspace_landscape = 380;
-    if ( ui->date_pushButton->isHidden() )
+    if ( ui->dateButton->isHidden() )
     {
         startspace_portrait = 385;
         startspace_landscape = 305;
@@ -169,14 +156,14 @@ void QNewAlarmDialog::orientationChanged()
 
     if (QApplication::desktop()->screenGeometry().width() < QApplication::desktop()->screenGeometry().height()) {
 	// portrait
-        ui->buttonBox->hide();
-        ui->buttonBox_2->show();
+        ui->landscapeButtonBox->hide();
+        ui->portraitButtonBox->show();
        	this->setMinimumHeight(startspace_portrait+space+space);
 	this->setMaximumHeight(startspace_portrait+space+space);
     } else {
 	// landscape
-        ui->buttonBox_2->hide();
-        ui->buttonBox->show();
+        ui->portraitButtonBox->hide();
+        ui->landscapeButtonBox->show();
         this->setMinimumHeight(startspace_landscape+space);
         this->setMaximumHeight(startspace_landscape+space);
     }
@@ -185,7 +172,7 @@ void QNewAlarmDialog::orientationChanged()
 
 }
 
-void QNewAlarmDialog::on_alarmTimeButton_selected(const QTime &time)
+void QNewAlarmDialog::on_timeButton_selected(const QTime &time)
 {
     // The long date string
     if (!dateChoosen && wday)
@@ -198,32 +185,32 @@ void QNewAlarmDialog::on_alarmTimeButton_selected(const QTime &time)
         else
             date = QDateTime::currentDateTime().addDays(1).toTime_t();
 
-        ui->date_pushButton->setCurrentDate(date);
+        ui->dateButton->setCurrentDate(date);
     }
     else
     {
         QDateTime pickedDate;
 
-        pickedDate.setDate(ui->date_pushButton->currentDate());
+        pickedDate.setDate(ui->dateButton->currentDate());
         pickedDate.setTime(time);
 
         if (pickedDate < QDateTime::currentDateTime())
         {
             // in the past
             ui->checkBox->setEnabled(false);
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
+            ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+            ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         }
         else
         {
             ui->checkBox->setEnabled(true);
-            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-            ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
+            ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+            ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
         }
     }
 }
 
-void QNewAlarmDialog::on_date_pushButton_selected(const QDate &date)
+void QNewAlarmDialog::on_dateButton_selected(const QDate &date)
 {
     dateChoosen = true;
     ui->checkBox->setEnabled(true);
@@ -231,24 +218,24 @@ void QNewAlarmDialog::on_date_pushButton_selected(const QDate &date)
     ui->checkBox->setChecked(enabled);
 
     QDateTime pickedDateTime;
-    pickedDateTime.setTime(ui->alarmTimeButton->currentTime());
+    pickedDateTime.setTime(ui->timeButton->currentTime());
     pickedDateTime.setDate(date);
     if (pickedDateTime < QDateTime::currentDateTime())
     {
         // in the past
         ui->checkBox->setEnabled(false);
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(false);
+        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
     }
     else
     {
         ui->checkBox->setEnabled(true);
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
+        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
     }
 }
 
-void QNewAlarmDialog::on_repeat_pushButton_selected(uint32_t days)
+void QNewAlarmDialog::on_daysButton_selected(uint32_t days)
 {
     wday = days;
 
@@ -256,22 +243,22 @@ void QNewAlarmDialog::on_repeat_pushButton_selected(uint32_t days)
     {
         // a repeating alarm; "active checkbox" and "done" can always be enabled
         ui->checkBox->setEnabled(true);
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        ui->buttonBox_2->button(QDialogButtonBox::Apply)->setEnabled(true);
-        if ( !ui->date_pushButton->isHidden() )
+        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        if ( !ui->dateButton->isHidden() )
         {
-            ui->date_pushButton->hide();
+            ui->dateButton->hide();
             this->setMinimumHeight(this->height() - 75);
             this->setMaximumHeight(this->height() - 75);
         }
     }
     else
     {
-        if ( ui->date_pushButton->isHidden() )
+        if ( ui->dateButton->isHidden() )
         {
             this->setMinimumHeight(this->height() + 75);
             this->setMaximumHeight(this->height() + 75);
-            ui->date_pushButton->show();
+            ui->dateButton->show();
         }
     }
 
@@ -279,29 +266,22 @@ void QNewAlarmDialog::on_repeat_pushButton_selected(uint32_t days)
     ui->checkBox->setChecked(true);
 }
 
-void QNewAlarmDialog::on_alsound_pushButton_pressed()
+void QNewAlarmDialog::on_soundButton_pressed()
 {
     AlarmSndPick *hw = new AlarmSndPick(this);
+
     hw->exec();
-    if ( hw->selected != "nothing" )
+
+    if (hw->selected != "nothing")
     {
            sndFile = hw->selected;
-           QString tmp = hw->selected;  // the full path/filename
-
-           if ( tmp == "/usr/share/sounds/ui-clock_alarm_default.aac" )
-   	        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-           else if ( tmp == "/usr/share/sounds/ui-clock_alarm_2.aac" )
-		ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-           else if ( tmp == "/usr/share/sounds/ui-clock_alarm_3.aac" )
-                ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
-           else
-	        ui->alsound_pushButton->setValueText( QFileInfo(sndFile.remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
-	   sndFile = tmp;
+           ui->soundButton->setSoundFile(sndFile);
     }
+
     delete hw;
 }
 
-void QNewAlarmDialog::on_buttonBox_clicked(QAbstractButton* button)
+void QNewAlarmDialog::on_landscapeButtonBox_clicked(QAbstractButton* button)
 {
     intl("osso-connectivity-ui");
 
@@ -326,9 +306,9 @@ void QNewAlarmDialog::on_buttonBox_clicked(QAbstractButton* button)
 
 }
 
-void QNewAlarmDialog::on_buttonBox_2_clicked(QAbstractButton* button)
+void QNewAlarmDialog::on_portraitButtonBox_clicked(QAbstractButton* button)
 {
-    on_buttonBox_clicked(button);
+    on_landscapeButtonBox_clicked(button);
 }
 
 void QNewAlarmDialog::removeAlarm(long cookie)
@@ -341,9 +321,9 @@ void QNewAlarmDialog::addAlarm()
 
     intl("osso-clock");
 
-    name = ui->lineEdit->text();
+    name = ui->titleEdit->text();
 
-    time = ui->alarmTimeButton->currentTime();
+    time = ui->timeButton->currentTime();
     enabled = ui->checkBox->isChecked();
 
     alarm_event_t * event = 0;
@@ -396,12 +376,12 @@ void QNewAlarmDialog::addAlarm()
     }
 
     QDateTime alarmDate;
-    alarmDate.setTime(ui->alarmTimeButton->currentTime());
+    alarmDate.setTime(ui->timeButton->currentTime());
 
-    if ( ! ui->date_pushButton->isHidden() && (dateChoosen || !wday) )
+    if ( ! ui->dateButton->isHidden() && (dateChoosen || !wday) )
     {
 
-        alarmDate.setDate(ui->date_pushButton->currentDate());
+        alarmDate.setDate(ui->dateButton->currentDate());
         event->alarm_time = alarmDate.toTime_t();
         event->alarm_tm.tm_hour = -1;
         event->alarm_tm.tm_min = -1;

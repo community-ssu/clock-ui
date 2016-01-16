@@ -36,27 +36,23 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="titleEdit">
         <property name="placeholderText">
          <string>Title</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QAlarmTimeValueButton" name="alarmTimeButton"/>
+       <widget class="QAlarmTimeValueButton" name="timeButton"/>
       </item>
       <item>
-       <widget class="QAlarmDateValueButton" name="date_pushButton"/>
+       <widget class="QAlarmDateValueButton" name="dateButton"/>
       </item>
       <item>
-       <widget class="QAlarmDaysValueButton" name="repeat_pushButton"/>
+       <widget class="QAlarmDaysValueButton" name="daysButton"/>
       </item>
       <item>
-       <widget class="ValueButton" name="alsound_pushButton" native="true">
-        <property name="text" stdset="0">
-         <string/>
-        </property>
-       </widget>
+       <widget class="QAlarmSoundValueButton" name="soundButton" native="true"/>
       </item>
       <item>
        <widget class="QCheckBox" name="checkBox">
@@ -69,7 +65,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="landscapeButtonBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -85,7 +81,7 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox_2">
+    <widget class="QDialogButtonBox" name="portraitButtonBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -104,11 +100,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ValueButton</class>
-   <extends>QWidget</extends>
-   <header>valuebutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>QAlarmTimeValueButton</class>
    <extends>QPushButton</extends>
    <header>qalarmtimevaluebutton.h</header>
@@ -123,7 +114,21 @@
    <extends>QPushButton</extends>
    <header>qalarmdaysvaluebutton.h</header>
   </customwidget>
+  <customwidget>
+   <class>QAlarmSoundValueButton</class>
+   <extends>QWidget</extends>
+   <header>qalarmsoundvaluebutton.h</header>
+  </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>landscapeButtonBox</tabstop>
+  <tabstop>portraitButtonBox</tabstop>
+  <tabstop>titleEdit</tabstop>
+  <tabstop>timeButton</tabstop>
+  <tabstop>dateButton</tabstop>
+  <tabstop>daysButton</tabstop>
+  <tabstop>checkBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

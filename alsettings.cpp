@@ -17,22 +17,15 @@ AlSettings::AlSettings(QWidget *parent) :
 
     this->setWindowTitle(_("cloc_alarm_settings_title"));
 
-    ui->alsound_pushButton->setStatusTip(_("dati_fi_alarm_tone"));
+    ui->soundButton->setStatusTip(_("dati_fi_alarm_tone"));
     ui->snooze_pushButton->setStatusTip(_("dati_fi_snooze_time"));
 
     GConfItem *item = new GConfItem("/apps/clock/alarm-tone");
 
-    if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_default.aac" )
-        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-    else if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_2.aac" )
-        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-    else if ( item->value().toString() == "/usr/share/sounds/ui-clock_alarm_3.aac" )
-        ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
-    else
-    {
-        ui->alsound_pushButton->setValueText( QFileInfo(item->value().toString().remove(QRegExp("\\.ogg$|\\.mp3$|\\.aac$" ))).fileName() );
+    ui->soundButton->setSoundFile(item->value().toString());
+
+    if (ui->soundButton->isStandardSound())
         musicFile = item->value().toString();
-    }
 
     // get default snooze value
     int val = alarmd_get_default_snooze();
@@ -44,7 +37,7 @@ AlSettings::AlSettings(QWidget *parent) :
     tmp.replace("%s %d", QString::number(val));
     ui->snooze_pushButton->setValueText(tmp);
 
-    ui->alsound_pushButton->setWhatsThis("alarm");
+    ui->soundButton->setWhatsThis("alarm");
     ui->snooze_pushButton->setWhatsThis("alarm");
 
     intl("osso-connectivity-ui");
@@ -96,24 +89,14 @@ void AlSettings::on_snooze_pushButton_pressed()
 
 }
 
-void AlSettings::on_alsound_pushButton_pressed()
+void AlSettings::on_soundButton_pressed()
 {
     TDialog *hw = new TDialog(this);
     hw->exec();
     if ( hw->selected != "nothing" )
     {
     	musicFile = hw->selected;
-        QString tmp = hw->selected;  // the full path/filename
-
-        if ( tmp == "/usr/share/sounds/ui-clock_alarm_default.aac" )
-            ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone1"));
-        else if ( tmp == "/usr/share/sounds/ui-clock_alarm_2.aac" )
-            ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone2"));
-        else if ( tmp == "/usr/share/sounds/ui-clock_alarm_3.aac" )
-            ui->alsound_pushButton->setValueText(_("cloc_fi_set_alarm_tone3"));
-        else
-            ui->alsound_pushButton->setValueText(tmp);
-
+        ui->soundButton->setSoundFile((musicFile));
     }
     delete hw;
 }
@@ -126,15 +109,15 @@ void AlSettings::on_buttonBox_clicked(QAbstractButton*)
     alarmd_set_default_snooze(val);
 
     QString text;
-    if ( ui->alsound_pushButton->valueText() == _("cloc_fi_set_alarm_tone1") )
+    if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone1") )
         text = "/usr/share/sounds/ui-clock_alarm_default.aac";
-    else if ( ui->alsound_pushButton->valueText() == _("cloc_fi_set_alarm_tone2") )
+    else if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone2") )
         text = "/usr/share/sounds/ui-clock_alarm_2.aac";
-    else if ( ui->alsound_pushButton->valueText() == _("cloc_fi_set_alarm_tone3") )
+    else if ( ui->soundButton->getSoundFile() == _("cloc_fi_set_alarm_tone3") )
         text = "/usr/share/sounds/ui-clock_alarm_3.aac";
     else
     {
-        text = ui->alsound_pushButton->valueText();
+        text = ui->soundButton->getSoundFile();
         // GConfItem changes the gconf value, but doesn't update!
         //GConfItem *item = new GConfItem("/apps/clock/alarm-custom");
         //item->set(text);

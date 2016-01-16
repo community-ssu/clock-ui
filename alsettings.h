@@ -24,7 +24,7 @@ private slots:
     void on_buttonBox_2_clicked(QAbstractButton* button);
     void on_buttonBox_clicked(QAbstractButton* button);
     void orientationChanged();
-    void on_alsound_pushButton_pressed();
+    void on_soundButton_pressed();
     void on_snooze_pushButton_pressed();
 
 };

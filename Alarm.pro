@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     qpushlabel.cpp \
     qalarmpushbutton.cpp \
     qalarmlabel.cpp \
-    qnewalarmdialog.cpp
+    qnewalarmdialog.cpp \
+    qalarmsoundvaluebutton.cpp
 
 HEADERS  += mainwindow.h \
     filedelegate.h \
@@ -54,7 +55,8 @@ HEADERS  += mainwindow.h \
     qpushlabel.h \
     qalarmpushbutton.h \
     qalarmlabel.h \
-    qnewalarmdialog.h
+    qnewalarmdialog.h \
+    qalarmsoundvaluebutton.h
 
 FORMS    += mainwindow.ui \
     world.ui \
