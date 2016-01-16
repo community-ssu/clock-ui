@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QDBusConnection>
 #include <QTimer>
+#include <QMouseEvent>
 
 #include "utils.h"
 
@@ -22,7 +23,7 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
     QDialog(parent),
     label(new QLabel),
     button(new QPushButton()),
-    view(new QTreeView()),
+    view(new QAlarmTreeView()),
     model(new QStandardItemModel(0, 4, view))
 {
     setWindowTitle(_("cloc_ti_alarms"));
@@ -553,6 +554,13 @@ void QAlarmDialog::buttonClicked()
 
 void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
 {
+    if (!view->itemValid())
+    {
+        view->selectionModel()->clearSelection();
+
+        return;
+    }
+
     int row = modelIndex.row();
     bool disabled = model->item(row, 0)->data(AlarmEnabledRole).toBool();
     uint seconds = model->item(row, 1)->data(AlarmDateTimeRole).toInt();
@@ -578,4 +586,28 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
         QNewAlarmDialog(this, true, text, dt.time(), wday, disabled, cookie).exec();
 
     addAlarms();
+}
+
+void QAlarmTreeView::mousePressEvent(QMouseEvent *event)
+{
+    pressPos = event->pos();
+    valid = true;
+    QTreeView::mousePressEvent(event);
+}
+
+void QAlarmTreeView::mouseMoveEvent(QMouseEvent *event)
+{
+    QPoint pos = event->pos() - pressPos;
+
+    if (valid && sizeHintForRow(0) > 0 && abs(pos.x()) > sizeHintForRow(0))
+    {
+        selectionModel()->clearSelection();
+        valid = false;
+    }
+}
+
+void QAlarmTreeView::mouseReleaseEvent(QMouseEvent *event)
+{
+    QTreeView::mouseReleaseEvent(event);
+    selectionModel()->clearSelection();
 }
