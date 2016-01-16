@@ -1,8 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "osso-intl.h"
+#include <osso-intl.h>
 #include <time.h>
+#include <stdint.h>
 
 #include <QStringList>
 

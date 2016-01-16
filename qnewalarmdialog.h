@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QAbstractButton>
 
+#include <stdint.h>
+
 namespace Ui {
     class QNewAlarmDialog;
 }
