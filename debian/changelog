@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu2+thumb0) unstable; urgency=low
+
+  * Thumb2 compile
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 19:42:17 +0200
+
 clock-ui (0.7-0+0cssu2) unstable; urgency=low
 
   * fix wdgt_va_24h_time displayed instead of remaning time
