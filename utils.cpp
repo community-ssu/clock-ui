@@ -131,7 +131,7 @@ static QString formatAlarmTimeBanner(time_t tick)
         }
     }
 
-    strftime(buf, sizeof(buf), "wdgt_va_24h_time", &t);
+    _strftime(buf, sizeof(buf), "wdgt_va_24h_time", &t);
     s = g_strdup_printf(dgettext(NULL, cloc_notify_alarm_set), buf);
     rv = QString::fromUtf8(s);
     g_free(s);
