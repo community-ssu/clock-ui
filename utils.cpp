@@ -108,16 +108,18 @@ static QString formatAlarmTimeBanner(time_t tick)
         {
             int days = diff / SECONDS_PER_DAY;
             int hours = (diff % SECONDS_PER_DAY) / SECONDS_PER_HOUR;
+            const char *cloc_va_amount_day = "cloc_va_amount_day";
+            const char *cloc_va_amount_hour2 = "cloc_va_amount_hour2";
+            const char *cloc_notify_alarm_set_days =
+                    "cloc_notify_alarm_set_days";
 
-
-            d = g_strdup_printf(dngettext(NULL, "cloc_va_amount_day",
+            d = g_strdup_printf(dngettext(NULL, cloc_va_amount_day,
                                           "cloc_va_amount_days", days),
                                 days);
-            h = g_strdup_printf(dngettext(NULL, "cloc_va_amount_hour2",
+            h = g_strdup_printf(dngettext(NULL, cloc_va_amount_hour2,
                                           "cloc_va_amount_hours2", hours), d,
                                 hours);
-            s = g_strdup_printf(dgettext(NULL, "cloc_notify_alarm_set_days"),
-                                h);
+            s = g_strdup_printf(dgettext(NULL, cloc_notify_alarm_set_days), h);
             g_free(d);
             g_free(h);
 
