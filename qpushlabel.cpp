@@ -8,9 +8,13 @@ QPushLabel::QPushLabel(QWidget *parent) :
     emitClicked(false),
     pressed(false)
 {
+    QSize s(360, 164);
+
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    setMaximumSize(QSize(16777215, 16777215));
-    setAlignment(Qt::AlignCenter);
+    setAlignment(Qt::AlignHCenter | Qt::AlignTop);
+    setMargin(16);
+    setMinimumSize(s);
+    setMaximumSize(s);
 }
 
 void QPushLabel::mousePressEvent(QMouseEvent *ev)

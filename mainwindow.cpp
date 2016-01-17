@@ -35,16 +35,19 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(_("cloc_ap_name"));
 
     centralLayout = new QVBoxLayout(centralWidget());
-    centralLayout->setContentsMargins(0, 0, 0, 0);
+    centralLayout->setContentsMargins(0, 8, 0, 0);
     centralLayout->setSpacing(0);
 
     QHBoxLayout *hl = new QHBoxLayout;
     timeDateLabel = new QPushLabel;
+
     connect(timeDateLabel, SIGNAL(clicked()),
             this, SLOT(timeDateLabelClicked()));
+
     hl->addWidget(timeDateLabel);
 
     centralLayout->addLayout(hl);
+
     centralLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum,
                                   QSizePolicy::Expanding));
 
@@ -324,7 +327,7 @@ QString MainWindow::formatTimeDateMarkup(time_t tick) const
         else
             time = formatDateTime(tick, Time);
 
-        markup = "<p align=center style=font-size:70px;>" + time + "</p>";
+        markup = "<p align=center style=\"font-size:70px;margin-top:0px;margin-bottom:0px;\">" + time + "</p>";
     }
     else
     {
@@ -356,8 +359,8 @@ QString MainWindow::formatTimeDateMarkup(time_t tick) const
     }
 
      markup +=
-             "<p align=center style=font-size:medium;color:" +
-             QMaemo5Style::standardColor("SecondaryTextColor").name() + ";>" +
+             "<p align=center style=\"font-size:medium;margin-top:0px; margin-bottom:0px;color:" +
+             QMaemo5Style::standardColor("SecondaryTextColor").name() + ";\">" +
              formatDateTime(tick, FullDateLong) +
              "</p>";
 
