@@ -212,14 +212,16 @@ void QNewAlarmDialog::on_timeButton_selected(const QTime &time)
 
 void QNewAlarmDialog::on_dateButton_selected(const QDate &date)
 {
+    QDateTime pickedDateTime;
+
     dateChoosen = true;
     ui->checkBox->setEnabled(true);
     enabled = true;
     ui->checkBox->setChecked(enabled);
 
-    QDateTime pickedDateTime;
     pickedDateTime.setTime(ui->timeButton->currentTime());
     pickedDateTime.setDate(date);
+
     if (pickedDateTime < QDateTime::currentDateTime())
     {
         // in the past

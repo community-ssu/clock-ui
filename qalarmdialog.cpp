@@ -9,6 +9,7 @@
 #include <QDBusConnection>
 #include <QTimer>
 #include <QMouseEvent>
+#include <QCoreApplication>
 
 #include "utils.h"
 
@@ -573,17 +574,29 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
     {
         /* toggle enabled state */
         alarm_event_t *ae = alarmd_event_get(cookie);
+
         ae->flags &= ~ALARM_EVENT_DISABLED;
         ae->flags |= disabled ? ALARM_EVENT_DISABLED : 0;
-        alarmd_event_update(ae);
+        cookie = alarmd_event_update(ae);
+        alarm_event_delete(ae);
+        model->item(row, 0)->setData((qlonglong)cookie, AlarmCookieRole);
+
+        /* Make sure we've finished with all UI updates, looks ugly otherwise */
+        QCoreApplication::processEvents();
 
         if (!disabled)
+        {
+            ae = alarmd_event_get(cookie);
             showAlarmTimeBanner(ae->trigger);
-
-        alarm_event_delete(ae);
+            alarm_event_delete(ae);
+        }
     }
     else
-        QNewAlarmDialog(this, true, text, dt.time(), wday, disabled, cookie).exec();
+    {
+        QNewAlarmDialog d(this, true, text, dt.time(), wday, disabled, cookie);
+
+        d.exec();
+    }
 
     addAlarms();
 }
