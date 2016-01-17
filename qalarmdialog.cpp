@@ -150,17 +150,34 @@ QStandardItem *QAlarmDialog::alarmDaysItem(const alarm_event_t *ae)
     item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
     uint32_t wday = 0;
     QString days;
+    time_t tick = (ae->flags & ALARM_EVENT_DISABLED) ? -1 : ae->trigger;
 
     if (ae->recurrence_tab)
         wday = ae->recurrence_tab->mask_wday;
 
-    QStringList l = daysFromWday(wday);
+    if (wday || tick == -1)
+    {
+        QStringList l = daysFromWday(wday);
 
-    if (l.count() > 3)
-        days = QStringList(l.mid(0, 3)).join(", ") + "\n" +
-                QStringList(l.mid(3)).join(", ");
+        if (l.count() > 3)
+            days = QStringList(l.mid(0, 3)).join(", ") + "\n" +
+                    QStringList(l.mid(3)).join(", ");
+        else
+            days = l.join(", ");
+    }
     else
-        days = l.join(", ");
+    {
+        QDateTime date = QDateTime::fromTime_t(tick);
+        int daysRemain = QDateTime::currentDateTime().daysTo(date);
+
+        if (daysRemain == 1)
+            days = _("cloc_ti_start_tomorrow");
+        else if (daysRemain < 8)
+            days = QLocale().dayName(date.date().dayOfWeek(),
+                                     QLocale::ShortFormat);
+        else
+            days = formatDateTime(tick, Date);
+    }
 
     item->setData(wday, AlarmWdayRole);
     item->setText(days);
