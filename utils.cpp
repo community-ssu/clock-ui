@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QProcess>
+#include <QMaemo5InformationBox>
+#include <QCoreApplication>
 
 #include <glib.h>
 
@@ -143,9 +145,11 @@ out:
 void showAlarmTimeBanner(time_t tick)
 {
     /* FIXME */
-    QString notificationDuration = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
+    /*QString notificationDuration = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
                      /org/freedesktop/Notifications org.freedesktop.Notifications.SystemNoteInfoprint \
                      string:\"" + formatAlarmTimeBanner(tick) + "\"";
-    QProcess::startDetached(notificationDuration);
+    QProcess::startDetached(notificationDuration);*/
 
+    QMaemo5InformationBox::information(NULL, formatAlarmTimeBanner(tick));
+    QCoreApplication::processEvents();
 }
