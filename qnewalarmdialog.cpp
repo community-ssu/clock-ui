@@ -204,6 +204,7 @@ void QNewAlarmDialog::on_timeButton_selected(const QTime &time)
         else
         {
             ui->checkBox->setEnabled(true);
+            ui->checkBox->setChecked(true);
             ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
             ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
         }
