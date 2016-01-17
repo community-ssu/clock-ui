@@ -37,6 +37,7 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
     view->setModel(model);
     view->setColumnWidth(0, 64);
     view->setColumnWidth(1, 96);
+    view->setColumnWidth(2, 256);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setIconSize(QSize(48, 48));
@@ -133,7 +134,7 @@ QStandardItem *QAlarmDialog::alarmTitleItem(const alarm_event_t *ae)
     if(!s)
         s = alarm_event_get_title(ae);
 
-    QStandardItem *item = new QStandardItem(s);
+    QStandardItem *item = new QStandardItem(QString::fromUtf8(s));
 
     item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
