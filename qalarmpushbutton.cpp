@@ -66,7 +66,6 @@ void QAlarmPushButton::setLabelPosition(QAlarmPushButton::Position pos)
         label->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     }
 
-
     layout()->addWidget(button);
     layout()->addWidget(label);
 
