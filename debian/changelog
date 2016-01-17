@@ -1,3 +1,11 @@
+clock-ui (0.7-0+0cssu4) unstable; urgency=low
+
+  * make interaction in alarm dialog like in stock
+  * Make sure to use the correct cookie when displaying the remaining time
+  * use QMaemo5InformationBox instead of dbus-send to show remaining time banner
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 09:04:15 +0200
+
 clock-ui (0.7-0+0cssu3) unstable; urgency=low
 
   * fix alarm tone unable to be set.
