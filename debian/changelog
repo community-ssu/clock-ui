@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu4+thumb0) unstable; urgency=low
+
+  * Thumb2 compile
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 09:08:44 +0200
+
 clock-ui (0.7-0+0cssu4) unstable; urgency=low
 
   * make interaction in alarm dialog like in stock
