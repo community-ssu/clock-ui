@@ -253,8 +253,10 @@ void QAlarmDialog::addAlarms()
 
 void QAlarmDialog::buttonClicked()
 {
-    QNewAlarmDialog(this, false, "", QTime(), 0, true, 0).exec();
+    QNewAlarmDialog d(this, false, "", QTime::currentTime(), 0,
+                      true, 0);
 
+    d.exec();
     addAlarms();
 }
 

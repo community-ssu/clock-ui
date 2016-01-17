@@ -119,7 +119,7 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
         alarm_event_delete(ae);
     }
     else
-        nextDate = QDateTime::currentDateTime().addDays(1).toTime_t();
+        nextDate = QDateTime::currentDateTime().toTime_t();
 
     ui->dateButton->setCurrentDate(nextDate);
     ui->daysButton->setDays(wday);
