@@ -1,3 +1,15 @@
+clock-ui (0.7-0+0cssu5) unstable; urgency=low
+
+  * fix clock button size and alignment
+  * fix new alarms set time
+  * Show alarm date for non-recurring alarms as well
+  * fix a crash when trying to enable an alarm that is in the past
+  * Enable alarm on valid time selected
+  * Fix alarm title utf8 display.
+  * Fix title column width
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 15:19:41 +0200
+
 clock-ui (0.7-0+0cssu4+thumb0) unstable; urgency=low
 
   * Thumb2 compile
