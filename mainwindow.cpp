@@ -199,7 +199,8 @@ void MainWindow::worldclocksButtonClicked()
 
 void MainWindow::newAlarmButtonClicked()
 {
-    QNewAlarmDialog *al = new QNewAlarmDialog(this, false,"",QTime(), 0,true,0);
+    QNewAlarmDialog *al = new QNewAlarmDialog(this, false, "",
+                                              QTime::currentTime(), 0, true, 0);
     al->exec();
     delete al;
     alarmDialog->addAlarms();
