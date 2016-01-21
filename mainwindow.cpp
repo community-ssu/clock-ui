@@ -310,60 +310,13 @@ void MainWindow::openplugin(const QByteArray &plugin)
 
 QString MainWindow::formatTimeDateMarkup(time_t tick) const
 {
-    QString markup;
+    QString markup = formatTimeMarkup(tick, "70px", "medium", showSeconds);
 
-    if (GConfItem("/apps/clock/time-format").value().toBool())
-    {
-        QString time;
-
-        if (showSeconds)
-        {
-            char buf[256];
-            size_t len = 0;
-            const struct tm *t = localtime(&tick);
-
-            len = _strftime(buf, sizeof(buf), "wdgt_va_full_24h_time", t);
-            time = QString::fromUtf8(buf, len);
-        }
-        else
-            time = formatDateTime(tick, Time);
-
-        markup = "<p align=center style=\"font-size:70px;margin-top:0px;margin-bottom:0px;\">" + time + "</p>";
-    }
-    else
-    {
-        char buf[256];
-        size_t len = 0;
-        const struct tm *t = localtime(&tick);
-        QString tmp;
-
-        len = _strftime(buf, sizeof(buf), "wdgt_va_12h_hours", t);
-        tmp = QString::fromUtf8(buf, len) + ":";
-
-        if (showSeconds)
-            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes_seconds", t);
-        else
-            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes", t);
-
-        tmp += QString::fromUtf8(buf, len);
-        markup = "<p align=center style=font-size:70px;>" + tmp;
-
-        if (t->tm_hour > 11)
-            len = _strftime(buf, sizeof(buf), "wdgt_va_pm", t);
-        else
-            len = _strftime(buf, sizeof(buf), "wdgt_va_am", t);
-
-        markup +=
-                "<span style=font-size:medium;> " +
-                QString::fromUtf8(buf, len);
-        markup += "</span></p>";
-    }
-
-     markup +=
-             "<p align=center style=\"font-size:medium;margin-top:0px; margin-bottom:0px;color:" +
-             QMaemo5Style::standardColor("SecondaryTextColor").name() + ";\">" +
-             formatDateTime(tick, FullDateLong) +
-             "</p>";
+    markup +=
+            "<p align=center style=\"font-size:medium;margin-top:0px; margin-bottom:0px;color:" +
+            QMaemo5Style::standardColor("SecondaryTextColor").name() + ";\">" +
+            formatDateTime(tick, FullDateLong) +
+            "</p>";
 
      return markup;
 }
