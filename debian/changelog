@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu6) unstable; urgency=low
+
+  * Fix title column width
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Thu, 21 Jan 2016 17:28:25 +0200
+
 clock-ui (0.7-0+0cssu5+thumb0) unstable; urgency=low
 
   * Thumb2 compile

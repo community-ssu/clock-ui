@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QMouseEvent>
 #include <QCoreApplication>
+#include <QHeaderView>
 
 #include "utils.h"
 
@@ -37,7 +38,8 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
     view->setModel(model);
     view->setColumnWidth(0, 64);
     view->setColumnWidth(1, 96);
-    view->setColumnWidth(2, 256);
+    view->header()->setStretchLastSection(false);
+    view->header()->setResizeMode(2, QHeaderView::Stretch);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setIconSize(QSize(48, 48));
@@ -265,6 +267,8 @@ void QAlarmDialog::addAlarms()
     }
     else
         nextAlarmDate = _("cloc_ti_start_no");
+
+    view->resizeColumnToContents(3);
 
     emit nextAlarmChanged(QStringList() << nextAlarmDate << nextAlarmDay);
 }
