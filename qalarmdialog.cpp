@@ -37,9 +37,10 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
 
     view->setModel(model);
     view->setColumnWidth(0, 64);
-    view->setColumnWidth(1, 96);
     view->header()->setStretchLastSection(false);
+    view->header()->setResizeMode(1, QHeaderView::ResizeToContents);
     view->header()->setResizeMode(2, QHeaderView::Stretch);
+    view->header()->setResizeMode(3, QHeaderView::ResizeToContents);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setIconSize(QSize(48, 48));
@@ -267,8 +268,6 @@ void QAlarmDialog::addAlarms()
     }
     else
         nextAlarmDate = _("cloc_ti_start_no");
-
-    view->resizeColumnToContents(3);
 
     emit nextAlarmChanged(QStringList() << nextAlarmDate << nextAlarmDay);
 }

@@ -10,6 +10,11 @@
 
 #include <glib.h>
 
+bool is24HoursClock()
+{
+    return GConfItem("/apps/clock/time-format").value().toBool();
+}
+
 QString formatDateTime(const time_t tick, DateTime what)
 {
     char buf[256];
@@ -20,7 +25,7 @@ QString formatDateTime(const time_t tick, DateTime what)
     {
         case Time:
         {
-            if (GConfItem("/apps/clock/time-format").value().toBool())
+            if (is24HoursClock())
                 len = _strftime(buf, sizeof(buf), "wdgt_va_24h_time", t);
             else
             {
@@ -29,6 +34,21 @@ QString formatDateTime(const time_t tick, DateTime what)
                 else
                     len = _strftime(buf, sizeof(buf), "wdgt_va_12h_time_am", t);
             }
+
+            break;
+        }
+        case TimeSeconds:
+        {
+            len = _strftime(buf, sizeof(buf), "wdgt_va_full_24h_time", t);
+            break;
+        }
+        case amPm:
+        {
+            if (t->tm_hour > 11)
+                len = _strftime(buf, sizeof(buf), "wdgt_va_pm", t);
+            else
+                len = _strftime(buf, sizeof(buf), "wdgt_va_am", t);
+
             break;
         }
         case DayOfWeek:
@@ -144,12 +164,47 @@ out:
 
 void showAlarmTimeBanner(time_t tick)
 {
-    /* FIXME */
-    /*QString notificationDuration = "dbus-send --type=method_call --dest=org.freedesktop.Notifications \
-                     /org/freedesktop/Notifications org.freedesktop.Notifications.SystemNoteInfoprint \
-                     string:\"" + formatAlarmTimeBanner(tick) + "\"";
-    QProcess::startDetached(notificationDuration);*/
-
     QMaemo5InformationBox::information(NULL, formatAlarmTimeBanner(tick));
     QCoreApplication::processEvents();
+}
+
+QString formatTimeMarkup(time_t tick, const QString &timeSize,
+                         const QString &amPmSize, bool seconds)
+{
+    QString rv;
+
+    if (is24HoursClock())
+    {
+        QString time;
+
+        if (seconds)
+            time = formatDateTime(tick, TimeSeconds);
+        else
+            time = formatDateTime(tick, Time);
+
+        rv = "<p align=center style=\"font-size:" + timeSize +
+                ";margin-top:0px;margin-bottom:0px;\">" + time + "</p>";
+    }
+    else
+    {
+        char buf[256];
+        size_t len = 0;
+        const struct tm *t = localtime(&tick);
+        QString tmp;
+
+        len = _strftime(buf, sizeof(buf), "wdgt_va_12h_hours", t);
+        tmp = QString::fromUtf8(buf, len) + ":";
+
+        if (seconds)
+            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes_seconds", t);
+        else
+            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes", t);
+
+        tmp += QString::fromUtf8(buf, len);
+        rv = "<p align=center style=font-size:" + timeSize + ";>" + tmp;
+        rv += "<span style=font-size:" + amPmSize + ";> ";
+        rv += formatDateTime(tick, amPm) + "</span></p>";
+    }
+
+    return rv;
 }

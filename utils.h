@@ -9,6 +9,8 @@
 
 typedef enum {
     Time,
+    TimeSeconds,
+    amPm,
     DayOfWeek,
     Date,
     FullDateShort,
@@ -26,5 +28,9 @@ static inline size_t _strftime(char *s, size_t max, const char* format,
 {
     return strftime(s, max, dgettext("hildon-libs", format), t);
 }
+
+bool is24HoursClock();
+QString formatTimeMarkup(time_t tick, const QString &timeSize,
+                         const QString &amPmSize, bool seconds);
 
 #endif // UTILS_H
