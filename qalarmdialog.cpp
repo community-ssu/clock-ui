@@ -143,7 +143,7 @@ void QAlarmDialog::alarmTimeItem(const alarm_event_t *ae,
                                     "font-size:small;" + color, "right",
                                     false));
     /* needed so sorting to work */
-    item->setData(formatDateTime(tick, Time));
+    item->setData(QDateTime::fromTime_t(tick).time());
     item->setData((int)tick, AlarmDateTimeRole);
     view->setIndexWidget(item->index(), label);
 }
