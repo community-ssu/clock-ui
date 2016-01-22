@@ -325,36 +325,32 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
         /* toggle enabled state */
         alarm_event_t *ae = alarmd_event_get(cookie);
 
-        /* do not try to enable an alarm that is in the past */
         if (ae->flags & ALARM_EVENT_DISABLED &&
-                !ae->recurrence_tab &&
+                !wday &&
                 dt < QDateTime::currentDateTime())
         {
-            QNewAlarmDialog d(this, true, text, dt.time(), wday, false, cookie);
-
-            alarm_event_delete(ae);
-            d.exec();
+            ae->alarm_time = -1;
+            ae->alarm_tm.tm_hour = dt.time().hour();
+            ae->alarm_tm.tm_min = dt.time().minute();
         }
-        else
+
+        ae->flags &= ~ALARM_EVENT_DISABLED;
+        ae->flags |= disabled ? ALARM_EVENT_DISABLED : 0;
+        cookie = alarmd_event_update(ae);
+        alarm_event_delete(ae);
+        model->item(row, tickColumn)->
+                setData((qlonglong)cookie, AlarmCookieRole);
+
+        /* Make sure we've finished with all UI updates, looks ugly
+         * otherwise
+         */
+        QCoreApplication::processEvents();
+
+        if (!disabled)
         {
-            ae->flags &= ~ALARM_EVENT_DISABLED;
-            ae->flags |= disabled ? ALARM_EVENT_DISABLED : 0;
-            cookie = alarmd_event_update(ae);
+            ae = alarmd_event_get(cookie);
+            showAlarmTimeBanner(ae->trigger);
             alarm_event_delete(ae);
-            model->item(row, tickColumn)->
-                    setData((qlonglong)cookie, AlarmCookieRole);
-
-            /* Make sure we've finished with all UI updates, looks ugly
-             * otherwise
-             */
-            QCoreApplication::processEvents();
-
-            if (!disabled)
-            {
-                ae = alarmd_event_get(cookie);
-                showAlarmTimeBanner(ae->trigger);
-                alarm_event_delete(ae);
-            }
         }
     }
     else
