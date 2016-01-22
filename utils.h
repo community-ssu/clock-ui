@@ -9,7 +9,11 @@
 
 typedef enum {
     Time,
+    Hour12,
+    Time12,
     TimeSeconds,
+    Minutes,
+    MinutesSeconds,
     amPm,
     DayOfWeek,
     Date,
@@ -31,6 +35,7 @@ static inline size_t _strftime(char *s, size_t max, const char* format,
 
 bool is24HoursClock();
 QString formatTimeMarkup(time_t tick, const QString &timeSize,
-                         const QString &amPmSize, bool seconds);
+                         const QString &amPmSize, const QString &align,
+                         bool seconds);
 
 #endif // UTILS_H

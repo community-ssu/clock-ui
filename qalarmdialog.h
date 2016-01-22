@@ -6,6 +6,7 @@
 #include <QStandardItemModel>
 #include <QLabel>
 #include <QPushButton>
+#include <QStyledItemDelegate>
 
 #include <libalarm.h>
 
@@ -51,10 +52,12 @@ private:
     QStandardItemModel *model;
 
     time_t addAlarm(cookie_t cookie);
-    QStandardItem *alarmCheckboxItem(cookie_t cookie, const alarm_event_t *ae);
-    QStandardItem *alarmTimeItem(const alarm_event_t *ae);
-    QStandardItem *alarmTitleItem(const alarm_event_t *ae);
-    QStandardItem *alarmDaysItem(const alarm_event_t *ae);
+    QStandardItem *alarmCheckboxItem(cookie_t cookie,
+                                     const alarm_event_t *ae) const;
+    void alarmTimeItem(const alarm_event_t *ae, QStandardItem *item) const;
+    /*QStandardItem *alarmTimeAmPmItem(const alarm_event_t *ae) const;*/
+    QStandardItem *alarmTitleItem(const alarm_event_t *ae) const;
+    QStandardItem *alarmDaysItem(const alarm_event_t *ae) const;
 
 private Q_SLOTS:
     void buttonClicked();
