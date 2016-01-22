@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QStyledItemDelegate>
+#include <QMouseEvent>
 
 #include <libalarm.h>
 
@@ -32,6 +33,64 @@ protected:
     bool valid;
 };
 
+class QAlarmTimeLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    explicit QAlarmTimeLabel(QAlarmTreeView *view, QStandardItem *item,
+                             QWidget *parent = 0) :
+        QLabel(parent),
+        view(view),
+        item(item),
+        emitClicked(false),
+        pressed(false)
+    {
+    }
+Q_SIGNALS:
+    void clicked(const QModelIndex &modelIndex);
+
+protected:
+    QAlarmTreeView *view;
+    QStandardItem *item;
+    bool emitClicked;
+    bool pressed;
+
+    void mousePressEvent(QMouseEvent *ev)
+    {
+        if (ev->buttons() == Qt::LeftButton)
+            pressed = emitClicked = true;
+
+        QLabel::mousePressEvent(ev);
+    }
+    void mouseMoveEvent(QMouseEvent *ev)
+    {
+        if (pressed)
+        {
+            if (emitClicked && !rect().contains(ev->pos()))
+            {
+                emitClicked = false;
+                view->selectionModel()->clearSelection();
+            }
+            else if (!emitClicked && rect().contains(ev->pos()))
+                emitClicked = true;
+        }
+
+        QLabel::mouseMoveEvent(ev);
+    }
+    void mouseReleaseEvent(QMouseEvent *ev)
+    {
+        QLabel::mouseReleaseEvent(ev);
+        pressed = false;
+
+        if (emitClicked)
+        {
+            emitClicked = false;
+            view->selectionModel()->clearSelection();
+            Q_EMIT clicked(item->model()->indexFromItem(item));
+        }
+    }
+};
+
 class QAlarmDialog : public QDialog
 {
     Q_OBJECT
@@ -43,7 +102,6 @@ public Q_SLOTS:
     void addAlarms();
     void addAlarm(cookie_t cookie);
     void sort();
-
 Q_SIGNALS:
     void nextAlarmChanged(const QStringList &) const;
 

@@ -125,7 +125,7 @@ void QAlarmDialog::alarmTimeItem(const alarm_event_t *ae,
                                  QStandardItem *item) const
 {
     time_t tick = ae->snooze_total;
-    QLabel *label = new QLabel();
+    QAlarmTimeLabel *label = new QAlarmTimeLabel(view, item);
     QString color;
 
     label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
@@ -146,6 +146,8 @@ void QAlarmDialog::alarmTimeItem(const alarm_event_t *ae,
     item->setData(QDateTime::fromTime_t(tick).time());
     item->setData((int)tick, AlarmDateTimeRole);
     view->setIndexWidget(item->index(), label);
+    connect(label, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(viewClicked(QModelIndex)));
 }
 
 QStandardItem *QAlarmDialog::alarmTitleItem(const alarm_event_t *ae) const
@@ -406,10 +408,8 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
 
     if (newcookie != -1)
     {
-        setUpdatesEnabled(false);
         model->removeRow(row);
         addAlarm(newcookie);
-        setUpdatesEnabled(true);
     }
 }
 
