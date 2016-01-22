@@ -37,9 +37,29 @@ QString formatDateTime(const time_t tick, DateTime what)
 
             break;
         }
+        case Hour12:
+        {
+            len = _strftime(buf, sizeof(buf), "wdgt_va_12h_hours", t);
+            break;
+        }
+        case Time12:
+        {
+            return formatDateTime(tick, Hour12) + ":" +
+                    formatDateTime(tick, Minutes);
+        }
         case TimeSeconds:
         {
             len = _strftime(buf, sizeof(buf), "wdgt_va_full_24h_time", t);
+            break;
+        }
+        case Minutes:
+        {
+            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes", t);
+            break;
+        }
+        case MinutesSeconds:
+        {
+            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes_seconds", t);
             break;
         }
         case amPm:
@@ -169,7 +189,8 @@ void showAlarmTimeBanner(time_t tick)
 }
 
 QString formatTimeMarkup(time_t tick, const QString &timeSize,
-                         const QString &amPmSize, bool seconds)
+                         const QString &amPmSize, const QString &align,
+                         bool seconds)
 {
     QString rv;
 
@@ -182,27 +203,16 @@ QString formatTimeMarkup(time_t tick, const QString &timeSize,
         else
             time = formatDateTime(tick, Time);
 
-        rv = "<p align=center style=\"font-size:" + timeSize +
-                ";margin-top:0px;margin-bottom:0px;\">" + time + "</p>";
+        rv = "<p align=" + align + " style=" + timeSize +
+                "margin-top:0px;margin-bottom:0px;>" + time + "</p>";
     }
     else
     {
-        char buf[256];
-        size_t len = 0;
-        const struct tm *t = localtime(&tick);
-        QString tmp;
+        QString tmp = formatDateTime(tick, Hour12) + ":";
 
-        len = _strftime(buf, sizeof(buf), "wdgt_va_12h_hours", t);
-        tmp = QString::fromUtf8(buf, len) + ":";
-
-        if (seconds)
-            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes_seconds", t);
-        else
-            len = _strftime(buf, sizeof(buf), "wdgt_va_minutes", t);
-
-        tmp += QString::fromUtf8(buf, len);
-        rv = "<p align=center style=font-size:" + timeSize + ";>" + tmp;
-        rv += "<span style=font-size:" + amPmSize + ";> ";
+        tmp += formatDateTime(tick, seconds ? MinutesSeconds : Minutes);
+        rv = "<p align=" + align + " style=" + timeSize + ">" + tmp;
+        rv += "<span style=" + amPmSize + "> ";
         rv += formatDateTime(tick, amPm) + "</span></p>";
     }
 

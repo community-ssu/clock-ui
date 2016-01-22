@@ -21,12 +21,24 @@ enum {
     AlarmDateTimeRole
 };
 
+enum {
+    tickColumn,
+    timeColumn,
+    sepCol1,
+    titleColumn,
+    sepCol2,
+    daysColumn,
+    lastColumn
+};
+
+#define SEPARATOR_WIDTH 16
+
 QAlarmDialog::QAlarmDialog(QWidget *parent) :
     QDialog(parent),
     label(new QLabel),
     button(new QPushButton()),
     view(new QAlarmTreeView()),
-    model(new QStandardItemModel(0, 4, view))
+    model(new QStandardItemModel(0, lastColumn, view))
 {
     setWindowTitle(_("cloc_ti_alarms"));
     setAttribute(Qt::WA_Maemo5StackedWindow);
@@ -36,11 +48,13 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
     model->setSortRole(AlarmEnabledRole);
 
     view->setModel(model);
-    view->setColumnWidth(0, 64);
+    view->setColumnWidth(tickColumn, 64);
+    view->setColumnWidth(sepCol1, SEPARATOR_WIDTH);
+    view->setColumnWidth(sepCol2, SEPARATOR_WIDTH);
     view->header()->setStretchLastSection(false);
-    view->header()->setResizeMode(1, QHeaderView::ResizeToContents);
-    view->header()->setResizeMode(2, QHeaderView::Stretch);
-    view->header()->setResizeMode(3, QHeaderView::ResizeToContents);
+    view->header()->setResizeMode(timeColumn, QHeaderView::ResizeToContents);
+    view->header()->setResizeMode(titleColumn, QHeaderView::Stretch);
+    view->header()->setResizeMode(daysColumn, QHeaderView::ResizeToContents);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setIconSize(QSize(48, 48));
@@ -83,7 +97,7 @@ QAlarmDialog::QAlarmDialog(QWidget *parent) :
 }
 
 QStandardItem *QAlarmDialog::alarmCheckboxItem(cookie_t cookie,
-                                             const alarm_event_t *ae)
+                                             const alarm_event_t *ae) const
 {
     QStandardItem *item = new QStandardItem();
 
@@ -107,30 +121,34 @@ QStandardItem *QAlarmDialog::alarmCheckboxItem(cookie_t cookie,
     return item;
 }
 
-QStandardItem *QAlarmDialog::alarmTimeItem(const alarm_event_t *ae)
+void QAlarmDialog::alarmTimeItem(const alarm_event_t *ae,
+                                 QStandardItem *item) const
 {
-    QStandardItem *item = new QStandardItem();
     time_t tick = ae->snooze_total;
+    QLabel *label = new QLabel();
+    QString color;
+
+    label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     if (!tick)
         tick = ae->trigger;
 
-    item->setText(formatDateTime(tick, Time));
-    item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    item->setFont(QMaemo5Style::standardFont("LargeSystemFont"));
-
     if (ae->flags & ALARM_EVENT_DISABLED)
-        item->setData(QMaemo5Style::standardColor("SecondaryTextColor"),
-                      Qt::ForegroundRole);
+    {
+        color = "color:" +
+                QMaemo5Style::standardColor("SecondaryTextColor").name() + ";";
+    }
 
+    label->setText(formatTimeMarkup(tick, "font-size:x-large;" + color,
+                                    "font-size:small;" + color, "right",
+                                    false));
     /* needed so sorting to work */
-    item->setData(item->text());
+    item->setData(formatDateTime(tick, Time));
     item->setData((int)tick, AlarmDateTimeRole);
-
-    return item;
+    view->setIndexWidget(item->index(), label);
 }
 
-QStandardItem *QAlarmDialog::alarmTitleItem(const alarm_event_t *ae)
+QStandardItem *QAlarmDialog::alarmTitleItem(const alarm_event_t *ae) const
 {
     const char *s = alarm_event_get_message(ae);
 
@@ -148,7 +166,7 @@ QStandardItem *QAlarmDialog::alarmTitleItem(const alarm_event_t *ae)
     return item;
 }
 
-QStandardItem *QAlarmDialog::alarmDaysItem(const alarm_event_t *ae)
+QStandardItem *QAlarmDialog::alarmDaysItem(const alarm_event_t *ae) const
 {
     QStandardItem *item = new QStandardItem();
     item->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -200,15 +218,18 @@ time_t QAlarmDialog::addAlarm(cookie_t cookie)
     QList<QStandardItem *> row;
     alarm_event_t *ae = alarmd_event_get(cookie);
     time_t tick = (ae->flags & ALARM_EVENT_DISABLED) ? -1 : ae->trigger;
+    QStandardItem *item = new QStandardItem;
 
     row << alarmCheckboxItem(cookie, ae)
-        << alarmTimeItem(ae)
+        << item
+        << new QStandardItem
         << alarmTitleItem(ae)
+        << new QStandardItem
         << alarmDaysItem(ae);
 
-    alarm_event_delete(ae);
-
     model->appendRow(row);
+    alarmTimeItem(ae, item);
+    alarm_event_delete(ae);
 
     return tick;
 }
@@ -246,8 +267,8 @@ void QAlarmDialog::addAlarms()
     free(list);
 
     /* need to sort in reverse order :) */
-    model->sort(1);
-    model->sort(0, Qt::DescendingOrder);
+    model->sort(timeColumn);
+    model->sort(tickColumn, Qt::DescendingOrder);
 
     if (next != -1)
     {
@@ -291,14 +312,15 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
     }
 
     int row = modelIndex.row();
-    bool disabled = model->item(row, 0)->data(AlarmEnabledRole).toBool();
-    uint seconds = model->item(row, 1)->data(AlarmDateTimeRole).toInt();
+    bool disabled =
+            model->item(row, tickColumn)->data(AlarmEnabledRole).toBool();
+    uint seconds = model->item(row, timeColumn)->data(AlarmDateTimeRole).toInt();
     QDateTime dt = QDateTime::fromTime_t(seconds);
-    uint32_t wday = model->item(row, 3)->data(AlarmWdayRole).toUInt();
-    QString text = model->item(row, 2)->text();
-    cookie_t cookie = model->item(row, 0)->data(AlarmCookieRole).toLongLong();
+    uint32_t wday = model->item(row, daysColumn)->data(AlarmWdayRole).toUInt();
+    QString text = model->item(row, titleColumn)->text();
+    cookie_t cookie = model->item(row, tickColumn)->data(AlarmCookieRole).toLongLong();
 
-    if (modelIndex.column() == 0)
+    if (modelIndex.column() == tickColumn)
     {
         /* toggle enabled state */
         alarm_event_t *ae = alarmd_event_get(cookie);
@@ -319,7 +341,8 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
             ae->flags |= disabled ? ALARM_EVENT_DISABLED : 0;
             cookie = alarmd_event_update(ae);
             alarm_event_delete(ae);
-            model->item(row, 0)->setData((qlonglong)cookie, AlarmCookieRole);
+            model->item(row, tickColumn)->
+                    setData((qlonglong)cookie, AlarmCookieRole);
 
             /* Make sure we've finished with all UI updates, looks ugly
              * otherwise

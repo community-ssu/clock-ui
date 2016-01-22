@@ -310,7 +310,9 @@ void MainWindow::openplugin(const QByteArray &plugin)
 
 QString MainWindow::formatTimeDateMarkup(time_t tick) const
 {
-    QString markup = formatTimeMarkup(tick, "70px", "medium", showSeconds);
+    QString markup = formatTimeMarkup(tick, "font-size:70px;",
+                                      "font-size:medium;", "center",
+                                      showSeconds);
 
     markup +=
             "<p align=center style=\"font-size:medium;margin-top:0px; margin-bottom:0px;color:" +
