@@ -44,8 +44,8 @@ private slots:
     void on_portraitButtonBox_clicked(QAbstractButton* button);
     void orientationChanged();
     void on_landscapeButtonBox_clicked(QAbstractButton* button);
-    void on_timeButton_selected(const QTime &time);
-    void on_dateButton_selected(const QDate &date);
+    void timeChanged(const QTime &time);
+    void dateChanged(const QDate &date);
     void on_daysButton_selected(uint32_t days);
     void on_soundButton_pressed();
 protected:
