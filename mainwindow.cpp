@@ -186,7 +186,6 @@ void MainWindow::nextAlarmChanged(const QStringList &date)
 void MainWindow::alarmsButtonClicked()
 {
     alarmDialog->exec();
-    alarmDialog->addAlarms();
 }
 
 void MainWindow::worldclocksButtonClicked()
@@ -201,11 +200,10 @@ void MainWindow::newAlarmButtonClicked()
 {
     QNewAlarmDialog *al = new QNewAlarmDialog(this, false, "",
                                               QTime::currentTime(), 0, true, 0);
-    al->exec();
+    if (al->exec() == QDialog::Accepted)
+        alarmDialog->addAlarm(al->realcookie);
+
     delete al;
-    alarmDialog->addAlarms();
-    QApplication::processEvents();
-    alarmDialog->addAlarms();
 }
 
 void MainWindow::timeDateLabelClicked()

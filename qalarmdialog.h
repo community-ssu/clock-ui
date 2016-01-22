@@ -41,9 +41,11 @@ public:
 
 public Q_SLOTS:
     void addAlarms();
+    void addAlarm(cookie_t cookie);
+    void sort();
 
 Q_SIGNALS:
-    void nextAlarmChanged(const QStringList &);
+    void nextAlarmChanged(const QStringList &) const;
 
 private:
     QLabel *label;
@@ -51,17 +53,18 @@ private:
     QAlarmTreeView* view;
     QStandardItemModel *model;
 
-    time_t addAlarm(cookie_t cookie);
     QStandardItem *alarmCheckboxItem(cookie_t cookie,
                                      const alarm_event_t *ae) const;
     void alarmTimeItem(const alarm_event_t *ae, QStandardItem *item) const;
-    /*QStandardItem *alarmTimeAmPmItem(const alarm_event_t *ae) const;*/
     QStandardItem *alarmTitleItem(const alarm_event_t *ae) const;
     QStandardItem *alarmDaysItem(const alarm_event_t *ae) const;
+    time_t _addAlarm(cookie_t cookie);
+    void signalNextAlarm();
 
 private Q_SLOTS:
     void buttonClicked();
     void viewClicked(const QModelIndex & modelIndex);
+    void getNextAlarm() const;
 };
 
 #endif // ALARMLIST_H

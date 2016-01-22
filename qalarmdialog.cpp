@@ -213,7 +213,7 @@ QStandardItem *QAlarmDialog::alarmDaysItem(const alarm_event_t *ae) const
 }
 
 /* return alarm trigger time */
-time_t QAlarmDialog::addAlarm(cookie_t cookie)
+time_t QAlarmDialog::_addAlarm(cookie_t cookie)
 {
     QList<QStandardItem *> row;
     alarm_event_t *ae = alarmd_event_get(cookie);
@@ -234,15 +234,42 @@ time_t QAlarmDialog::addAlarm(cookie_t cookie)
     return tick;
 }
 
+void QAlarmDialog::sort()
+{
+    /* need to sort in reverse order :) */
+    model->sort(timeColumn);
+    model->sort(tickColumn, Qt::DescendingOrder);
+}
+
 void QAlarmDialog::addAlarms()
+{
+    cookie_t *list, *iter;
+
+    model->removeRows(0, model->rowCount());
+    /* get them */
+    list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
+
+    for (iter = list; *iter != (cookie_t) 0; iter ++)
+        _addAlarm(*iter);
+
+    free(list);
+    sort();
+
+    signalNextAlarm();
+}
+
+void QAlarmDialog::signalNextAlarm()
+{
+    QTimer::singleShot(0, this, SLOT(getNextAlarm()));
+}
+
+void QAlarmDialog::getNextAlarm() const
 {
     cookie_t *list, *iter;
     time_t next = -1;
     QString nextAlarmDate;
     QString nextAlarmDay;
 
-    model->removeRows(0, model->rowCount());
-    /* get them */
     list = alarmd_event_query(0, 0, 0, 0, "worldclock_alarmd_id");
 
     if (*list)
@@ -258,17 +285,17 @@ void QAlarmDialog::addAlarms()
 
     for (iter = list; *iter != (cookie_t) 0; iter ++)
     {
-        time_t t = addAlarm(*iter);
+        time_t t;
+
+        alarm_event_t *ae = alarmd_event_get(*iter);
+        t = (ae->flags & ALARM_EVENT_DISABLED) ? -1 : ae->trigger;
+        alarm_event_delete(ae);
 
         if (t != -1 && (t < next || next == -1))
             next = t;
     }
 
     free(list);
-
-    /* need to sort in reverse order :) */
-    model->sort(timeColumn);
-    model->sort(tickColumn, Qt::DescendingOrder);
 
     if (next != -1)
     {
@@ -293,6 +320,13 @@ void QAlarmDialog::addAlarms()
     emit nextAlarmChanged(QStringList() << nextAlarmDate << nextAlarmDay);
 }
 
+void QAlarmDialog::addAlarm(cookie_t cookie)
+{
+    _addAlarm(cookie);
+    sort();
+    signalNextAlarm();
+}
+
 void QAlarmDialog::buttonClicked()
 {
     QNewAlarmDialog d(this, false, "", QTime::currentTime(), 0,
@@ -314,11 +348,14 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
     int row = modelIndex.row();
     bool disabled =
             model->item(row, tickColumn)->data(AlarmEnabledRole).toBool();
-    uint seconds = model->item(row, timeColumn)->data(AlarmDateTimeRole).toInt();
+    uint seconds =
+            model->item(row, timeColumn)->data(AlarmDateTimeRole).toInt();
     QDateTime dt = QDateTime::fromTime_t(seconds);
     uint32_t wday = model->item(row, daysColumn)->data(AlarmWdayRole).toUInt();
     QString text = model->item(row, titleColumn)->text();
-    cookie_t cookie = model->item(row, tickColumn)->data(AlarmCookieRole).toLongLong();
+    cookie_t cookie =
+            model->item(row, tickColumn)->data(AlarmCookieRole).toLongLong();
+    cookie_t newcookie = -1;
 
     if (modelIndex.column() == tickColumn)
     {
@@ -336,19 +373,12 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
 
         ae->flags &= ~ALARM_EVENT_DISABLED;
         ae->flags |= disabled ? ALARM_EVENT_DISABLED : 0;
-        cookie = alarmd_event_update(ae);
+        newcookie = alarmd_event_update(ae);
         alarm_event_delete(ae);
-        model->item(row, tickColumn)->
-                setData((qlonglong)cookie, AlarmCookieRole);
-
-        /* Make sure we've finished with all UI updates, looks ugly
-         * otherwise
-         */
-        QCoreApplication::processEvents();
 
         if (!disabled)
         {
-            ae = alarmd_event_get(cookie);
+            ae = alarmd_event_get(newcookie);
             showAlarmTimeBanner(ae->trigger);
             alarm_event_delete(ae);
         }
@@ -357,10 +387,30 @@ void QAlarmDialog::viewClicked(const QModelIndex &modelIndex)
     {
         QNewAlarmDialog d(this, true, text, dt.time(), wday, disabled, cookie);
 
-        d.exec();
+        if (d.exec() == QDialog::Accepted)
+        {
+            newcookie = d.realcookie;
+
+            if (newcookie == -1)
+            {
+                /* deleted */
+                setUpdatesEnabled(false);
+                model->removeRow(row);
+                sort();
+                signalNextAlarm();
+                setUpdatesEnabled(true);
+            }
+
+        }
     }
 
-    addAlarms();
+    if (newcookie != -1)
+    {
+        setUpdatesEnabled(false);
+        model->removeRow(row);
+        addAlarm(newcookie);
+        setUpdatesEnabled(true);
+    }
 }
 
 void QAlarmTreeView::mousePressEvent(QMouseEvent *event)

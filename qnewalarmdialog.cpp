@@ -306,6 +306,7 @@ void QNewAlarmDialog::on_landscapeButtonBox_clicked(QAbstractButton* button)
 	// really remove alarm
         deleted = 1;
         removeAlarm(realcookie);
+        realcookie = -1;
     }
     else
     {
