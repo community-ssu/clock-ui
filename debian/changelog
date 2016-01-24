@@ -1,20 +1,8 @@
-clock-ui (0.7-0+0cssu6+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Thu, 21 Jan 2016 17:33:42 +0200
-
 clock-ui (0.7-0+0cssu6) unstable; urgency=low
 
   * Fix title column width
 
  -- Ivaylo Dimitrov <freemangordon@abv.bg>  Thu, 21 Jan 2016 17:28:25 +0200
-
-clock-ui (0.7-0+0cssu5+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 15:24:22 +0200
 
 clock-ui (0.7-0+0cssu5) unstable; urgency=low
 
@@ -28,12 +16,6 @@ clock-ui (0.7-0+0cssu5) unstable; urgency=low
 
  -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 15:19:41 +0200
 
-clock-ui (0.7-0+0cssu4+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 09:08:44 +0200
-
 clock-ui (0.7-0+0cssu4) unstable; urgency=low
 
   * make interaction in alarm dialog like in stock
@@ -42,12 +24,6 @@ clock-ui (0.7-0+0cssu4) unstable; urgency=low
 
  -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 17 Jan 2016 09:04:15 +0200
 
-clock-ui (0.7-0+0cssu3+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 21:01:55 +0200
-
 clock-ui (0.7-0+0cssu3) unstable; urgency=low
 
   * fix alarm tone unable to be set.
@@ -55,23 +31,11 @@ clock-ui (0.7-0+0cssu3) unstable; urgency=low
 
  -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 20:59:53 +0200
 
-clock-ui (0.7-0+0cssu2+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 19:42:17 +0200
-
 clock-ui (0.7-0+0cssu2) unstable; urgency=low
 
   * fix wdgt_va_24h_time displayed instead of remaning time
 
  -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 19:39:44 +0200
-
-clock-ui (0.7-0+0cssu1+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sat, 16 Jan 2016 19:33:12 +0200
 
 clock-ui (0.7-0+0cssu1) unstable; urgency=low
 
@@ -87,12 +51,6 @@ clock-ui (0.6-1+0cssu7) unstable; urgency=low
 
  -- Ivaylo Dimitrov <freemangordon@abv.bg>  Thu, 30 Apr 2015 19:55:11 +0300
 
-clock-ui (0.6-1+0cssu6+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Mon, 29 Dec 2014 17:10:37 +0200
-
 clock-ui (0.6-1+0cssu6) unstable; urgency=low
 
   * alarm with date shows original alarm time after snooze
@@ -101,24 +59,12 @@ clock-ui (0.6-1+0cssu6) unstable; urgency=low
 
  -- Arno Dekker <adekker@gmail.com>  Wen, 24 Apr 2014 10:05:30 +0200
 
-clock-ui (0.6-1+0cssu5+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Mon, 21 Apr 2014 19:48:21 +0200
-
 clock-ui (0.6-1+0cssu5) unstable; urgency=low
 
   * changed the order in alarmlist refresh to prevent issues with next alarm
     display when the clock is turned back within worldclock
 
  -- Arno Dekker <adekker@gmail.com>  Wen, 8 Jan 2014 21:05:32 +0000
-
-clock-ui (0.6-1+0cssu4+thumb0) unstable; urgency=low
-
-  * Thumb2 compile
-
- -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 29 Dec 2013 19:26:33 +0200
 
 clock-ui (0.6-1+0cssu4) unstable; urgency=low
 
