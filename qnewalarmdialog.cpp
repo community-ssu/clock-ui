@@ -50,13 +50,10 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
 
     if (edit)
     {
-        this->setWindowTitle(_("cloc_ti_edit_alarm_title"));
+        setWindowTitle(_("cloc_ti_edit_alarm_title"));
         // we need to find it's current alarm tone
-        alarm_event_t *eve = 0;
-        eve = alarmd_event_get(realcookie);
-        QString aSnd;
-
-        aSnd = QString::fromUtf8(eve->sound);
+        alarm_event_t *eve = alarmd_event_get(realcookie);
+        QString aSnd = QString::fromUtf8(eve->sound);
 
         if (!aSnd.isEmpty()) // a tone is set
         {
@@ -73,7 +70,7 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
         sndFile = aSnd;
     }
     else
-        this->setWindowTitle(_("clock_ti_new_alarm"));
+        setWindowTitle(_("clock_ti_new_alarm"));
 
     ui->titleEdit->setPlaceholderText(_("cloc_va_placeholder_title"));
     ui->daysButton->setDays(wday);
