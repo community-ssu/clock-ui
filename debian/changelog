@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu7+thumb0) unstable; urgency=low
+
+  * Thumb2 compile
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 24 Jan 2016 13:43:22 +0200
+
 clock-ui (0.7-0+0cssu7) unstable; urgency=low
 
   * Preset new alarms time one minute from now.
