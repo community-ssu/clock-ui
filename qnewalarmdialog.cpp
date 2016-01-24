@@ -182,7 +182,7 @@ void QNewAlarmDialog::orientationChanged()
 void QNewAlarmDialog::timeChanged(const QTime &time)
 {
     // The long date string
-    if (!dateChoosen && wday)
+    if (!dateChoosen)
     {
         // show if the alarm is still today or else tomorrow
         time_t date;
