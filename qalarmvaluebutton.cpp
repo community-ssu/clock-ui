@@ -3,6 +3,8 @@
 #include <QMaemo5Style>
 #include <QStylePainter>
 
+#include <QDebug>
+
 QAlarmValueButton::QAlarmValueButton(QWidget *parent) :
     QMaemo5ValueButton(parent)
 {
@@ -19,25 +21,35 @@ void QAlarmValueButton::paintEvent(QPaintEvent *e)
     initStyleOption(&button);
     p.drawControl(QStyle::CE_PushButtonBevel, button);
 
+    /* Contents */
     QStyleOptionMaemo5ValueButton option;
     initStyleOption(&option);
-    option.styles =
-            QStyleOptionMaemo5ValueButton::ValueBesideText |
-            QStyleOptionMaemo5ValueButton::PickButton;
 
-    /* Contents */
+    option.styles = valueLayout() == ValueBesideText ?
+                QStyleOptionMaemo5ValueButton::ValueBesideText :
+                QStyleOptionMaemo5ValueButton::ValueUnderText;
+    option.styles |= QStyleOptionMaemo5ValueButton::PickButton;
+
     QRect r = style()->subElementRect(QStyle::SE_PushButtonContents, &button,
                                       this);
-    /* text */
-    r.moveLeft(20); /* why 20? nobody knows */
-    option.rect = r;
-    option.value = QString();
-    p.drawControl(QStyle::CE_PushButtonLabel, option);
+    r.setLeft(20); /* why 20? nobody knows */
 
-    /* valueText */
-    r.moveLeft(170);
     option.rect = r;
-    option.value = valueText();;
-    option.text = QString();
+
+    if (valueLayout() == ValueBesideText)
+    {
+        /* text */
+        option.value = QString();
+        p.drawControl(QStyle::CE_PushButtonLabel, option);
+
+        /* valueText */
+        r.setLeft(170);
+        option.rect = r;
+        option.value = valueText();
+        option.text = QString();
+    }
+    else
+        option.value = valueText();
+
     p.drawControl(QStyle::CE_PushButtonLabel, option);
 }

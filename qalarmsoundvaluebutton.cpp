@@ -8,7 +8,7 @@ QAlarmSoundValueButton::QAlarmSoundValueButton(QWidget *parent) :
     QAlarmValueButton(parent),
     standard(false)
 {
-    /* setText(_("cloc_ti_alarm_notification_title")); */
+    setValueLayout(QMaemo5ValueButton::ValueUnderText);
     setText(_("dati_fi_alarm_tone"));
 }
 

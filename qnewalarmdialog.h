@@ -22,6 +22,7 @@ public:
                       uint32_t wday = 0,
                       bool Acheck = false, long Acook = 0, bool show = true);
     ~QNewAlarmDialog();
+    void shrink();
     bool isEditing;
     long realcookie;
     bool enabled;
@@ -40,6 +41,8 @@ public Q_SLOTS:
 protected Q_SLOTS:
     void timeout();
     void enableSave(bool enable);
+    bool enableSaveIfDateInFuture();
+    bool alarmDateInFuture();
 
 private slots:
     void on_portraitButtonBox_clicked(QAbstractButton* button);
@@ -47,7 +50,7 @@ private slots:
     void on_landscapeButtonBox_clicked(QAbstractButton* button);
     void timeChanged(const QTime &time);
     void dateChanged(const QDate &date);
-    void on_daysButton_selected(uint32_t days);
+    void daysChanged(uint32_t days);
     void on_soundButton_pressed();
 protected:
     QTimer timer;
