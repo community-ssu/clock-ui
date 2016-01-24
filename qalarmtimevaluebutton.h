@@ -13,9 +13,9 @@ public:
         return selector->currentTime();
     }
     void setCurrentTime(const QTime &time) {
-        selector->blockSignals(true);
+        blockSignals(true);
         selector->setCurrentTime(time);
-        selector->blockSignals(false);
+        blockSignals(false);
     }
 
 Q_SIGNALS:

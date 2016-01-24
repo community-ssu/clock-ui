@@ -13,14 +13,14 @@ public:
         return selector->currentDate();
     }
     void setCurrentDate(const QDate &date) {
-        selector->blockSignals(true);
+        blockSignals(true);
         selector->setCurrentDate(date);
-        selector->blockSignals(false);
+        blockSignals(false);
     }
     void setCurrentDate(time_t tick) {
-        selector->blockSignals(true);
+        blockSignals(true);
         selector->setCurrentDate(QDateTime::fromTime_t(tick).date());
-        selector->blockSignals(false);
+        blockSignals(false);
     }
 
 Q_SIGNALS:
