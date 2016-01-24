@@ -39,6 +39,7 @@ public Q_SLOTS:
     void addAlarm();
 protected Q_SLOTS:
     void timeout();
+    void enableSave(bool enable);
 
 private slots:
     void on_portraitButtonBox_clicked(QAbstractButton* button);

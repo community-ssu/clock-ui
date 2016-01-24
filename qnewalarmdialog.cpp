@@ -110,13 +110,9 @@ QNewAlarmDialog::QNewAlarmDialog(QWidget *parent, bool edit, QString Aname,
         else
             nextDate = QDateTime::currentDateTime().toTime_t();
 
+        /* we can't enable an alarm that is in the past */
         if (nextDate < (time_t)QDateTime::currentDateTime().toTime_t())
-        {
-            /* we can't enable an alarm that is in the past */
-            ui->checkBox->setEnabled(false);
-            ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-            ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-        }
+            enableSave(false);
 
         alarm_event_delete(ae);
     }
@@ -208,16 +204,12 @@ void QNewAlarmDialog::timeChanged(const QTime &time)
         if (pickedDate < QDateTime::currentDateTime())
         {
             // in the past
-            ui->checkBox->setEnabled(false);
-            ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-            ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+            enableSave(false);
         }
         else
         {
-            ui->checkBox->setEnabled(true);
             ui->checkBox->setChecked(true);
-            ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-            ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+            enableSave(true);
         }
     }
 }
@@ -235,18 +227,9 @@ void QNewAlarmDialog::dateChanged(const QDate &date)
     pickedDateTime.setDate(date);
 
     if (pickedDateTime < QDateTime::currentDateTime())
-    {
-        // in the past
-        ui->checkBox->setEnabled(false);
-        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-    }
+        enableSave(false);
     else
-    {
-        ui->checkBox->setEnabled(true);
-        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-    }
+        enableSave(true);
 }
 
 void QNewAlarmDialog::on_daysButton_selected(uint32_t days)
@@ -257,10 +240,9 @@ void QNewAlarmDialog::on_daysButton_selected(uint32_t days)
     {
         timer.stop();
         // a repeating alarm; "active checkbox" and "done" can always be enabled
-        ui->checkBox->setEnabled(true);
-        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
-        if ( !ui->dateButton->isHidden() )
+        enableSave(true);
+
+        if (!ui->dateButton->isHidden())
         {
             ui->dateButton->hide();
             this->setMinimumHeight(this->height() - 75);
@@ -465,9 +447,12 @@ void QNewAlarmDialog::timeout()
 
     /* give it 5 seconds, just in case */
     if (QDateTime(date, time) < QDateTime::currentDateTime().addSecs(5))
-    {
-        ui->checkBox->setEnabled(false);
-        ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-        ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-    }
+        enableSave(false);
+}
+
+void QNewAlarmDialog::enableSave(bool enable)
+{
+    ui->checkBox->setEnabled(enable);
+    ui->landscapeButtonBox->button(QDialogButtonBox::Apply)->setEnabled(enable);
+    ui->portraitButtonBox->button(QDialogButtonBox::Apply)->setEnabled(enable);
 }
