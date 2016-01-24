@@ -331,7 +331,7 @@ void QAlarmDialog::addAlarm(cookie_t cookie)
 
 void QAlarmDialog::buttonClicked()
 {
-    QNewAlarmDialog d(this, false, "", QTime::currentTime(), 0,
+    QNewAlarmDialog d(this, false, "", QTime::currentTime().addSecs(60), 0,
                       true, 0);
 
     d.exec();

@@ -1,7 +1,6 @@
 #include "qpushlabel.h"
 
 #include <QMouseEvent>
-#include <QDebug>
 
 QPushLabel::QPushLabel(QWidget *parent) :
     QLabel(parent),

@@ -8,8 +8,6 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-#include <QDebug>
-
 #define CHECK_COLUMN 2
 
 QMaemo5DaysPickSelector::QMaemo5DaysPickSelector(QObject *parent) :

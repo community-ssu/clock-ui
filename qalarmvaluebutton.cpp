@@ -3,8 +3,6 @@
 #include <QMaemo5Style>
 #include <QStylePainter>
 
-#include <QDebug>
-
 QAlarmValueButton::QAlarmValueButton(QWidget *parent) :
     QMaemo5ValueButton(parent)
 {

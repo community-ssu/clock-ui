@@ -199,7 +199,8 @@ void MainWindow::worldclocksButtonClicked()
 void MainWindow::newAlarmButtonClicked()
 {
     QNewAlarmDialog *al = new QNewAlarmDialog(this, false, "",
-                                              QTime::currentTime(), 0, true, 0);
+                                              QTime::currentTime().addSecs(60),
+                                              0, true, 0);
     if (al->exec() == QDialog::Accepted)
         alarmDialog->addAlarm(al->realcookie);
 

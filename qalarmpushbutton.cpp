@@ -1,5 +1,4 @@
 #include "qalarmpushbutton.h"
-#include <QDebug>
 #include <QLayout>
 
 QAlarmPushButton::QAlarmPushButton(const QString &title, QWidget *parent) :

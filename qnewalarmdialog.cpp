@@ -358,7 +358,6 @@ void QNewAlarmDialog::addAlarm()
     }
     else
     {
-        //qDebug("Using the new recurrence API");
         event->recur_count = -1;
         event->recur_secs = 0; // We re not using this way for recurrence
         alarm_recur_t* recur = alarm_event_add_recurrences(event, 1);
