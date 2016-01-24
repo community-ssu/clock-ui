@@ -13,13 +13,17 @@ public:
         return selector->currentTime();
     }
     void setCurrentTime(const QTime &time) {
+        selector->blockSignals(true);
         selector->setCurrentTime(time);
+        selector->blockSignals(false);
     }
 
 Q_SIGNALS:
     void selected(const QTime &time);
+
 public Q_SLOTS:
     void timeSelected(QString);
+
 protected:
     QMaemo5TimePickSelector *selector;
 };
