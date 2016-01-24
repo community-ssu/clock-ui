@@ -1,5 +1,6 @@
 clock-ui (0.7-0+0cssu7) unstable; urgency=low
 
+  * Preset new alarms time one minute from now.
   * various UI fixes
   * Set alarm day to the nearest date no matter recurrence or not
   * Do not redraw the entire list on change, just what is needed.
