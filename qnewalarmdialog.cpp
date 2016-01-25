@@ -335,22 +335,20 @@ void QNewAlarmDialog::addAlarm()
     QDateTime alarmDate;
     alarmDate.setTime(ui->timeButton->currentTime());
 
-    if ( ! ui->dateButton->isHidden() && (dateChoosen || !wday) )
+    if (!wday)
     {
-
-        alarmDate.setDate(ui->dateButton->currentDate());
-        event->alarm_time = alarmDate.toTime_t();
-        event->alarm_tm.tm_hour = -1;
-        event->alarm_tm.tm_min = -1;
-    }
-
-    event->alarm_time = alarmDate.toTime_t(); //needed? looks like it...
-
-    if( !wday ) {
-        if (! dateChoosen) {
+        if (!alarmDateInFuture())
+        {
             event->alarm_time = -1;
             event->alarm_tm.tm_hour = alarmDate.time().hour();
             event->alarm_tm.tm_min = alarmDate.time().minute();
+        }
+        else
+        {
+            alarmDate.setDate(ui->dateButton->currentDate());
+            event->alarm_time = alarmDate.toTime_t();
+            event->alarm_tm.tm_hour = -1;
+            event->alarm_tm.tm_min = -1;
         }
     }
     else
