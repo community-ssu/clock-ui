@@ -1,3 +1,9 @@
+clock-ui (0.7-0+0cssu9) unstable; urgency=low
+
+  * Remove dependency on thumb kernel fix
+
+ -- Ivaylo Dimitrov <freemangordon@abv.bg>  Sun, 15 Oct 2017 17:20:13 -0400
+
 clock-ui (0.7-0+0cssu8) unstable; urgency=low
 
   * Update date and time display on alarm time/date changed
